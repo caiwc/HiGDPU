@@ -10,5 +10,6 @@ import scrapy
 
 class WeixinScrapyItem(scrapy.Item):
     # define the fields for your item here like:
-    # name = scrapy.Field()
+    title = scrapy.Field()
+    html_content = scrapy.Field()
     pass
