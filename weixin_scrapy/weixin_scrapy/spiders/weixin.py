@@ -2,10 +2,13 @@
 import scrapy
 from scrapy.http import Request
 from weixin_scrapy import settings
+from weixin_scrapy.items import WeixinScrapyItem,WeixinScrapyLoader
+from weixin_scrapy import utils
 import re
 import json
 import logging
 from urllib import parse
+
 
 class WeixinSpider(scrapy.Spider):
     name = 'weixin'
@@ -73,13 +76,33 @@ class WeixinSpider(scrapy.Spider):
                 for art_item in mg_list['list']:
                     art_url = art_item['app_msg_ext_info']['content_url']
                     art_url = parse.urljoin(self.wx_art_domains[0], art_url)
-                    art_url.replace('amp;','')
+                    art_url = art_url.replace('amp;', '')
                     art_title = art_item['app_msg_ext_info']['title']
+                    art_cover = art_item['app_msg_ext_info']['cover']
+                    art_digest = art_item['app_msg_ext_info']['digest']
+                    art_publish_time = art_item['comm_msg_info']['datetime']
+                    art = {
+                        'cover': art_cover,
+                        'digest': art_digest,
+                        'publish_time': art_publish_time,
+                        'title': art_title
+                    }
                     yield Request(url=art_url, dont_filter=True, callback=self.parse, headers=self.gzh_headers,
-                                  meta={'title': art_title, 'gzh': gzh})
+                                  meta={'art_dict': art, 'gzh': gzh})
 
     def parse(self, response):
+        item_loader = WeixinScrapyLoader(item=WeixinScrapyItem(), response=response)
         gzh = response.meta.get('gzh')
-        title = response.meta.get('title')
+        art = response.meta.get('art_dict')
+        title = art['title']
         logging.info("parse the {0} {1}".format(gzh, title))
-        article_content = response.css('#img-content').extract_first("")
+
+        item_loader.add_value('title', title)
+        item_loader.add_value('title_md5', utils.str_md5(gzh + title))
+        item_loader.add_value('cover', art['cover'])
+        item_loader.add_value('digest', art['digest'])
+        item_loader.add_value('publish_time', utils.timestampe_to_time(art['publish_time']))
+        item_loader.add_value('url', response.url)
+        item_loader.add_css('html_content', '#img-content')
+
+        yield item_loader.load_item()
