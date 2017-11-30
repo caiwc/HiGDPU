@@ -100,3 +100,8 @@ GZH_DICT = {
     '南国药苑',
     '广东药科大学图书馆'
 }
+
+MYSQL_HOST = ''
+MYSQL_DBNAME = ''
+MYSQL_USER = ''
+MYSQL_PASSWORD = ''
