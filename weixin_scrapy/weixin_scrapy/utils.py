@@ -1,3 +1,5 @@
+from weixin_scrapy.settings import SQL_DATETIME_FORMAT
+
 def str_md5(text):
     import hashlib
     return hashlib.new('md5', (text).encode('utf-8')).hexdigest()
@@ -5,7 +7,7 @@ def str_md5(text):
 def timestampe_to_time(timestamp):
     import time
     st = time.localtime(timestamp)
-    return time.strftime('%Y-%m-%d %H:%M:%S', st)
+    return time.strftime(SQL_DATETIME_FORMAT, st)
 
 item_dict = {"list": [{"app_msg_ext_info": {"author": "", "content": "",
                                             "content_url": "/s?timestamp=1511931536&amp;src=3&amp;ver=1&amp;signature=xys*ZNss1Qe8f*PyTMhk1k-g9nwqdQd5U6klgjz7jLOCRkEKh28V7H-p5WLIMgvWFIOFGnoXQ9Zgg50LClrT7gn4rdtWAwEJq23f3WOJ*gzHGI*hrOIFOJOCJCAFD-LWovva3r0Qd6VgZXFNrAs81WD1gH8E7xij9EO9NyUL0-k=",

@@ -95,12 +95,14 @@ class WeixinSpider(scrapy.Spider):
         gzh = response.meta.get('gzh')
         art = response.meta.get('art_dict')
         title = art['title']
-        logging.info("parse the {0} {1}".format(gzh, title))
-
+        if not title:
+            return
+        logging.info("parse the {0} article {1}".format(gzh, title))
+        item_loader.add_value('gzh',gzh)
         item_loader.add_value('title', title)
         item_loader.add_value('title_md5', utils.str_md5(gzh + title))
-        item_loader.add_value('cover', art['cover'])
-        item_loader.add_value('digest', art['digest'])
+        item_loader.add_value('cover', art.get('cover', ""))
+        item_loader.add_value('digest', art.get('digest', ""))
         item_loader.add_value('publish_time', utils.timestampe_to_time(art['publish_time']))
         item_loader.add_value('url', response.url)
         item_loader.add_css('html_content', '#img-content')

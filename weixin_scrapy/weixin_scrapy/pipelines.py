@@ -5,8 +5,8 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 from twisted.enterprise import adbapi
-import MySQLdb
 import MySQLdb.cursors
+import logging
 
 class WeixinScrapyPipeline(object):
     def process_item(self, item, spider):
@@ -19,10 +19,10 @@ class MysqlTwistedPipline(object):
     @classmethod
     def from_settings(cls, settings):
         dbparms = dict(
-            host=settings["MYSQL_HOST"],
+            host=settings["MYSQL_LINUX_HOST"],
             db=settings["MYSQL_DBNAME"],
             user=settings["MYSQL_USER"],
-            passwd=settings["MYSQL_PASSWORD"],
+            passwd=settings["MYSQL_LINUX_PASSWORD"],
             charset='utf8',
             cursorclass=MySQLdb.cursors.DictCursor,
             use_unicode=True,
@@ -39,6 +39,7 @@ class MysqlTwistedPipline(object):
     def handle_error(self, failure, item, spider):
         # 处理异步插入的异常
         print(failure)
+        logging.error(item.get_insert_sql())
 
     def do_insert(self, cursor, item):
         # 执行具体的插入

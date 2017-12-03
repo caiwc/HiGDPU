@@ -68,9 +68,10 @@ DOWNLOAD_DELAY = 1
 
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'weixin_scrapy.pipelines.WeixinScrapyPipeline': 300,
-#}
+ITEM_PIPELINES = {
+   # 'weixin_scrapy.pipelines.WeixinScrapyPipeline': 300,
+    'weixin_scrapy.pipelines.MysqlTwistedPipline':200
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
@@ -101,7 +102,13 @@ GZH_DICT = {
     '广东药科大学图书馆'
 }
 
-MYSQL_HOST = ''
-MYSQL_DBNAME = ''
-MYSQL_USER = ''
-MYSQL_PASSWORD = ''
+SQL_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+SQL_DATE_FORMAT = "%Y-%m-%d"
+
+MYSQL_HOST = "127.0.0.1"
+MYSQL_DBNAME = "HiGDPU"
+MYSQL_USER = "root"
+MYSQL_PASSWORD = "root"
+
+MYSQL_LINUX_HOST = "123.207.87.63"
+MYSQL_LINUX_PASSWORD = "caiwc4LJ."
