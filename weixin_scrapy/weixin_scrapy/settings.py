@@ -13,7 +13,7 @@ import os
 
 BOT_NAME = 'weixin_scrapy'
 PROJECT_PATH = os.path.dirname(os.path.dirname(os.getcwd()))
-PHANTOMJS_PATH = PROJECT_PATH+"/phantomjs/bin/phantomjs"
+SCRAPY_PATH = PROJECT_PATH+'/weixin_scrapy/'
 
 SPIDER_MODULES = ['weixin_scrapy.spiders']
 NEWSPIDER_MODULE = 'weixin_scrapy.spiders'
@@ -99,7 +99,9 @@ GZH_DICT = {
     '广药微波炉',
     'GDPUZS青协',
     '南国药苑',
-    '广东药科大学图书馆'
+    '广东药科大学图书馆',
+    'GDPU中山校区学生会',
+
 }
 
 SQL_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
@@ -112,3 +114,6 @@ MYSQL_PASSWORD = "root"
 
 MYSQL_LINUX_HOST = "123.207.87.63"
 MYSQL_LINUX_PASSWORD = "caiwc4LJ."
+
+if os.path.exists(os.path.join(SCRAPY_PATH, 'weixin_scrapy', 'local_settings.py')):
+    from weixin_scrapy.local_settings import *

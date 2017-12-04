@@ -19,10 +19,10 @@ class MysqlTwistedPipline(object):
     @classmethod
     def from_settings(cls, settings):
         dbparms = dict(
-            host=settings["MYSQL_LINUX_HOST"],
+            host=settings["MYSQL_HOST"],
             db=settings["MYSQL_DBNAME"],
             user=settings["MYSQL_USER"],
-            passwd=settings["MYSQL_LINUX_PASSWORD"],
+            passwd=settings["MYSQL_PASSWORD"],
             charset='utf8',
             cursorclass=MySQLdb.cursors.DictCursor,
             use_unicode=True,
