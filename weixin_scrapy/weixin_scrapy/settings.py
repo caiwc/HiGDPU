@@ -110,10 +110,7 @@ SQL_DATE_FORMAT = "%Y-%m-%d"
 MYSQL_HOST = "127.0.0.1"
 MYSQL_DBNAME = "HiGDPU"
 MYSQL_USER = "root"
-MYSQL_PASSWORD = "root"
-
-MYSQL_LINUX_HOST = "123.207.87.63"
-MYSQL_LINUX_PASSWORD = "caiwc4LJ."
+MYSQL_PASSWORD = "caiwc4LJ."
 
 if os.path.exists(os.path.join(SCRAPY_PATH, 'weixin_scrapy', 'local_settings.py')):
     from weixin_scrapy.local_settings import *
