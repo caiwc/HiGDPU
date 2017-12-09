@@ -8,6 +8,9 @@
 import scrapy
 from scrapy.loader.processors import TakeFirst
 from scrapy.loader import ItemLoader
+from weixin_scrapy.settings import SQL_DATETIME_FORMAT
+
+import datetime
 
 
 class WeixinScrapyLoader(ItemLoader):
@@ -27,12 +30,14 @@ class WeixinScrapyItem(scrapy.Item):
 
     def get_insert_sql(self):
         insert_sql = """
-        insert into weixin_gzh(title_md5,title,publish_time,url,html_content,cover,digest,gzh) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
-        ON DUPLICATE KEY UPDATE html_content=VALUES(html_content),cover=VALUES(cover),digest=VALUES(digest),gzh=VALUES(gzh),url=VALUES(url)
+        insert into weixin_gzh(title_md5,title,publish_time,scrapy_time,url,html_content,cover,digest,gzh)
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE html_content=VALUES(html_content),
+        cover=VALUES(cover),digest=VALUES(digest),gzh=VALUES(gzh),url=VALUES(url),scrapy_time=VALUES(scrapy_time)
         """
-
+        now_time = datetime.datetime.now().strftime(SQL_DATETIME_FORMAT)
         params = (
-            self['title_md5'], self['title'], self['publish_time'], self['url'], self['html_content'].encode('utf-8'),
+            self['title_md5'], self['title'], self['publish_time'], now_time, self['url'],
+            self['html_content'].encode('utf-8'),
             self.get('cover', ""),
             self.get('digest', ""), self['gzh']
         )
