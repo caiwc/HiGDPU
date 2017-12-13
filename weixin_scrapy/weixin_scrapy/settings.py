@@ -12,8 +12,8 @@
 import os
 
 BOT_NAME = 'weixin_scrapy'
-PROJECT_PATH = os.path.dirname(os.path.dirname(os.getcwd()))
-SCRAPY_PATH = PROJECT_PATH+'/weixin_scrapy/'
+SCRAPY_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_PATH = os.path.dirname(SCRAPY_PATH)
 
 SPIDER_MODULES = ['weixin_scrapy.spiders']
 NEWSPIDER_MODULE = 'weixin_scrapy.spiders'
