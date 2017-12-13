@@ -93,8 +93,8 @@ ITEM_PIPELINES = {
 # HTTPCACHE_IGNORE_HTTP_CODES = []
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
-# LOG_FILE = os.path.dirname(os.path.dirname(os.getcwd()))+'/logs/scrapy.log'
-# LOG_FORMAT = '%(levelname)s %(asctime)s [%(name)s:%(module)s:%(funcName)s:%(lineno)s] [%(exc_info)s] %(message)s'
+LOG_FILE = PROJECT_PATH+'/logs/scrapy.log'
+LOG_FORMAT = '%(levelname)s %(asctime)s [%(name)s:%(module)s:%(funcName)s:%(lineno)s] [%(exc_info)s] %(message)s'
 
 GZH_DICT = {
     '广药小助手',
