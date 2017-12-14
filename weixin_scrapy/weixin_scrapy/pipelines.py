@@ -6,7 +6,7 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 from twisted.enterprise import adbapi
 import MySQLdb.cursors
-import logging
+
 
 class WeixinScrapyPipeline(object):
     def process_item(self, item, spider):
@@ -39,7 +39,7 @@ class MysqlTwistedPipline(object):
     def handle_error(self, failure, item, spider):
         # 处理异步插入的异常
         print(failure)
-        logging.error(item.get_insert_sql())
+        spider.logger.exception(failure)
 
     def do_insert(self, cursor, item):
         # 执行具体的插入

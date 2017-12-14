@@ -58,7 +58,7 @@ class WeixinSpider(scrapy.Spider):
 
     def gzh_host_parse(self, response):
         gzh = response.meta.get('gzh')
-        logging.info("parse the {}".format(gzh))
+        self.logger.info("parse the {}".format(gzh))
         gzh_host_url = response.css('#sogou_vr_11002301_box_0 .gzh-box2 .txt-box .tit a::attr(href)').extract_first("")
         if gzh_host_url:
             yield Request(url=gzh_host_url, dont_filter=True, callback=self.gzh_article_parse, headers=self.gzh_headers,
@@ -66,7 +66,7 @@ class WeixinSpider(scrapy.Spider):
 
     def gzh_article_parse(self, response):
         gzh = response.meta.get('gzh')
-        logging.info("parse the {} host".format(gzh))
+        self.logger.info("parse the {} host".format(gzh))
         script_text = response.xpath('/html/body/script[6]/text()').extract_first("")
         mg_list_check = re.search('.*?msgList\s=\s(.*?}]});', script_text)
         if mg_list_check:
@@ -89,6 +89,8 @@ class WeixinSpider(scrapy.Spider):
                     }
                     yield Request(url=art_url, dont_filter=True, callback=self.parse, headers=self.gzh_headers,
                                   meta={'art_dict': art, 'gzh': gzh})
+        else:
+            self.logger.error("{} without article".format(gzh))
 
     def parse(self, response):
         item_loader = WeixinScrapyLoader(item=WeixinScrapyItem(), response=response)
@@ -97,7 +99,7 @@ class WeixinSpider(scrapy.Spider):
         title = art['title']
         if not title:
             return
-        logging.info("parse the {0} article {1}".format(gzh, title))
+        self.logger.info("parse the {0} article {1}".format(gzh, title))
         item_loader.add_value('gzh',gzh)
         item_loader.add_value('title', title)
         item_loader.add_value('title_md5', utils.str_md5(gzh + title))
