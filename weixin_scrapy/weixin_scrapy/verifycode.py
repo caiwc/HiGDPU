@@ -1,9 +1,10 @@
 from selenium import webdriver
 from qyweixin import qyweixin_api
 import time
+from weixin_scrapy.settings import PHANTOMJS_PATH
 
 def handel_verifcode(url=None):
-    driver = webdriver.PhantomJS()
+    driver = webdriver.PhantomJS(PHANTOMJS_PATH)
     # driver = webdriver.Chrome()
     driver.implicitly_wait(30)
     driver.maximize_window()
