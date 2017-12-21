@@ -57,8 +57,7 @@ def get_access_token():
 
 
 def upload_media(file_type, file_path):
-    # token = get_access_token()
-    token = 'evtTTEtzlRtOsd3EZjWp9SEwxMF1a6xTSZCdBRln8VwIHjNg1T4bJFqgHSKscftHvLgG8NMssJnqVL45eF13utGTZ03JvRJLj4uBWNL1W0ucsS9s-pNkf2ZcOnL0LCWgTtrt6MmG-waema4KOZNIJilCg4CuwPGyqo0aBHJDs3fs9MFYNz8KfPFTo7moX9Y9TZchsb_ZlfxftIUZ8TaNng'
+    token = get_access_token()
     payload = {
         'access_token': token,
         'type': file_type
