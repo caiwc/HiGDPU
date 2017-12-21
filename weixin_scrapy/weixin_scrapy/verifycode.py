@@ -17,7 +17,7 @@ def handel_verifcode(url=None):
     time.sleep(2)
 
     driver.get_screenshot_as_file("/tmp/HiGDPU/index.png")
-    media_id = qyweixin_api.upload_media("/tmp/HiGDPU/index.png", qyweixin_api.qyweixin_img_type)
+    media_id = qyweixin_api.upload_media(qyweixin_api.qyweixin_img_type,"/tmp/HiGDPU/index.png")
     qyweixin_api.send_weixin_message(qyweixin_api.qyweixin_img_type, {'media_id': media_id})
     code = input('验证码:')
     driver.find_element_by_id('input').send_keys(code)
