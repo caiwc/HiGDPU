@@ -1,10 +1,10 @@
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from selenium import webdriver
 from qyweixin import qyweixin_api
 import time
-from weixin_scrapy.settings import PHANTOMJS_PATH
+from weixin_scrapy.weixin_scrapy.settings import PHANTOMJS_PATH
 
 def handel_verifcode(url=None):
     driver = webdriver.PhantomJS(PHANTOMJS_PATH)
