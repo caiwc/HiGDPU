@@ -56,13 +56,7 @@ class WeixinSpider(scrapy.Spider):
         start_time = crawl_info.get('start_time')
         finish_time = crawl_info.get('finish_time')
         crawl_time = finish_time - start_time
-        info = """
-        爬虫完毕
-        爬取时间: {crawl_time},
-        总请求数: {request_scraped},
-        存储item数: {item_scraped},
-        error_num: {error},
-        warning_num: {warning},
+        info = """爬虫完毕\n爬取时间: {crawl_time},\n总请求数: {request_scraped},\n存储item数: {item_scraped},\nerror_num: {error},\nwarning_num: {warning},
         """.format(crawl_time=crawl_time, request_scraped=request_scraped, item_scraped=item_scraped, error=error,
                    warning=warning)
         send_weixin_message(send_type=qyweixin_text_type, msg_content=info)
