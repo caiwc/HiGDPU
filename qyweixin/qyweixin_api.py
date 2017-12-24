@@ -3,7 +3,7 @@ from requests_toolbelt import MultipartEncoder
 import requests
 
 qyweixin_img_type = 'image'
-
+qyweixin_text_type = 'text'
 
 def do_weixin_api(method, url, headers=None, data=None, j_data=None, params=None, files=None):
     if not headers:
@@ -93,6 +93,12 @@ def send_weixin_message(send_type, msg_content, to_list=None):
         send_data.update({
             "image": {
                 "media_id": media_id
+            },
+        })
+    if send_type == qyweixin_text_type:
+        send_data.update({
+            "text": {
+                "content": msg_content
             },
         })
     flag, res = do_weixin_api('POST', url, j_data=send_data, params=payload)

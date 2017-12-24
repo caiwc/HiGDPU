@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import scrapy
+from pydispatch import dispatcher
 from scrapy.http import Request
 from weixin_scrapy import settings
-from weixin_scrapy.items import WeixinScrapyItem,WeixinScrapyLoader
+from weixin_scrapy.items import WeixinScrapyItem, WeixinScrapyLoader
 from weixin_scrapy import utils
 import re
 import json
-import logging
+import time
 from urllib import parse
 
 
@@ -39,15 +40,32 @@ class WeixinSpider(scrapy.Spider):
 
     }
 
-    # def __init__(self):
-    #     self.browser = webdriver.PhantomJS(executable_path=PHANTOMJS_PATH)
-    #     super(WeixinSpider, self).__init__()
-    #     dispatcher.connect(self.spider_close, signals.spider_closed)
-    #
-    # def spider_close(self,spider):
-    #     print("关闭spider")
-    #     self.browser.quit()
+    def __init__(self):
+        super(WeixinSpider, self).__init__()
+        from scrapy import signals
+        dispatcher.connect(self.spider_close, signals.spider_closed)
 
+    def spider_close(self, spider):
+        from qyweixin.qyweixin_api import send_weixin_message, qyweixin_text_type
+        print("关闭spider")
+        crawl_info = self.crawler.stats._stats
+        error = crawl_info.get('log_count/ERROR', None)
+        warning = crawl_info.get('log_count/WARNING', None)
+        item_scraped = crawl_info.get('item_scraped_count', 0)
+        request_scraped = crawl_info.get('downloader/request_count', 0)
+        start_time = crawl_info.get('start_time')
+        finish_time = crawl_info.get('finish_time')
+        crawl_time = finish_time - start_time
+        info = """
+        爬虫完毕
+        爬取时间: {crawl_time},
+        总请求数: {request_scraped},
+        存储item数: {item_scraped},
+        error_num: {error},
+        warning_num: {warning},
+        """.format(crawl_time=crawl_time, request_scraped=request_scraped, item_scraped=item_scraped, error=error,
+                   warning=warning)
+        send_weixin_message(send_type=qyweixin_text_type, msg_content=info)
 
     def start_requests(self):
         gzh_dict = settings.GZH_DICT
@@ -63,6 +81,7 @@ class WeixinSpider(scrapy.Spider):
         if gzh_host_url:
             yield Request(url=gzh_host_url, dont_filter=True, callback=self.gzh_article_parse, headers=self.gzh_headers,
                           meta={'gzh': gzh})
+            time.sleep(4)
 
     def gzh_article_parse(self, response):
         gzh = response.meta.get('gzh')
@@ -100,7 +119,7 @@ class WeixinSpider(scrapy.Spider):
         if not title:
             return
         self.logger.info("parse the {0} article {1}".format(gzh, title))
-        item_loader.add_value('gzh',gzh)
+        item_loader.add_value('gzh', gzh)
         item_loader.add_value('title', title)
         item_loader.add_value('title_md5', utils.str_md5(gzh + title))
         item_loader.add_value('cover', art.get('cover', ""))

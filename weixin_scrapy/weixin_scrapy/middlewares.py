@@ -54,3 +54,11 @@ class WeixinScrapySpiderMiddleware(object):
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+class RandomProxyMiddleware(object):
+    def process_request(self, request, spider):
+        # get_ip = GetIp()
+        # ip = get_ip.get_random_ip()
+        # print(ip)
+        #request.meta["proxy"] = ip
+        request.meta["proxy"] = "http://222.217.19.248:8080"
