@@ -25,6 +25,9 @@ def handel_verifycode(url, operation='weixin'):
     driver.get_screenshot_as_file("/tmp/HiGDPU/success.png")
     s_media_id = qyweixin_api.upload_media(qyweixin_api.qyweixin_img_type, "/tmp/HiGDPU/success.png")
     qyweixin_api.send_weixin_message(qyweixin_api.qyweixin_img_type, {'media_id': s_media_id})
+    if operation == 'sougou':
+        driver.find_element_by_css_selector('#sogou_vr_11002301_box_0 .gzh-box2 .txt-box .tit a::attr(href)').click()
+        time.sleep(2)
     driver.quit()
 
 
