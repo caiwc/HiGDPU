@@ -93,7 +93,7 @@ ITEM_PIPELINES = {
 # HTTPCACHE_IGNORE_HTTP_CODES = []
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
-LOG_FILE = PROJECT_PATH+'/logs/scrapy.log'
+LOG_FILE = PROJECT_PATH + '/logs/scrapy.log'
 LOG_FORMAT = '%(levelname)s %(asctime)s [%(name)s:%(module)s:%(funcName)s:%(lineno)s] %(message)s'
 
 GZH_DICT = {
@@ -114,7 +114,9 @@ MYSQL_DBNAME = "HiGDPU"
 MYSQL_USER = "root"
 MYSQL_PASSWORD = "caiwc4LJ."
 
-PHANTOMJS_PATH = os.path.dirname(PROJECT_PATH)+'/phantomjs/bin/phantomjs'
+PHANTOMJS_PATH = os.path.dirname(PROJECT_PATH) + '/phantomjs/bin/phantomjs'
 
-# if os.path.exists(os.path.join(SCRAPY_PATH, 'weixin_scrapy', 'local_settings.py')):
-#     from weixin_scrapy.local_settings import *
+COMMANDS_MODULE = 'weixin_scrapy.commands'
+
+if os.path.exists(os.path.join(SCRAPY_PATH, 'weixin_scrapy', 'local_settings.py')):
+    from weixin_scrapy.local_settings import *

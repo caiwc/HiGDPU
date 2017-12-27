@@ -3,28 +3,32 @@ from qyweixin import qyweixin_api
 import time
 from weixin_scrapy.settings import PHANTOMJS_PATH
 
-def handel_verifcode():
-    driver = webdriver.PhantomJS(PHANTOMJS_PATH)
-    # driver = webdriver.Chrome()
+
+def handel_verifycode(url, operation='weixin'):
+    # driver = webdriver.PhantomJS(PHANTOMJS_PATH)
+    driver = webdriver.Chrome()
     driver.implicitly_wait(30)
     driver.maximize_window()
-    url = input("输入url:")
-    if not url:
-        url = "http://mp.weixin.qq.com/profile?src=3&timestamp=1513734748&ver=1&signature=yM34HJn9jtn4FkjSiHuQuMGOlPjI5jMquEWHDSiRcbiJk837*vgx*RkPuz*bnka1rc8I7S*yoarZ8QK8eq9eAA=="
     driver.get(url)
     time.sleep(2)
-
     driver.get_screenshot_as_file("/tmp/HiGDPU/index.png")
-    media_id = qyweixin_api.upload_media(qyweixin_api.qyweixin_img_type,"/tmp/HiGDPU/index.png")
+    media_id = qyweixin_api.upload_media(qyweixin_api.qyweixin_img_type, "/tmp/HiGDPU/index.png")
     qyweixin_api.send_weixin_message(qyweixin_api.qyweixin_img_type, {'media_id': media_id})
     code = input('验证码:')
-    driver.find_element_by_id('input').send_keys(code)
-    driver.find_element_by_id('bt').click()
+    if operation == 'weixin':
+        driver.find_element_by_id('input').send_keys(code)
+        driver.find_element_by_id('bt').click()
+    elif operation == 'sougou':
+        driver.find_element_by_id('seccodeInput').send_keys(code)
+        driver.find_element_by_id('submit').click()
     time.sleep(3)
     driver.get_screenshot_as_file("/tmp/HiGDPU/success.png")
     s_media_id = qyweixin_api.upload_media(qyweixin_api.qyweixin_img_type, "/tmp/HiGDPU/success.png")
     qyweixin_api.send_weixin_message(qyweixin_api.qyweixin_img_type, {'media_id': s_media_id})
     driver.quit()
 
+
 if __name__ == '__main__':
-    handel_verifcode()
+    url = input("url:")
+    operation = input("operation:")
+    handel_verifycode(url="", operation=operation)
