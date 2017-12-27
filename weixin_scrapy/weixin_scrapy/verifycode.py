@@ -31,4 +31,4 @@ def handel_verifycode(url, operation='weixin'):
 if __name__ == '__main__':
     url = input("url:")
     operation = input("operation:")
-    handel_verifycode(url="", operation=operation)
+    handel_verifycode(url=url, operation=operation)
