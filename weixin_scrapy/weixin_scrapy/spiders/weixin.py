@@ -67,6 +67,7 @@ class WeixinSpider(scrapy.Spider):
             url = self.search_gzh_url.format(gzh)
             yield Request(url=url, dont_filter=True, callback=self.gzh_host_parse, headers=self.headers,
                           meta={'gzh': gzh})
+            time.sleep(3)
 
     def gzh_host_parse(self, response):
         gzh = response.meta.get('gzh')
@@ -76,6 +77,8 @@ class WeixinSpider(scrapy.Spider):
             yield Request(url=gzh_host_url, dont_filter=True, callback=self.gzh_article_parse, headers=self.gzh_headers,
                           meta={'gzh': gzh})
             time.sleep(4)
+        else:
+            self.logger.error("{} without host".format(gzh))
 
     def gzh_article_parse(self, response):
         gzh = response.meta.get('gzh')
