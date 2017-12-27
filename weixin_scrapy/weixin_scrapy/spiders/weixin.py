@@ -22,7 +22,7 @@ class WeixinSpider(scrapy.Spider):
                'Accept-Language': 'zh-CN,zh;q=0.9',
                'Cache-Control': 'max-age=0',
                'Connection': 'keep-alive',
-               'Cookie': 'ssuid=6768833500; SUV=00EB21C8DF4945D157CFDBE060AC5080; SUID=C39D68CA142D900A5530C134000EBC84; LSTMV=396%2C27; LCLKINT=6281; ABTEST=0|1509630197|v1; weixinIndexVisited=1; SNUID=CE681B8E52570C6FD59D3411520A6F63; IPLOC=CN4401; sct=8; JSESSIONID=aaa5AbVYx1plkefP4Gv8v',
+               'Cookie': 'SUV=003C177D344F4DE6598BBC1F48F1D788; SUID=E64D4F341620940A0000000059EE984E; weixinIndexVisited=1; wuid=AAFEwax1HAAAAAqROlmVPAAAAAA=; FREQUENCY=1511231739161_1; usid=FEONnBkrksBd8cBk; ABTEST=7|1511931508|v1; IPLOC=CN4420; SUIR=DB5D62F42B294D1463DA37DE2CA5473E; SNUID=F1C1CD5B8581E4D53832052085408AFC; sct=21; JSESSIONID=aaa0BBj1vP1uFc9nF2v8v',
                'Host': 'weixin.sogou.com',
                'RA-Sid': 'CA689DC5-20150327-161514-0c9bb8-ebe4f5',
                'RA-Ver': '3.0.7',
