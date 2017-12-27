@@ -1,4 +1,4 @@
-from scrapy.command import ScrapyCommand
+from scrapy.commands import ScrapyCommand
 from weixin_scrapy.verifycode import handel_verifycode
 
 class Command(ScrapyCommand):
