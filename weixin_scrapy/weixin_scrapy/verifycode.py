@@ -5,7 +5,10 @@ from weixin_scrapy.settings import PHANTOMJS_PATH
 
 
 def handel_verifycode(url, operation='weixin'):
-    driver = webdriver.PhantomJS(PHANTOMJS_PATH)
+    if len(PHANTOMJS_PATH)>0:
+        driver = webdriver.PhantomJS(PHANTOMJS_PATH)
+    else:
+        driver = webdriver.PhantomJS()
     # driver = webdriver.Chrome()
     driver.implicitly_wait(30)
     driver.maximize_window()
