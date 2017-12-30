@@ -12,8 +12,7 @@ def do_weixin_api(method, url, headers=None, data=None, j_data=None, params=None
         }
 
     try:
-        res = requests.request(method=method, headers=headers, url=url, params=params, data=data, json=j_data,
-                               files=files)
+        res = requests.request(method=method, headers=headers, url=url, params=params, data=data, json=j_data)
         print(method, res.url, data)
     except Exception as e:
         print('请求失败', method, url, params, data, e)
