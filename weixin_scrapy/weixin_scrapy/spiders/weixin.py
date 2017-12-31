@@ -39,6 +39,7 @@ class WeixinSpider(scrapy.Spider):
         'Host': 'mp.weixin.qq.com',
 
     }
+    error_set = set()
 
     def __init__(self):
         super(WeixinSpider, self).__init__()
@@ -50,6 +51,8 @@ class WeixinSpider(scrapy.Spider):
         print("关闭spider")
         crawl_info = self.crawler.stats._stats
         error = crawl_info.get('log_count/ERROR', None)
+        if not error:
+            error = str(error)+' '+";".join(self.error_set)
         warning = crawl_info.get('log_count/WARNING', None)
         item_scraped = crawl_info.get('item_scraped_count', 0)
         request_scraped = crawl_info.get('downloader/request_count', 0)
@@ -79,6 +82,7 @@ class WeixinSpider(scrapy.Spider):
             time.sleep(4)
         else:
             self.logger.error("{} without host".format(gzh))
+            self.error_set.add("sogou_host")
 
     def gzh_article_parse(self, response):
         gzh = response.meta.get('gzh')
@@ -107,6 +111,7 @@ class WeixinSpider(scrapy.Spider):
                                   meta={'art_dict': art, 'gzh': gzh})
         else:
             self.logger.error("{} without article".format(gzh))
+            self.error_set.add("weixin_gzh")
 
     def parse(self, response):
         item_loader = WeixinScrapyLoader(item=WeixinScrapyItem(), response=response)
