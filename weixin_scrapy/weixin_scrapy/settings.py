@@ -103,7 +103,12 @@ GZH_DICT = {
     '南国药苑',
     '广东药科大学图书馆',
     'GDPU中山校区学生会',
-    'GDPU团委'
+    'GDPU团委',
+    'GDPU社联',
+    'GDPURadioStation',
+    '广东药科大学',
+    '纵梦广药',
+    '广药中山武协'
 }
 
 SQL_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
