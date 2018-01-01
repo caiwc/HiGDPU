@@ -51,7 +51,7 @@ class WeixinSpider(scrapy.Spider):
         print("关闭spider")
         crawl_info = self.crawler.stats._stats
         error = crawl_info.get('log_count/ERROR', None)
-        if not error:
+        if error:
             error = str(error)+' ('+";".join(self.error_set)+')'
         warning = crawl_info.get('log_count/WARNING', None)
         item_scraped = crawl_info.get('item_scraped_count', 0)
