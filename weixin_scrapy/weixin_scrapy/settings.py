@@ -111,6 +111,9 @@ GZH_DICT = {
     '广药中山武协'
 }
 
+SOGOU_SLEEP_TIME = 5
+WEIXIN_SLEEP_TIME = 7
+
 SQL_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 SQL_DATE_FORMAT = "%Y-%m-%d"
 

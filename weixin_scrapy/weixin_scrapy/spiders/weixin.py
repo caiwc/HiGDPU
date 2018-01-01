@@ -3,7 +3,7 @@ import scrapy
 from pydispatch import dispatcher
 from scrapy.http import Request
 from weixin_scrapy import settings
-from weixin_scrapy.items import WeixinScrapyItem, WeixinScrapyLoader
+from weixin_scrapy.items import WeixinScrapyItem, TakeFirstScrapyLoader
 from weixin_scrapy import utils
 import re
 import json
@@ -70,7 +70,7 @@ class WeixinSpider(scrapy.Spider):
             url = self.search_gzh_url.format(gzh)
             yield Request(url=url, dont_filter=True, callback=self.gzh_host_parse, headers=self.headers,
                           meta={'gzh': gzh})
-            time.sleep(3)
+            time.sleep(settings.SOGOU_SLEEP_TIME)
 
     def gzh_host_parse(self, response):
         gzh = response.meta.get('gzh')
@@ -79,7 +79,7 @@ class WeixinSpider(scrapy.Spider):
         if gzh_host_url:
             yield Request(url=gzh_host_url, dont_filter=True, callback=self.gzh_article_parse, headers=self.gzh_headers,
                           meta={'gzh': gzh})
-            time.sleep(7)
+            time.sleep(settings.WEIXIN_SLEEP_TIME)
         else:
             self.error_set.add("sogou_host")
             self.logger.error("{} without host".format(gzh))
@@ -114,7 +114,7 @@ class WeixinSpider(scrapy.Spider):
             self.logger.error("{} without article".format(gzh))
 
     def parse(self, response):
-        item_loader = WeixinScrapyLoader(item=WeixinScrapyItem(), response=response)
+        item_loader = TakeFirstScrapyLoader(item=WeixinScrapyItem(), response=response)
         gzh = response.meta.get('gzh')
         art = response.meta.get('art_dict')
         title = art['title']
