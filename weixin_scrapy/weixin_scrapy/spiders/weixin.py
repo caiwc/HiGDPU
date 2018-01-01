@@ -52,7 +52,7 @@ class WeixinSpider(scrapy.Spider):
         crawl_info = self.crawler.stats._stats
         error = crawl_info.get('log_count/ERROR', None)
         if not error:
-            error = str(error)+' '+";".join(self.error_set)
+            error = str(error)+' ('+";".join(self.error_set)+')'
         warning = crawl_info.get('log_count/WARNING', None)
         item_scraped = crawl_info.get('item_scraped_count', 0)
         request_scraped = crawl_info.get('downloader/request_count', 0)
@@ -79,10 +79,10 @@ class WeixinSpider(scrapy.Spider):
         if gzh_host_url:
             yield Request(url=gzh_host_url, dont_filter=True, callback=self.gzh_article_parse, headers=self.gzh_headers,
                           meta={'gzh': gzh})
-            time.sleep(4)
+            time.sleep(7)
         else:
-            self.logger.error("{} without host".format(gzh))
             self.error_set.add("sogou_host")
+            self.logger.error("{} without host".format(gzh))
 
     def gzh_article_parse(self, response):
         gzh = response.meta.get('gzh')
@@ -110,8 +110,8 @@ class WeixinSpider(scrapy.Spider):
                     yield Request(url=art_url, dont_filter=True, callback=self.parse, headers=self.gzh_headers,
                                   meta={'art_dict': art, 'gzh': gzh})
         else:
-            self.logger.error("{} without article".format(gzh))
             self.error_set.add("weixin_gzh")
+            self.logger.error("{} without article".format(gzh))
 
     def parse(self, response):
         item_loader = WeixinScrapyLoader(item=WeixinScrapyItem(), response=response)
