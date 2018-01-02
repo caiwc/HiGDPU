@@ -13,7 +13,7 @@ from weixin_scrapy.settings import SQL_DATETIME_FORMAT
 import datetime
 
 
-class WeixinScrapyLoader(ItemLoader):
+class TakeFirstScrapyLoader(ItemLoader):
     default_output_processor = TakeFirst()
 
 
@@ -42,3 +42,12 @@ class WeixinScrapyItem(scrapy.Item):
             self.get('digest', ""), self['gzh']
         )
         return insert_sql, params
+
+
+class WeiboScrapyItem(scrapy.Item):
+    content = scrapy.Field()
+    like = scrapy.Field()
+    comment = scrapy.Field()
+    report = scrapy.Field()
+    img = scrapy.Field()
+    publish_time = scrapy.Field()
