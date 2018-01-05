@@ -142,6 +142,17 @@ class HttpObject(object):
 
         return wrap
 
+def client_decorator(func):
+    def wrapper(*args, **kw):
+        _client = None
+        if 'client' in kw:
+            _client = kw['client']
+        if not _client:
+            _client = get_client()
+        kw['client'] = _client
+        return func(*args, **kw)
+
+    return wrapper
 
 class APIClient(object):
     '''
@@ -204,7 +215,7 @@ class APIClient(object):
     def __getattr__(self, attr):
         return getattr(self.get, attr)
 
-
+@client_decorator
 def post_weibo(client, content, files_path=None):
     if not isinstance(client, APIClient):
         raise APIError('00001', 'client type error', 'OAuth2 request')
@@ -220,7 +231,7 @@ def post_weibo(client, content, files_path=None):
     except Exception as e:
         print(e)
 
-
+@client_decorator
 def get_weibo(client, page_size=5, page=1):
     params = {'screen_name': 'HiGDPU', 'count': page_size, 'page': page}
     return client.get.statuses__user_timeline(params=params)
