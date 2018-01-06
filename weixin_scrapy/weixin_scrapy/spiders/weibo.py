@@ -134,27 +134,28 @@ class WeiboSpider(scrapy.Spider):
             pages = re.findall("1/(\d+)页", pages_str)
             pages = int(pages[0])
             print(pages)
-
         weibo_list = response.xpath('//*[starts-with(@id,"M_")]')
-
         for weibo in weibo_list:
             item_loader = TakeFirstScrapyLoader(item=WeiboScrapyItem(), selector=weibo)
             time_str = weibo.xpath('.//div[last()]/span[@class="ct"]/text()').extract_first("")
             item_loader.add_value('publish_time', time_str_format(time_str=time_str))
             item_loader.add_xpath('content', './/div/span[@class="ctt"]/text()[1]')
+            item_loader.add_xpath('weibo_id', '@id')
+            item_loader.add_xpath('img', './/img[@class="ib"]/@src')
+            item_loader.add_value('weibo_name', name)
             meta_list = weibo.xpath('.//div[last()]/a/text()').extract()
             for meta in meta_list:
                 if self.re_comment.match(meta):
-                    item_loader.add_value('comment', self.re_comment.match(meta).group(1))
+                    item_loader.add_value('comment', int(self.re_comment.match(meta).group(1)))
                 elif self.re_like.match(meta):
-                    item_loader.add_value('like', self.re_like.match(meta).group(1))
+                    item_loader.add_value('like', int(self.re_like.match(meta).group(1)))
                 elif self.re_report.match(meta):
-                    item_loader.add_value('report', self.re_report.match(meta).group(1))
-        pass
+                    item_loader.add_value('report', int(self.re_report.match(meta).group(1)))
+            yield item_loader.load_item()
 
-        # if isinstance(pages, int) and int(current_page) < pages:
-        #     next_page = int(current_page) + 1
-        #     next_url = self.weibo_host + name + '?page={}'.format(str(next_page))
-        #     cookies = self.get_cookies()
-        #     yield Request(url=next_url, headers=self.headers, cookies=cookies, callback=self.parse,
-        #                   meta={'page': next_page, 'name': name})
+        if isinstance(pages, int) and int(current_page) < pages:
+            next_page = int(current_page) + 1
+            next_url = self.weibo_host + name + '?page={}'.format(str(next_page))
+            cookies = self.get_cookies()
+            yield Request(url=next_url, headers=self.headers, cookies=cookies, callback=self.parse,
+                          meta={'page': next_page, 'name': name})

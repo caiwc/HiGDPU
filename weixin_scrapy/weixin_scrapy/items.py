@@ -45,9 +45,23 @@ class WeixinScrapyItem(scrapy.Item):
 
 
 class WeiboScrapyItem(scrapy.Item):
+    weibo_id = scrapy.Field()
     content = scrapy.Field()
     like = scrapy.Field()
     comment = scrapy.Field()
     report = scrapy.Field()
     img = scrapy.Field()
     publish_time = scrapy.Field()
+    weibo_name = scrapy.Field()
+
+    def get_insert_sql(self):
+        insert_sql = """
+        insert into weibo(id,content,img,publish_time,likes,comments,reports,weibo_name)
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE likes=VALUES(likes),
+        comments=VALUES(comments),reports=VALUES(reports),weibo_name=VALUES(weibo_name)
+        """
+        params = (
+            self['weibo_id'], self['content'].encode('utf-8'), self.get('img', ''), self['publish_time'],
+            self['like'], self['comment'], self['report'],self['weibo_name']
+        )
+        return insert_sql, params
