@@ -5,6 +5,7 @@ import json
 from random import choice
 import re
 import time
+from weixin_scrapy import settings
 from weixin_scrapy.items import TakeFirstScrapyLoader, WeiboScrapyItem
 from weixin_scrapy.utils import time_str_format
 
@@ -19,6 +20,20 @@ class WeiboSpider(scrapy.Spider):
     cookies_list = ["""[
 {
     "domain": ".weibo.cn",
+    "expirationDate": 1515492644.087834,
+    "hostOnly": false,
+    "httpOnly": true,
+    "name": "_T_WL",
+    "path": "/",
+    "sameSite": "no_restriction",
+    "secure": false,
+    "session": false,
+    "storeId": "0",
+    "value": "1",
+    "id": 1
+},
+{
+    "domain": ".weibo.cn",
     "expirationDate": 1517132302.386672,
     "hostOnly": false,
     "httpOnly": true,
@@ -29,11 +44,25 @@ class WeiboSpider(scrapy.Spider):
     "session": false,
     "storeId": "0",
     "value": "520649644978ef5fcf27b56056241ea8",
-    "id": 1
+    "id": 2
 },
 {
     "domain": ".weibo.cn",
-    "expirationDate": 1830068857.329513,
+    "expirationDate": 1517998244.089478,
+    "hostOnly": false,
+    "httpOnly": true,
+    "name": "_WEIBO_UID",
+    "path": "/",
+    "sameSite": "no_restriction",
+    "secure": false,
+    "session": false,
+    "storeId": "0",
+    "value": "1770147732",
+    "id": 3
+},
+{
+    "domain": ".weibo.cn",
+    "expirationDate": 1830766722.010782,
     "hostOnly": false,
     "httpOnly": true,
     "name": "SCF",
@@ -42,8 +71,8 @@ class WeiboSpider(scrapy.Spider):
     "secure": false,
     "session": false,
     "storeId": "0",
-    "value": "Ap-TmQ2Pbdze05SdNnxC_-uaJT8975cTm4T-N5WL7_uP2xc3aH-UvgIG00A65GXXwLe7TMuZ0gWIa-vCjo69zhw.",
-    "id": 2
+    "value": "Ap-TmQ2Pbdze05SdNnxC_-uaJT8975cTm4T-N5WL7_uPnMJMgwGZtHjku2Yi03TJ8HX_yTlqEhZz5eajYVRkM4w.",
+    "id": 4
 },
 {
     "domain": ".weibo.cn",
@@ -55,12 +84,12 @@ class WeiboSpider(scrapy.Spider):
     "secure": false,
     "session": true,
     "storeId": "0",
-    "value": "1514708857",
-    "id": 3
+    "value": "1515406721",
+    "id": 5
 },
 {
     "domain": ".weibo.cn",
-    "expirationDate": 1546244857.331184,
+    "expirationDate": 1546942722.011794,
     "hostOnly": false,
     "httpOnly": true,
     "name": "SUB",
@@ -69,12 +98,12 @@ class WeiboSpider(scrapy.Spider):
     "secure": false,
     "session": false,
     "storeId": "0",
-    "value": "_2A253TO8pDeRhGedJ7FIQ9CnLyD6IHXVUzvFhrDV6PUJbktBeLU3ykW1NUdXDOYciRYqlrenbwnW0H4QdYWTqsWcq",
-    "id": 4
+    "value": "_2A253VzXRDeThGeRM61EQ9yvMyD6IHXVUuFuZrDV6PUJbktANLVbgkW1NU-H9MncojPU8ctdi2X-hPb72xi3DEM8a",
+    "id": 6
 },
 {
     "domain": ".weibo.cn",
-    "expirationDate": 1546244857.332148,
+    "expirationDate": 1546942722.012101,
     "hostOnly": false,
     "httpOnly": false,
     "name": "SUBP",
@@ -83,12 +112,12 @@ class WeiboSpider(scrapy.Spider):
     "secure": false,
     "session": false,
     "storeId": "0",
-    "value": "0033WrSXqPxfM725Ws9jqgMF55529P9D9WhGsA1D9ipN6yBlcIK5RUdV5JpX5K-hUgL.Fo2NS05pShMNe0z2dJLoIpxNqEH81F-Rxb-4BEH81F-RBCHFeBtt",
-    "id": 5
+    "value": "0033WrSXqPxfM725Ws9jqgMF55529P9D9Wh9izAqoHi9uGUyNuFr0u_15JpX5K-hUgL.FozEehepS0-7e0z2dJLoI79zI-U2-8-t",
+    "id": 7
 },
 {
     "domain": ".weibo.cn",
-    "expirationDate": 1546244857.333115,
+    "expirationDate": 1546942722.012404,
     "hostOnly": false,
     "httpOnly": false,
     "name": "SUHB",
@@ -97,10 +126,10 @@ class WeiboSpider(scrapy.Spider):
     "secure": false,
     "session": false,
     "storeId": "0",
-    "value": "0tKrG7FLlpUoP8",
-    "id": 6
+    "value": "03oUaxidOv9Ymy",
+    "id": 8
 }
-]""", ]
+]"""]
 
     headers = {
         'accept': "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
@@ -113,7 +142,7 @@ class WeiboSpider(scrapy.Spider):
         'user-agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36",
     }
 
-    start_page = 810
+    start_page = 852
 
     re_like = re.compile("赞\[(\d+)]")
     re_report = re.compile("转发\[(\d+)]")
@@ -159,7 +188,7 @@ class WeiboSpider(scrapy.Spider):
                     item_loader.add_value('like', int(self.re_like.match(meta).group(1)))
                 elif self.re_report.match(meta):
                     item_loader.add_value('report', int(self.re_report.match(meta).group(1)))
-            time.sleep(1)
+            time.sleep(settings.WEIBO_SLEEP_TIME)
             yield item_loader.load_item()
 
         if isinstance(pages, int) and int(current_page) < pages:
