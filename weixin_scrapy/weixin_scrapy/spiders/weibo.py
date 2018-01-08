@@ -4,6 +4,7 @@ from scrapy.http import Request
 import json
 from random import choice
 import re
+import time
 from weixin_scrapy.items import TakeFirstScrapyLoader, WeiboScrapyItem
 from weixin_scrapy.utils import time_str_format
 
@@ -112,6 +113,8 @@ class WeiboSpider(scrapy.Spider):
         'user-agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36",
     }
 
+    start_page = 810
+
     re_like = re.compile("赞\[(\d+)]")
     re_report = re.compile("转发\[(\d+)]")
     re_comment = re.compile("评论\[(\d+)]")
@@ -122,18 +125,23 @@ class WeiboSpider(scrapy.Spider):
     def start_requests(self):
         for item in self.search_query:
             cookies = self.get_cookies()
-            yield Request(url=self.weibo_host + item, headers=self.headers, cookies=cookies, callback=self.parse,
-                          meta={'page': 1, 'name': item})
+            yield Request(url=self.weibo_host + item+'?page={}'.format(self.start_page), headers=self.headers, cookies=cookies, callback=self.parse,
+                          meta={'page': self.start_page, 'name': item})
 
     def parse(self, response):
         current_page = response.meta.get('page')
         pages = response.meta.get('max_page', None)
         name = response.meta.get('name')
-        if current_page == 1 and not pages:
-            pages_str = response.xpath('//*[@id="pagelist"]/form/div/text()[2]').extract_first("")
-            pages = re.findall("1/(\d+)页", pages_str)
-            pages = int(pages[0])
+        if current_page == self.start_page and not pages:
+            if current_page == 1:
+                tmp = '2'
+            else:
+                tmp = '4'
+            pages_str = response.xpath('//*[@id="pagelist"]/form/div/text()[{}]'.format(tmp)).extract_first("")
+            pages = re.findall(".*?/(\d+)页", pages_str)
             print(pages)
+            pages = int(pages[0])
+
         weibo_list = response.xpath('//*[starts-with(@id,"M_")]')
         for weibo in weibo_list:
             item_loader = TakeFirstScrapyLoader(item=WeiboScrapyItem(), selector=weibo)
@@ -151,6 +159,7 @@ class WeiboSpider(scrapy.Spider):
                     item_loader.add_value('like', int(self.re_like.match(meta).group(1)))
                 elif self.re_report.match(meta):
                     item_loader.add_value('report', int(self.re_report.match(meta).group(1)))
+            time.sleep(1)
             yield item_loader.load_item()
 
         if isinstance(pages, int) and int(current_page) < pages:
@@ -158,4 +167,4 @@ class WeiboSpider(scrapy.Spider):
             next_url = self.weibo_host + name + '?page={}'.format(str(next_page))
             cookies = self.get_cookies()
             yield Request(url=next_url, headers=self.headers, cookies=cookies, callback=self.parse,
-                          meta={'page': next_page, 'name': name})
+                          meta={'page': next_page, 'name': name, 'max_page': pages})
