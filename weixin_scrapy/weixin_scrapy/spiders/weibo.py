@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import scrapy
 from scrapy.http import Request
+from pydispatch import dispatcher
 import json
 from random import choice
 import re
@@ -142,11 +143,23 @@ class WeiboSpider(scrapy.Spider):
         'user-agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36",
     }
 
-    start_page = 1036
+    start_page = 2075
+    end_page = 3000
 
     re_like = re.compile("赞\[(\d+)]")
     re_report = re.compile("转发\[(\d+)]")
     re_comment = re.compile("评论\[(\d+)]")
+
+    def __init__(self):
+        super(WeiboSpider, self).__init__()
+        from scrapy import signals
+        dispatcher.connect(self.spider_close, signals.spider_closed)
+
+    def spider_close(self, spider):
+        from qyweixin.qyweixin_api import send_weixin_message, qyweixin_text_type
+        print("关闭spider")
+        info = "微博爬虫结束,爬至{}页".format(self.end_page)
+        send_weixin_message(send_type=qyweixin_text_type, msg_content=info)
 
     def get_cookies(self):
         return json.loads(choice(self.cookies_list))
@@ -154,7 +167,8 @@ class WeiboSpider(scrapy.Spider):
     def start_requests(self):
         for item in self.search_query:
             cookies = self.get_cookies()
-            yield Request(url=self.weibo_host + item+'?page={}'.format(self.start_page), headers=self.headers, cookies=cookies, callback=self.parse,
+            yield Request(url=self.weibo_host + item + '?page={}'.format(self.start_page), headers=self.headers,
+                          cookies=cookies, callback=self.parse,
                           meta={'page': self.start_page, 'name': item})
 
     def parse(self, response):
@@ -191,7 +205,7 @@ class WeiboSpider(scrapy.Spider):
             time.sleep(settings.WEIBO_SLEEP_TIME)
             yield item_loader.load_item()
 
-        if isinstance(pages, int) and int(current_page) < pages:
+        if isinstance(pages, int) and (int(current_page) < pages or int(current_page) < self.end_page):
             next_page = int(current_page) + 1
             next_url = self.weibo_host + name + '?page={}'.format(str(next_page))
             cookies = self.get_cookies()
