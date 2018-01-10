@@ -205,7 +205,7 @@ class WeiboSpider(scrapy.Spider):
             time.sleep(settings.WEIBO_SLEEP_TIME)
             yield item_loader.load_item()
 
-        if isinstance(pages, int) and (int(current_page) < pages or int(current_page) < self.end_page):
+        if isinstance(pages, int) and (int(current_page) < pages and int(current_page) < self.end_page):
             next_page = int(current_page) + 1
             next_url = self.weibo_host + name + '?page={}'.format(str(next_page))
             cookies = self.get_cookies()
