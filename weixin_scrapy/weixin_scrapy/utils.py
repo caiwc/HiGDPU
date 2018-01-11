@@ -15,23 +15,23 @@ def timestampe_to_time(timestamp):
 
 
 def time_str_format(time_str):
-    time_list = time_str.split()
-    if len(time_list) == 3:
-        if re.match('\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}', time_list[0] + ' ' + time_list[1]):
-            return time_list[0] + ' ' + time_list[1]
-        if time_list[0].startswith('今天') and re.match('\d{2}:\d{2}', time_list[1]):
-            today = datetime.date.today().strftime(SQL_DATE_FORMAT)
-            return today + ' ' + time_list[1] + ':00'
-        re_date = re.match('(\d{2})月(\d{2})日', time_list[0])
-        if re_date and re.match('\d{2}:\d{2}', time_list[1]):
-            year = datetime.date.today().year
-            date = re_date.groups(1)
-            return str(year) + "-" + date[0] + '-' + date[1] + ' ' + time_list[1] + ':00'
-    elif len(time_list) == 2 and time_list[0].endswith('分钟前'):
-        re_time = re.match('(\d+)分钟前', time_list[0])
-        now = datetime.datetime.today() - datetime.timedelta(minutes=int(re_time.group(1)))
+    re_date = re.match('(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2})', time_str)
+    re_this_year = re.match('(\d{2})月(\d{2})日\s(\d{2}:\d{2})', time_str)
+    re_today = re.match('^今天\s(\d{2}:\d{2})', time_str)
+    re_min = re.match('(\d+)分钟前', time_str)
+    if re_date:
+        return re_date.group(1)
+    elif re_today:
+        today = datetime.date.today().strftime(SQL_DATE_FORMAT)
+        return today + ' ' + re_today.group(1) + ':00'
+    elif re_this_year:
+        year = datetime.date.today().year
+        return str(year) + "-" + re_this_year.group(1) + '-' + re_this_year.group(2) + ' ' + re_this_year.group(3) + ':00'
+    elif re_min:
+        now = datetime.datetime.today() - datetime.timedelta(minutes=int(re_min.group(1)))
         return now.strftime(SQL_DATETIME_FORMAT)
-    return datetime.datetime.now().strftime(SQL_DATETIME_FORMAT)
+    else:
+        return False
 
 
 item_dict = {"list": [{"app_msg_ext_info": {"author": "", "content": "",
@@ -148,4 +148,4 @@ item_dict = {"list": [{"app_msg_ext_info": {"author": "", "content": "",
                                             "id": 1000000225, "status": 2, "type": 49}}]}
 
 if __name__ == '__main__':
-    print(time_str_format("45分钟前 来自杨树Plus"))
+    print(time_str_format("01月09日 21:05 来自三星GALAXY Note 4"))

@@ -143,8 +143,8 @@ class WeiboSpider(scrapy.Spider):
         'user-agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36",
     }
 
-    start_page = 2858
-    end_page = 3000
+    start_page = 3200
+    end_page = 3300
 
     re_like = re.compile("赞\[(\d+)]")
     re_report = re.compile("转发\[(\d+)]")
@@ -189,7 +189,11 @@ class WeiboSpider(scrapy.Spider):
         for weibo in weibo_list:
             item_loader = TakeFirstScrapyLoader(item=WeiboScrapyItem(), selector=weibo)
             time_str = weibo.xpath('.//div[last()]/span[@class="ct"]/text()').extract_first("")
-            item_loader.add_value('publish_time', time_str_format(time_str=time_str))
+            time_format = time_str_format(time_str=time_str)
+            if not time_format:
+                self.logger.error(
+                    '时间格式错误:{time},page:{page},weibo:{weibo}'.format(time=time_str, page=current_page, weibo=name))
+            item_loader.add_value('publish_time', time_format)
             item_loader.add_xpath('content', './/div/span[@class="ctt"]/text()[1]')
             item_loader.add_xpath('weibo_id', '@id')
             item_loader.add_xpath('img', './/img[@class="ib"]/@src')
