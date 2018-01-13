@@ -143,15 +143,15 @@ class WeiboSpider(scrapy.Spider):
         'user-agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36",
     }
 
-    start_page = 2500
-    end_page = 3200
+    start_page = 1
+    end_page = 1000
 
     re_like = re.compile("赞\[(\d+)]")
     re_report = re.compile("转发\[(\d+)]")
     re_comment = re.compile("评论\[(\d+)]")
 
-    def __init__(self):
-        super(WeiboSpider, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(WeiboSpider, self).__init__(*args, **kwargs)
         from scrapy import signals
         dispatcher.connect(self.spider_close, signals.spider_closed)
 
@@ -167,6 +167,7 @@ class WeiboSpider(scrapy.Spider):
     def start_requests(self):
         for item in self.search_query:
             cookies = self.get_cookies()
+            print(self.start_page)
             yield Request(url=self.weibo_host + item + '?page={}'.format(self.start_page), headers=self.headers,
                           cookies=cookies, callback=self.parse,
                           meta={'page': self.start_page, 'name': item})

@@ -8,4 +8,4 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # execute(['scrapy','crawl','weixin'])
 
-execute('scrapy crawl weibo'.split(' '))
+execute('scrapy crawl weibo -a start_page=200 -a end_page=500'.split(' '))
