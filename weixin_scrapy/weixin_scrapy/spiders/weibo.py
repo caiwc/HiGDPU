@@ -153,6 +153,8 @@ class WeiboSpider(scrapy.Spider):
             self.end_page = 500
         if not hasattr(self, 'start_page'):
             self.start_page = 1
+        self.start_page = int(self.start_page)
+        self.end_page = int(self.end_page)
         from scrapy import signals
         dispatcher.connect(self.spider_close, signals.spider_closed)
 
@@ -168,7 +170,6 @@ class WeiboSpider(scrapy.Spider):
     def start_requests(self):
         for item in self.search_query:
             cookies = self.get_cookies()
-            print(self.start_page)
             yield Request(url=self.weibo_host + item + '?page={}'.format(self.start_page), headers=self.headers,
                           cookies=cookies, callback=self.parse,
                           meta={'page': self.start_page, 'name': item})
