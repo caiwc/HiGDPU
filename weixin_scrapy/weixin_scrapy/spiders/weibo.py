@@ -143,15 +143,16 @@ class WeiboSpider(scrapy.Spider):
         'user-agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36",
     }
 
-    start_page = 1
-    end_page = 1000
-
     re_like = re.compile("赞\[(\d+)]")
     re_report = re.compile("转发\[(\d+)]")
     re_comment = re.compile("评论\[(\d+)]")
 
     def __init__(self, *args, **kwargs):
         super(WeiboSpider, self).__init__(*args, **kwargs)
+        if not hasattr(self, 'end_page'):
+            self.end_page = 500
+        if not hasattr(self, 'start_page'):
+            self.start_page = 1
         from scrapy import signals
         dispatcher.connect(self.spider_close, signals.spider_closed)
 
