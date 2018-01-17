@@ -1,8 +1,37 @@
+from celery.schedules import crontab
+import os
+
+WEB_PATH = os.path.dirname(__file__)
+print(os.path.dirname(WEB_PATH))
+if os.path.exists(os.path.join(os.path.dirname(WEB_PATH), 'local_settings.py')):
+    from local_settings import *
+
+SQL_URI = 'mysql://{user}:{password}@{host}:{port}/{dbname}'.format(user=MYSQL_USER,
+                                                                                        host=MYSQL_HOST,
+                                                                                        password=MYSQL_PASSWORD,
+                                                                                        port=MYSQL_PORT,
+                                                                                        dbname=MYSQL_DBNAME)
+
 class Config(object):
-    pass
+    SECRET_KEY = '736670cb10a600b695a55839ca3a5aa54a7d7356cdef815d2ad6e19a2031182b'
+    RECAPTCHA_PUBLIC_KEY = "6LdKkQQTAAAAAEH0GFj7NLg5tGicaoOus7G9Q5Uw"
+    RECAPTCHA_PRIVATE_KEY = '6LdKkQQTAAAAAMYroksPTJ7pWhobYb88fTAcxcYn'
+
 
 class ProdConfig(Config):
-    pass
+    SQLALCHEMY_DATABASE_URI = SQL_URI
+
 
 class DevConfig(Config):
-    pass
+    DEBUG = True
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
+    SQLALCHEMY_DATABASE_URI = SQL_URI
+    CELERY_BROKER_URL = "amqp://guest:guest@localhost:5672//"
+    CELERY_BACKEND_URL = "amqp://guest:guest@localhost:5672//"
+
+    CELERYBEAT_SCHEDULE = {
+        'weekly-digest': {
+            'task': 'tasks.digest',
+            'schedule': crontab(day_of_week=6, hour='10')
+        },
+    }

@@ -30,7 +30,7 @@ class WeixinScrapyItem(scrapy.Item):
 
     def get_insert_sql(self):
         insert_sql = """
-        insert into weixin_gzh(title_md5,title,publish_time,scrapy_time,url,html_content,cover,digest,gzh)
+        insert into weixin__gzh(title_md5,title,publish_time,scrapy_time,url,html_content,cover,digest,gzh)
         VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE html_content=VALUES(html_content),
         cover=VALUES(cover),digest=VALUES(digest),gzh=VALUES(gzh),url=VALUES(url),scrapy_time=VALUES(scrapy_time)
         """

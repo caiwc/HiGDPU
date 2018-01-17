@@ -128,5 +128,5 @@ PHANTOMJS_PATH = os.path.dirname(PROJECT_PATH) + '/phantomjs/bin/phantomjs'
 
 COMMANDS_MODULE = 'weixin_scrapy.commands'
 
-if os.path.exists(os.path.join(SCRAPY_PATH, 'weixin_scrapy', 'local_settings.py')):
-    from weixin_scrapy.local_settings import *
+if os.path.exists(os.path.join(PROJECT_PATH, 'local_settings.py')):
+    from local_settings import *
