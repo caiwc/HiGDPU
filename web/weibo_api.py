@@ -8,6 +8,7 @@ import time
 import requests
 from requests_toolbelt import MultipartEncoder
 from urllib.parse import quote
+from web import config
 
 
 def _obj_hook(pairs):
@@ -142,17 +143,25 @@ class HttpObject(object):
 
         return wrap
 
+
+client = None
+
+
 def client_decorator(func):
     def wrapper(*args, **kw):
-        _client = None
+        global client
         if 'client' in kw:
             _client = kw['client']
-        if not _client:
-            _client = get_client()
+        elif client:
+            _client = client
+        else:
+            client = get_client()
+            _client = client
         kw['client'] = _client
         return func(*args, **kw)
 
     return wrapper
+
 
 class APIClient(object):
     '''
@@ -215,12 +224,14 @@ class APIClient(object):
     def __getattr__(self, attr):
         return getattr(self.get, attr)
 
+
 @client_decorator
 def post_weibo(client, content, files_path=None):
     if not isinstance(client, APIClient):
         raise APIError('00001', 'client type error', 'OAuth2 request')
     data = {
-        'status': content
+        'status': content + 'https://weibo.com/HiGDPU',
+        'access_token': client.access_token
     }
     try:
         if files_path:
@@ -230,6 +241,7 @@ def post_weibo(client, content, files_path=None):
             return client.post.statuses__share(data=data)
     except Exception as e:
         print(e)
+
 
 @client_decorator
 def get_weibo(client, page_size=5, page=1):
@@ -267,9 +279,9 @@ def post_weibo_commet(client, weibo_id, comment):
 
 
 def get_client():
-    APP_KEY = "1821462258"
-    APP_SECRET = "3111564bdae15d624c52e19a1449073c"
-    CALLBACK_URL = 'https://weibo.com/HiGDPU'
+    APP_KEY = config.APP_KEY
+    APP_SECRET = config.APP_SECRET
+    CALLBACK_URL = config.CALLBACK_URL
     # step 2 引导用户到授权地址
     client = APIClient(app_key=APP_KEY, app_secret=APP_SECRET, redirect_uri=CALLBACK_URL)
     return client
@@ -279,8 +291,6 @@ def main():
     try:
         # step 1 定义 app key，app secret，回调地址：
         client = get_client()
-        # client.access_token = '2.00KTSG6CWXfQzB4432cee7e0253_yC'
-        # client.expires = 1514560111
         print(client.get_authorize_url())
         # step 3 换取Access Token
         r = client.request_access_token(input("Input code:"))  # 输入授权地址中获得的CODE
@@ -292,12 +302,7 @@ def main():
         # print(client.post.statuses__share(data={'access_token': r['access_token'],
         #                                         'status': '测试Python3 + OAuth 2.0发微博 ' + str(
         #                                             time.time()) + 'https://weibo.com/HiGDPU'}))
-        print(client.upload.statuses__share(data={
-            'status': '测试Python3 + OAuth 2.0发微博 ' + str(
-                time.time()) + 'https://weibo.com/HiGDPU'},
-            files={'pic': (
-                'filename', open('/Users/caiweicheng/Desktop/test.jpg', 'rb'),
-                'text/plain')}))
+
 
     except Exception as pyOauth2Error:
         print(str(pyOauth2Error))
@@ -307,6 +312,6 @@ if __name__ == '__main__':
     # main()
     client = get_client()
     client.access_token = '2.00KTSG6CWXfQzB4432cee7e0253_yC'
-    client.expires = 1514560111
+    client.expires = 1674288747
     res = get_weibo_comment(client, 4190310256614338)
     print(res)

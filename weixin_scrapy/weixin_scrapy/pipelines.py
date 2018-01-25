@@ -12,7 +12,7 @@ class WeixinScrapyPipeline(object):
     def process_item(self, item, spider):
         return item
 
-class MysqlTwistedPipline(object):
+class MysqlTwistedPipeline(object):
     def __init__(self, dbpool):
         self.dbpool = dbpool
 

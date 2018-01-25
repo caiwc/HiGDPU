@@ -44,10 +44,12 @@ def create_app(object_name):
     rest_api.add_resource(
         Weibo_Api,
         '/api/weibo',
+        '/api/weibo/<string:weibo_id>',
     )
     rest_api.add_resource(
         Weixin_Gzh_Api,
         '/api/weixin',
+        '/api/weixin/<string:gzh_id>'
     )
     rest_api.init_app(app)
 
@@ -71,5 +73,5 @@ def create_app(object_name):
 
 
 if __name__ == '__main__':
-    app = app = create_app('project.config.ProdConfig')
+    app = app = create_app('web.config.DevConfig')
     app.run()

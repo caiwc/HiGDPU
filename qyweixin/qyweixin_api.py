@@ -1,4 +1,4 @@
-from qyweixin import settings
+import local_settings as settings
 from requests_toolbelt import MultipartEncoder
 import requests
 

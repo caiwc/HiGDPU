@@ -25,25 +25,23 @@ db = SQLAlchemy()
 # )
 
 
-# class User(db.Model):
-#     id = db.Column(db.Integer(), primary_key=True)
-#     username = db.Column(db.String(255), unique=True)
-#     password = db.Column(db.String(255))
-#     posts = db.relationship('Post', backref='user', lazy='dynamic')
+class User(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    username = db.Column(db.String(255))
+    express_id = db.Column(db.TIME())
+    openid_id = db.Column(db.String(255))
+    thrid_session = db.Column(db.String(255))
 #     roles = db.relationship(
 #         'Role',
 #         secondary=roles,
 #         backref=db.backref('users', lazy='dynamic')
 #     )
 #
-#     def __init__(self, username):
-#         self.username = username
-#
-#         default = Role.query.filter_by(name="default").one()
-#         self.roles.append(default)
-#
-#     def __repr__(self):
-#         return '<User {}>'.format(self.username)
+    def __init__(self, username):
+        self.username = username
+
+    def __repr__(self):
+        return '<User {}>'.format(self.username)
 #
 #     # def set_password(self, password):
 #     #     self.password = bcrypt.generate_password_hash(password)
@@ -66,22 +64,22 @@ db = SQLAlchemy()
 #         else:
 #             return False
 #
-#     def get_id(self):
-#         return self.id
+    def get_id(self):
+        return self.id
 #
-#     @staticmethod
-#     def verify_auth_token(token):
-#         s = Serializer(current_app.config['SECRET_KEY'])
-#
-#         try:
-#             data = s.loads(token)
-#         except SignatureExpired:
-#             return None
-#         except BadSignature:
-#             return None
-#
-#         user = User.query.get(data['id'])
-#         return user
+    @staticmethod
+    def verify_auth_token(token):
+        s = Serializer(current_app.config['SECRET_KEY'])
+
+        try:
+            data = s.loads(token)
+        except SignatureExpired:
+            return None
+        except BadSignature:
+            return None
+
+        user = User.query.get(data['id'])
+        return user
 
 
 class Weixin_Gzh(db.Model):
