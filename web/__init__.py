@@ -14,8 +14,8 @@ from web.extensions import (
     # celery
 )
 from web.controllers.main import main_blueprint
-from web.controllers.rest.weibo_api import Weibo_Api
-from web.controllers.rest.weixin_api import Weixin_Gzh_Api
+from web.controllers.rest.weibo import Weibo_Api
+from web.controllers.rest.weixin import Weixin_Gzh_Api
 # from .tasks import on_reminder_save
 
 

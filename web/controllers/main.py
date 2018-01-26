@@ -12,6 +12,8 @@ import json
 from web import utils
 from flask_restful import reqparse
 from web.models import db
+from qyweixin.WXBizMsgCrypt import WXBizMsgCrypt
+
 # from flask.ext.principal import (
 #     Identity,
 #     AnonymousIdentity,
@@ -32,12 +34,6 @@ authorization_post_parser.add_argument(
     required=True,
     help="js code to get authorization"
 )
-authorization_post_parser.add_argument(
-    'username',
-    type='str',
-    required=True,
-    help="user weixin name"
-)
 
 @main_blueprint.route('/')
 def index():
@@ -48,9 +44,7 @@ def index():
 def authorization():
     url = config.WEIXIN_AUTH_URL
     headers = {"content-type": "application/json"}
-    args = authorization_post_parser.parse_args(strict=True)
-    js_code = args['code']
-    username = args['username']
+    js_code = request.json['code']
     res = requests.get(url=url.format(JSCODE=js_code), headers=headers)
     if res.status_code == 200:
         res_json = res.json()
@@ -68,6 +62,19 @@ def authorization():
         elif 'errcode' in res_json:
             return res_json['errmsg']
     return 'request error'
+
+@main_blueprint.route('/api/qyweixin', methods=['GET'])
+def qyweixin_authorization():
+    arg = request.args
+    wxcpt = WXBizMsgCrypt(config.Token, config.EncodingAESKey, config.CORPID)
+    sVerifyMsgSig = arg['msg_signature']
+    print(sVerifyMsgSig,wxcpt.key)
+    sVerifyTimeStamp = arg['timestamp']
+    sVerifyNonce = arg['nonce']
+    sVerifyEchoStr = arg['echostr']
+    ret, sEchoStr = wxcpt.VerifyURL(sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce, sVerifyEchoStr)
+    if (ret != 0):
+        raise ValueError("ERR: VerifyURL ret: " + str(ret))
 
 # @main_blueprint.route('/login', methods=['GET', 'POST'])
 # @oid.loginhandler

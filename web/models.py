@@ -37,6 +37,7 @@ class User(db.Model):
 #         backref=db.backref('users', lazy='dynamic')
 #     )
 #
+
     def __init__(self, username):
         self.username = username
 
@@ -63,10 +64,10 @@ class User(db.Model):
 #             return True
 #         else:
 #             return False
-#
+
     def get_id(self):
         return self.id
-#
+
     @staticmethod
     def verify_auth_token(token):
         s = Serializer(current_app.config['SECRET_KEY'])
