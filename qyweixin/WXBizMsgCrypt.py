@@ -48,9 +48,10 @@ class SHA1:
         """
         try:
             sortlist = [token, timestamp, nonce, encrypt]
+            sortlist = [str(o) for o in sortlist]
             sortlist.sort()
             sha = hashlib.sha1()
-            sha.update("".join(sortlist))
+            sha.update("".join(sortlist).encode("utf-8"))
             return ierror.WXBizMsgCrypt_OK, sha.hexdigest()
         except Exception as e:
             print(str(e))
@@ -173,15 +174,17 @@ class Prpcrypt(object):
             print(str(e))
             return ierror.WXBizMsgCrypt_DecryptAES_Error, None
         try:
+            plain_text = plain_text.decode('latin-1')
             pad = ord(plain_text[-1])
             # 去掉补位字符串 
             # pkcs7 = PKCS7Encoder()
             # plain_text = pkcs7.encode(plain_text)
             # 去除16位随机字符串
-            content = plain_text[16:-pad]
+            content = plain_text[16:-pad].encode('latin-1')
             xml_len = socket.ntohl(struct.unpack("I", content[: 4])[0])
             xml_content = content[4: xml_len + 4]
             from_corpid = content[xml_len + 4:]
+            from_corpid = from_corpid.decode('latin-1')
         except Exception as e:
             print(str(e))
             return ierror.WXBizMsgCrypt_IllegalBuffer, None
@@ -193,7 +196,7 @@ class Prpcrypt(object):
         """ 随机生成16位字符串
         @return: 16位字符串
         """
-        rule = string.letters + string.digits
+        rule = string.ascii_letters + string.digits
         str = random.sample(rule, 16)
         return "".join(str)
 
@@ -233,12 +236,14 @@ class WXBizMsgCrypt(object):
         return ret, sReplyEchoStr
 
     def EncryptMsg(self, sReplyMsg, sNonce, timestamp=None):
-        # 将企业回复用户的消息加密打包
-        # @param sReplyMsg: 企业号待回复用户的消息，xml格式的字符串
-        # @param sTimeStamp: 时间戳，可以自己生成，也可以用URL参数的timestamp,如为None则自动用当前时间
-        # @param sNonce: 随机串，可以自己生成，也可以用URL参数的nonce
-        # sEncryptMsg: 加密后的可以直接回复用户的密文，包括msg_signature, timestamp, nonce, encrypt的xml格式的字符串,
-        # return：成功0，sEncryptMsg,失败返回对应的错误码None
+        """
+        将企业回复用户的消息加密打包
+        :param sReplyMsg: 企业号待回复用户的消息，xml格式的字符串
+        :param timestamp: 时间戳，可以自己生成，也可以用URL参数的timestamp,如为None则自动用当前时间
+        :param sNonce: 随机串，可以自己生成，也可以用URL参数的nonce
+        sEncryptMsg: 加密后的可以直接回复用户的密文，包括msg_signature, timestamp, nonce, encrypt的xml格式的字符串,
+        :return: 成功0，sEncryptMsg,失败返回对应的错误码None
+        """
         pc = Prpcrypt(self.key)
         ret, encrypt = pc.encrypt(sReplyMsg, self.m_sCorpid)
         if ret != 0:
@@ -254,14 +259,16 @@ class WXBizMsgCrypt(object):
         return ret, xmlParse.generate(encrypt, signature, timestamp, sNonce)
 
     def DecryptMsg(self, sPostData, sMsgSignature, sTimeStamp, sNonce):
-        # 检验消息的真实性，并且获取解密后的明文
-        # @param sMsgSignature: 签名串，对应URL参数的msg_signature
-        # @param sTimeStamp: 时间戳，对应URL参数的timestamp
-        # @param sNonce: 随机串，对应URL参数的nonce
-        # @param sPostData: 密文，对应POST请求的数据
-        #  xml_content: 解密后的原文，当return返回0时有效
-        # @return: 成功0，失败返回对应的错误码
-        # 验证安全签名
+        """
+        检验消息的真实性，并且获取解密后的明文
+        :param sMsgSignature: 签名串，对应URL参数的msg_signature
+        :param sTimeStamp: 时间戳，对应URL参数的timestamp
+        :param sNonce: 随机串，对应URL参数的nonce
+        :param sPostData: 密文，对应POST请求的数据
+         xml_content: 解密后的原文，当return返回0时有效
+        :return: 成功0，失败返回对应的错误码
+        验证安全签名
+        """
         xmlParse = XMLParse()
         ret, encrypt, touser_name = xmlParse.extract(sPostData)
         if ret != 0:
