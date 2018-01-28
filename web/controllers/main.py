@@ -90,7 +90,9 @@ def qyweixin_authorization():
         from_user = xml_tree.find('ToUserName').text
         if content == config.QYWEIXIN_VERIFYCODE:
             res = utils.msg_encrp(wxcpt=wxcpt, to_user=from_user, content='输入url', sReqNonce=sVerifyNonce)
-            return make_response(res)
+            response = make_response(res)
+            response.content_type = 'application/xml'
+            return response
 
 # @main_blueprint.route('/login', methods=['GET', 'POST'])
 # @oid.loginhandler
