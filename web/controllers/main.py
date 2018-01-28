@@ -63,18 +63,22 @@ def authorization():
             return res_json['errmsg']
     return 'request error'
 
-@main_blueprint.route('/api/qyweixin', methods=['GET'])
+@main_blueprint.route('/api/qyweixin', methods=['GET','POST'])
 def qyweixin_authorization():
     arg = request.args
-    wxcpt = WXBizMsgCrypt(config.Token, config.EncodingAESKey, config.CORPID)
     sVerifyMsgSig = arg['msg_signature']
     sVerifyTimeStamp = arg['timestamp']
     sVerifyNonce = arg['nonce']
-    sVerifyEchoStr = arg['echostr']
-    ret, sEchoStr = wxcpt.VerifyURL(sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce, sVerifyEchoStr)
-    if (ret != 0):
-        raise ValueError("ERR: VerifyURL ret: " + str(ret))
-    return sEchoStr.decode('utf-8')
+    if request.method == 'GET':
+        wxcpt = WXBizMsgCrypt(config.Token, config.EncodingAESKey, config.CORPID)
+        sVerifyEchoStr = arg['echostr']
+        ret, sEchoStr = wxcpt.VerifyURL(sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce, sVerifyEchoStr)
+        if (ret != 0):
+            raise ValueError("ERR: VerifyURL ret: " + str(ret))
+        return sEchoStr.decode('utf-8')
+    if request.method == 'POST':
+        sReqData = request.data
+        print(sReqData)
 
 # @main_blueprint.route('/login', methods=['GET', 'POST'])
 # @oid.loginhandler
