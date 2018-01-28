@@ -257,7 +257,7 @@ class WXBizMsgCrypt(object):
         if ret != 0:
             return ret, None
         xmlParse = XMLParse()
-        return ret, xmlParse.generate(encrypt, signature, timestamp, sNonce)
+        return ret, xmlParse.generate(encrypt.decode('utf-8'), signature, timestamp, sNonce)
 
     def DecryptMsg(self, sPostData, sMsgSignature, sTimeStamp, sNonce):
         """
