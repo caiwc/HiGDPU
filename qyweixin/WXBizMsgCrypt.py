@@ -154,6 +154,7 @@ class Prpcrypt(object):
         # 加密    
         cryptor = AES.new(self.key, self.mode, self.key[:16])
         try:
+
             ciphertext = cryptor.encrypt(text)
             # 使用BASE64对加密后的字符串进行编码
             return ierror.WXBizMsgCrypt_OK, base64.b64encode(ciphertext)
