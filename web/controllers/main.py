@@ -35,6 +35,7 @@ authorization_post_parser.add_argument(
     help="js code to get authorization"
 )
 
+
 @main_blueprint.route('/')
 def index():
     return redirect(url_for('weibo_api'))
@@ -63,7 +64,8 @@ def authorization():
             return res_json['errmsg']
     return 'request error'
 
-@main_blueprint.route('/api/qyweixin', methods=['GET','POST'])
+
+@main_blueprint.route('/api/qyweixin', methods=['GET', 'POST'])
 def qyweixin_authorization():
     import xml.etree.cElementTree as ET
     arg = request.args
@@ -84,8 +86,10 @@ def qyweixin_authorization():
             raise ValueError("ERR: VerifyURL ret: " + str(ret))
         xml_tree = ET.fromstring(sMsg)
         content = xml_tree.find("Content").text
-        print(content)
-        return content
+        from_user = xml_tree.find('ToUserName').text
+        if content == config.QYWEIXIN_VERIFYCODE:
+            res = utils.msg_encrp(wxcpt=wxcpt, to_user=from_user, content='输入url', sReqNonce=sVerifyNonce)
+            return res
 
 # @main_blueprint.route('/login', methods=['GET', 'POST'])
 # @oid.loginhandler
