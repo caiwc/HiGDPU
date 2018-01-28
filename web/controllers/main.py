@@ -65,12 +65,13 @@ def authorization():
 
 @main_blueprint.route('/api/qyweixin', methods=['GET','POST'])
 def qyweixin_authorization():
+    import xml.etree.cElementTree as ET
     arg = request.args
     sVerifyMsgSig = arg['msg_signature']
     sVerifyTimeStamp = arg['timestamp']
     sVerifyNonce = arg['nonce']
+    wxcpt = WXBizMsgCrypt(config.Token, config.EncodingAESKey, config.CORPID)
     if request.method == 'GET':
-        wxcpt = WXBizMsgCrypt(config.Token, config.EncodingAESKey, config.CORPID)
         sVerifyEchoStr = arg['echostr']
         ret, sEchoStr = wxcpt.VerifyURL(sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce, sVerifyEchoStr)
         if (ret != 0):
@@ -78,7 +79,13 @@ def qyweixin_authorization():
         return sEchoStr.decode('utf-8')
     if request.method == 'POST':
         sReqData = request.data
-        print(sReqData)
+        ret, sMsg = wxcpt.DecryptMsg(sReqData, sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce)
+        if (ret != 0):
+            raise ValueError("ERR: VerifyURL ret: " + str(ret))
+        xml_tree = ET.fromstring(sMsg)
+        content = xml_tree.find("Content").text
+        print(content)
+        return content
 
 # @main_blueprint.route('/login', methods=['GET', 'POST'])
 # @oid.loginhandler
