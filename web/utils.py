@@ -16,18 +16,18 @@ def gen_openId(thirdsession):
     return res
 
 
-def msg_encrp(wxcpt, to_user, content, sReqNonce):
+def msg_encrp(wxcpt, to_user, from_user, content, sReqNonce):
     import time
     timestamp = str(int(time.time()))
     sRespData = """
             <xml>
            <ToUserName><![CDATA[{to_user}]]></ToUserName>
-           <FromUserName><![CDATA[{to_user}]]></FromUserName>
+           <FromUserName><![CDATA[{from_user}]]></FromUserName>
            <CreateTime>{timestamp}</CreateTime>
            <MsgType><![CDATA[text]]></MsgType>
            <Content><![CDATA[{content}]]></Content>
            </xml>
-        """.format(to_user=to_user, timestamp=timestamp, content=content.encode('utf-8'))
+        """.format(to_user=to_user, from_user=from_user, timestamp=timestamp, content=content.encode('utf-8'))
     ret, sEncryptMsg = wxcpt.EncryptMsg(sRespData, sReqNonce, timestamp)
     if (ret != 0):
         raise ValueError("ERR: EncryptMsg ret: " + str(ret))

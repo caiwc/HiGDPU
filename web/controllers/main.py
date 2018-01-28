@@ -89,23 +89,15 @@ def qyweixin_authorization():
         content = xml_tree.find("Content").text
         from_user = xml_tree.find('ToUserName').text
         if content == config.QYWEIXIN_VERIFYCODE:
-            res = utils.msg_encrp(wxcpt=wxcpt, to_user=from_user, content='输入url', sReqNonce=sVerifyNonce)
+            res = utils.msg_encrp(wxcpt=wxcpt, to_user=from_user,from_user=config.CORPID, content='输入url', sReqNonce=sVerifyNonce)
             print(res)
             response = make_response(res)
             response.content_type = 'application/xml'
             return response
         else:
-            sRespData = """
-                        <xml>
-                       <ToUserName><![CDATA[{to_user}]]></ToUserName>
-                       <FromUserName><![CDATA[{to_user}]]></FromUserName>
-                       <CreateTime>{timestamp}</CreateTime>
-                       <MsgType><![CDATA[text]]></MsgType>
-                       <Content><![CDATA[{content}]]></Content>
-                       </xml>
-                    """.format(to_user=from_user, timestamp=sVerifyTimeStamp, content=content.encode('utf-8'))
-
-            response = make_response(sRespData)
+            res = utils.msg_encrp(wxcpt=wxcpt, to_user=from_user,from_user='CaiWeiCheng', content='输入url', sReqNonce=sVerifyNonce)
+            print(res)
+            response = make_response(res)
             response.content_type = 'application/xml'
             return response
 # @main_blueprint.route('/login', methods=['GET', 'POST'])
