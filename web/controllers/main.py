@@ -68,13 +68,13 @@ def qyweixin_authorization():
     arg = request.args
     wxcpt = WXBizMsgCrypt(config.Token, config.EncodingAESKey, config.CORPID)
     sVerifyMsgSig = arg['msg_signature']
-    print(sVerifyMsgSig,wxcpt.key)
     sVerifyTimeStamp = arg['timestamp']
     sVerifyNonce = arg['nonce']
     sVerifyEchoStr = arg['echostr']
     ret, sEchoStr = wxcpt.VerifyURL(sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce, sVerifyEchoStr)
     if (ret != 0):
         raise ValueError("ERR: VerifyURL ret: " + str(ret))
+    return sEchoStr.decode('utf-8')
 
 # @main_blueprint.route('/login', methods=['GET', 'POST'])
 # @oid.loginhandler
