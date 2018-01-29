@@ -30,6 +30,7 @@ def msg_encrp(wxcpt, to_user, from_user, content, sReqNonce,msgid):
             <AgentID>1000003</AgentID>
             </xml>
         """.format(to_user=to_user, from_user=from_user, timestamp=timestamp, content=content.encode('utf-8'),msgid=msgid)
+    print(sRespData)
     ret, sEncryptMsg = wxcpt.EncryptMsg(sRespData, sReqNonce, timestamp)
     if (ret != 0):
         raise ValueError("ERR: EncryptMsg ret: " + str(ret))
