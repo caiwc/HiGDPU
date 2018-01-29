@@ -86,6 +86,7 @@ def qyweixin_authorization():
         if (ret != 0):
             raise ValueError("ERR: VerifyURL ret: " + str(ret))
         xml_tree = ET.fromstring(sMsg)
+        print(sMsg)
         content = xml_tree.find("Content").text
         from_user = xml_tree.find('ToUserName').text
         if content == config.QYWEIXIN_VERIFYCODE:
