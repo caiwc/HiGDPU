@@ -92,7 +92,7 @@ def qyweixin_authorization():
         to_user = xml_tree.find('FromUserName').text
         MsgId = xml_tree.find('MsgId').text
         if content == config.QYWEIXIN_VERIFYCODE:
-            res = utils.msg_encrp(wxcpt=wxcpt, to_user=to_user,from_user=from_user, content='输入url', sReqNonce=sVerifyNonce,msgid=MsgId)
+            res = utils.msg_encrp(wxcpt=wxcpt, to_user=to_user,from_user=from_user, content='url', sReqNonce=sVerifyNonce,msgid=MsgId)
             print(res)
             response = make_response(res)
             response.content_type = 'application/xml'
