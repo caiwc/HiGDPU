@@ -104,7 +104,7 @@ def qyweixin_authorization():
                                       sReqNonce=sVerifyNonce)
                 return res
         if 'event' in msg_type:
-            event_key = xml_tree.find("EventKey")
+            event_key = xml_tree.find("EventKey").text
             print(event_key)
             if 'verifycode' in event_key:
                 from weixin_scrapy.verifycode import handel_verifycode
