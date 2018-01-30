@@ -90,7 +90,6 @@ def qyweixin_authorization():
         msg_type = xml_tree.find("MsgType").text
         from_user = xml_tree.find('ToUserName').text
         to_user = xml_tree.find('FromUserName').text
-        MsgId = xml_tree.find('MsgId').text
         if 'text' in msg_type:
             content = xml_tree.find("Content").text
             if content == config.QYWEIXIN_VERIFYCODE:
