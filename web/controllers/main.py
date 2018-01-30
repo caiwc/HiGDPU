@@ -4,7 +4,7 @@ from flask import (current_app,
                    url_for,
                    request,
                    jsonify,
-                    make_response,
+                   make_response,
                    flash,
                    session)
 from web import config
@@ -93,7 +93,7 @@ def qyweixin_authorization():
         if 'text' in msg_type:
             content = xml_tree.find("Content").text
             if content == config.QYWEIXIN_VERIFYCODE:
-                res = utils.msg_encrp(wxcpt=wxcpt, to_user=to_user, from_user=from_user, content='url',
+                res = utils.msg_encrp(wxcpt=wxcpt, to_user=from_user, from_user=to_user, content='url',
                                       sReqNonce=sVerifyNonce)
                 print(res)
                 response = make_response(res)
@@ -106,7 +106,7 @@ def qyweixin_authorization():
         if 'event' in msg_type:
             event_key = xml_tree.find("EventKey").text
             print(event_key)
-            if 'verifycode' in event_key:
+            if event_key == 'verifycode':
                 from weixin_scrapy.verifycode import handel_verifycode
                 res = utils.msg_encrp(wxcpt=wxcpt, to_user=to_user, from_user=from_user, content='url',
                                       sReqNonce=sVerifyNonce)
