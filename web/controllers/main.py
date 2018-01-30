@@ -105,7 +105,8 @@ def qyweixin_authorization():
                 return res
         if 'event' in msg_type:
             event_key = xml_tree.find("EventKey")
-            if event_key == 'verifycode':
+            print(event_key)
+            if 'verifycode' in event_key:
                 from weixin_scrapy.verifycode import handel_verifycode
                 res = utils.msg_encrp(wxcpt=wxcpt, to_user=to_user, from_user=from_user, content='url',
                                       sReqNonce=sVerifyNonce)
