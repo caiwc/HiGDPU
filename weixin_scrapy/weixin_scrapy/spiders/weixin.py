@@ -39,7 +39,9 @@ class WeixinSpider(scrapy.Spider):
         'Host': 'mp.weixin.qq.com',
 
     }
-    error_set = set()
+    error_set = dict()
+    weixin_flag = True
+    sougou_flag = True
 
     def __init__(self):
         super(WeixinSpider, self).__init__()
@@ -52,7 +54,7 @@ class WeixinSpider(scrapy.Spider):
         crawl_info = self.crawler.stats._stats
         error = crawl_info.get('log_count/ERROR', None)
         if error:
-            error = str(error)+' ('+";".join(self.error_set)+')'
+            error = str(error) + ' ({})'.format(";".join(self.error_set.keys()))
         warning = crawl_info.get('log_count/WARNING', None)
         item_scraped = crawl_info.get('item_scraped_count', 0)
         request_scraped = crawl_info.get('downloader/request_count', 0)
@@ -63,6 +65,9 @@ class WeixinSpider(scrapy.Spider):
         """.format(crawl_time=crawl_time, request_scraped=request_scraped, item_scraped=item_scraped, error=error,
                    warning=warning)
         send_weixin_message(send_type=qyweixin_text_type, msg_content=info)
+        if error:
+            for url in self.error_set.values():
+                send_weixin_message(qyweixin_text_type, url)
 
     def start_requests(self):
         gzh_dict = settings.GZH_DICT
@@ -73,45 +78,51 @@ class WeixinSpider(scrapy.Spider):
             time.sleep(settings.SOGOU_SLEEP_TIME)
 
     def gzh_host_parse(self, response):
-        gzh = response.meta.get('gzh')
-        self.logger.info("parse the {}".format(gzh))
-        gzh_host_url = response.css('#sogou_vr_11002301_box_0 .gzh-box2 .txt-box .tit a::attr(href)').extract_first("")
-        if gzh_host_url:
-            yield Request(url=gzh_host_url, dont_filter=True, callback=self.gzh_article_parse, headers=self.gzh_headers,
-                          meta={'gzh': gzh})
-            time.sleep(settings.WEIXIN_SLEEP_TIME)
-        else:
-            self.error_set.add("sogou_host")
-            self.logger.error("{} without host".format(gzh))
+        if self.sougou_flag:
+            gzh = response.meta.get('gzh')
+            self.logger.info("parse the {}".format(gzh))
+            gzh_host_url = response.css('#sogou_vr_11002301_box_0 .gzh-box2 .txt-box .tit a::attr(href)').extract_first(
+                "")
+            if gzh_host_url:
+                yield Request(url=gzh_host_url, dont_filter=True, callback=self.gzh_article_parse,
+                              headers=self.gzh_headers,
+                              meta={'gzh': gzh})
+                time.sleep(settings.WEIXIN_SLEEP_TIME)
+            else:
+                self.error_set.update({"sogou": response.url})
+                self.logger.error("{} without host".format(gzh))
+                self.sougou_flag = False
 
     def gzh_article_parse(self, response):
-        gzh = response.meta.get('gzh')
-        self.logger.info("parse the {} host".format(gzh))
-        script_text = response.xpath('/html/body/script[6]/text()').extract_first("")
-        mg_list_check = re.search('.*?msgList\s=\s(.*?}]});', script_text)
-        if mg_list_check:
-            mg_list = mg_list_check.group(1)
-            mg_list = json.loads(mg_list)
-            if 'list' in mg_list:
-                for art_item in mg_list['list']:
-                    art_url = art_item['app_msg_ext_info']['content_url']
-                    art_url = parse.urljoin(self.wx_art_domains[0], art_url)
-                    art_url = art_url.replace('amp;', '')
-                    art_title = art_item['app_msg_ext_info']['title']
-                    art_cover = art_item['app_msg_ext_info']['cover']
-                    art_digest = art_item['app_msg_ext_info']['digest']
-                    art_publish_time = art_item['comm_msg_info']['datetime']
-                    art = {
-                        'cover': art_cover,
-                        'digest': art_digest,
-                        'publish_time': art_publish_time,
-                        'title': art_title
-                    }
-                    yield Request(url=art_url, dont_filter=True, callback=self.parse, headers=self.gzh_headers,
-                                  meta={'art_dict': art, 'gzh': gzh})
-        else:
-            self.error_set.add("weixin_gzh")
-            self.logger.error("{} without article".format(gzh))
+        if self.weixin_flag:
+            gzh = response.meta.get('gzh')
+            self.logger.info("parse the {} host".format(gzh))
+            script_text = response.xpath('/html/body/script[6]/text()').extract_first("")
+            mg_list_check = re.search('.*?msgList\s=\s(.*?}]});', script_text)
+            if mg_list_check:
+                mg_list = mg_list_check.group(1)
+                mg_list = json.loads(mg_list)
+                if 'list' in mg_list:
+                    for art_item in mg_list['list']:
+                        art_url = art_item['app_msg_ext_info']['content_url']
+                        art_url = parse.urljoin(self.wx_art_domains[0], art_url)
+                        art_url = art_url.replace('amp;', '')
+                        art_title = art_item['app_msg_ext_info']['title']
+                        art_cover = art_item['app_msg_ext_info']['cover']
+                        art_digest = art_item['app_msg_ext_info']['digest']
+                        art_publish_time = art_item['comm_msg_info']['datetime']
+                        art = {
+                            'cover': art_cover,
+                            'digest': art_digest,
+                            'publish_time': art_publish_time,
+                            'title': art_title
+                        }
+                        yield Request(url=art_url, dont_filter=True, callback=self.parse, headers=self.gzh_headers,
+                                      meta={'art_dict': art, 'gzh': gzh})
+            else:
+                self.error_set.update({'weixin_gzh': response.url})
+                self.logger.error("{} without article".format(gzh))
+                self.weixin_flag = False
 
     def parse(self, response):
         item_loader = TakeFirstScrapyLoader(item=WeixinScrapyItem(), response=response)
