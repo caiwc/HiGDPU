@@ -1,11 +1,12 @@
 from selenium import webdriver
 from qyweixin import qyweixin_api
 import time
+from web.utils import timeoutFn
 from weixin_scrapy.settings import PHANTOMJS_PATH
 
 
 def handel_verifycode(url, operation='weixin'):
-    if len(PHANTOMJS_PATH)>0:
+    if len(PHANTOMJS_PATH) > 0:
         driver = webdriver.PhantomJS(PHANTOMJS_PATH)
     else:
         driver = webdriver.PhantomJS()
@@ -17,27 +18,34 @@ def handel_verifycode(url, operation='weixin'):
     driver.get_screenshot_as_file("/tmp/HiGDPU/index.png")
     media_id = qyweixin_api.upload_media(qyweixin_api.qyweixin_img_type, "/tmp/HiGDPU/index.png")
     qyweixin_api.send_weixin_message(qyweixin_api.qyweixin_img_type, {'media_id': media_id})
-    code = input('验证码:')
-    if operation == 'weixin':
-        driver.find_element_by_id('input').send_keys(code)
-        driver.find_element_by_id('bt').click()
-    elif operation == 'sougou':
-        driver.find_element_by_id('seccodeInput').send_keys(code)
-        driver.find_element_by_id('submit').click()
-    time.sleep(3)
-    driver.get_screenshot_as_file("/tmp/HiGDPU/success.png")
-    s_media_id = qyweixin_api.upload_media(qyweixin_api.qyweixin_img_type, "/tmp/HiGDPU/success.png")
-    qyweixin_api.send_weixin_message(qyweixin_api.qyweixin_img_type, {'media_id': s_media_id})
-    if operation == 'sougou':
-        try:
-            driver.find_element_by_xpath('//*[@id="sogou_vr_11002301_box_0"]/div/div[2]/p[1]/a').click()
-            time.sleep(2)
-            driver.get_screenshot_as_file("/tmp/HiGDPU/success.png")
-            s_media_id = qyweixin_api.upload_media(qyweixin_api.qyweixin_img_type, "/tmp/HiGDPU/success.png")
-            qyweixin_api.send_weixin_message(qyweixin_api.qyweixin_img_type, {'media_id': s_media_id})
-        except:
-            pass
+    code = timeoutFn(get_code, timeout_duration=5, default=None)
+    if code:
+        if operation == 'weixin':
+            driver.find_element_by_id('input').send_keys(code)
+            driver.find_element_by_id('bt').click()
+        elif operation == 'sougou':
+            driver.find_element_by_id('seccodeInput').send_keys(code)
+            driver.find_element_by_id('submit').click()
+        time.sleep(3)
+        driver.get_screenshot_as_file("/tmp/HiGDPU/success.png")
+        s_media_id = qyweixin_api.upload_media(qyweixin_api.qyweixin_img_type, "/tmp/HiGDPU/success.png")
+        qyweixin_api.send_weixin_message(qyweixin_api.qyweixin_img_type, {'media_id': s_media_id})
+        if operation == 'sougou':
+            try:
+                driver.find_element_by_xpath('//*[@id="sogou_vr_11002301_box_0"]/div/div[2]/p[1]/a').click()
+                time.sleep(2)
+                driver.get_screenshot_as_file("/tmp/HiGDPU/success.png")
+                s_media_id = qyweixin_api.upload_media(qyweixin_api.qyweixin_img_type, "/tmp/HiGDPU/success.png")
+                qyweixin_api.send_weixin_message(qyweixin_api.qyweixin_img_type, {'media_id': s_media_id})
+            except:
+                pass
     driver.quit()
+    return True
+
+
+def get_code():
+    code = input('输入验证码')
+    return code
 
 
 if __name__ == '__main__':

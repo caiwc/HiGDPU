@@ -16,7 +16,7 @@ def gen_openId(thirdsession):
     return res
 
 
-def msg_encrp(wxcpt, to_user, from_user, content, sReqNonce,msgid):
+def msg_encrp(wxcpt, to_user, from_user, content, sReqNonce):
     import time
     timestamp = str(int(time.time()))
     sRespData = """
@@ -26,12 +26,43 @@ def msg_encrp(wxcpt, to_user, from_user, content, sReqNonce,msgid):
             <CreateTime>{timestamp}</CreateTime>
             <MsgType><![CDATA[text]]></MsgType>
             <Content><![CDATA[{content}]]></Content>
-            <MsgId>{msgid}</MsgId>
-            <AgentID>1000003</AgentID>
             </xml>
-        """.format(to_user=to_user, from_user=from_user, timestamp=timestamp, content=content,msgid=msgid)
+        """.format(to_user=to_user, from_user=from_user, timestamp=timestamp, content=content.encode('utf-8'))
     print(sRespData)
     ret, sEncryptMsg = wxcpt.EncryptMsg(sRespData, sReqNonce, timestamp)
     if (ret != 0):
         raise ValueError("ERR: EncryptMsg ret: " + str(ret))
     return sEncryptMsg
+
+
+def timeoutFn(func, kwargs={}, timeout_duration=1, default=None):
+    import signal
+
+    class TimeoutError(Exception):
+        pass
+
+    def handler(signum, frame):
+        print('time out')
+        raise TimeoutError()
+
+    # set the timeout handler
+    signal.signal(signal.SIGALRM, handler)
+    signal.alarm(timeout_duration)
+    try:
+        result = func(**kwargs)
+    except TimeoutError as exc:
+        result = default
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, signal.SIG_DFL)
+
+    return result
+
+
+def get_code():
+    code = input('输入验证码')
+    return code
+
+
+if __name__ == '__main__':
+    print(timeoutFn(get_code, timeout_duration=5, default='no'))

@@ -87,19 +87,34 @@ def qyweixin_authorization():
             raise ValueError("ERR: VerifyURL ret: " + str(ret))
         xml_tree = ET.fromstring(sMsg)
         print(sMsg)
-        content = xml_tree.find("Content").text
+        msg_type = xml_tree.find("MsgType").text
         from_user = xml_tree.find('ToUserName').text
         to_user = xml_tree.find('FromUserName').text
         MsgId = xml_tree.find('MsgId').text
-        if content == config.QYWEIXIN_VERIFYCODE:
-            res = utils.msg_encrp(wxcpt=wxcpt, to_user=to_user,from_user=from_user, content='url', sReqNonce=sVerifyNonce,msgid=MsgId)
-            print(res)
-            response = make_response(res)
-            response.content_type = 'application/xml'
-            return response
-        else:
-            res = utils.msg_encrp(wxcpt=wxcpt, to_user=to_user,from_user=from_user, content='url', sReqNonce=sVerifyNonce,msgid=MsgId)
-            return res
+        if 'text' in msg_type:
+            content = xml_tree.find("Content").text
+            if content == config.QYWEIXIN_VERIFYCODE:
+                res = utils.msg_encrp(wxcpt=wxcpt, to_user=to_user, from_user=from_user, content='url',
+                                      sReqNonce=sVerifyNonce)
+                print(res)
+                response = make_response(res)
+                response.content_type = 'application/xml'
+                return response
+            else:
+                res = utils.msg_encrp(wxcpt=wxcpt, to_user=to_user, from_user=from_user, content='url',
+                                      sReqNonce=sVerifyNonce)
+                return res
+        if 'event' in msg_type:
+            event_key = xml_tree.find("EventKey")
+            if event_key == 'verifycode':
+                from weixin_scrapy.verifycode import handel_verifycode
+                res = utils.msg_encrp(wxcpt=wxcpt, to_user=to_user, from_user=from_user, content='url',
+                                      sReqNonce=sVerifyNonce)
+                print(res)
+                response = make_response(res)
+                response.content_type = 'application/xml'
+                return response
+
 # @main_blueprint.route('/login', methods=['GET', 'POST'])
 # @oid.loginhandler
 # def login():
