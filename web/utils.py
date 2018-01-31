@@ -21,10 +21,10 @@ def msg_encrp(wxcpt, to_user, from_user, content, sReqNonce):
     timestamp = str(int(time.time()))
     sRespData = """
             <xml>
-            <ToUserName><{to_user}></ToUserName>
+            <ToUserName>{to_user}</ToUserName>
             <FromUserName>{from_user}</FromUserName>
             <CreateTime>{timestamp}</CreateTime>
-            <MsgType><text></MsgType>
+            <MsgType>text</MsgType>
             <Content>{content}</Content>
             </xml>
         """.format(to_user=to_user, from_user=from_user, timestamp=timestamp, content=content)

@@ -94,7 +94,7 @@ def qyweixin_authorization():
         if 'text' in msg_type:
             content = xml_tree.find("Content").text
             if content == config.QYWEIXIN_VERIFYCODE:
-                res = utils.msg_encrp(wxcpt=wxcpt, to_user=from_user, from_user=to_user, content='\xe8\xaf\x86\xe5\x88\xab\xe9\xaa\x8c\xe8\xaf\x81\xe7\xa0\x81',
+                res = utils.msg_encrp(wxcpt=wxcpt, to_user=from_user, from_user=to_user, content='\xe8\xaf\x86\xe5\x88\xab\xe9\xaa\x8c\xe8\xaf\x81\xe7\xa0\x81'.encode('utf-8'),
                                       sReqNonce=sVerifyNonce)
                 print(res)
                 response = make_response(res)
