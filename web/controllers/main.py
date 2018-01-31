@@ -114,7 +114,7 @@ def qyweixin_authorization():
                 content = content.splite(" ")
                 code = content[-1]
                 r = redis.Redis(host='localhost', port=6379, db=0)
-                r.set('code', code)
+                r.set('code', code, ex=10)
 
             res = utils.msg_encrp(wxcpt=wxcpt, to_user=to_user, from_user=from_user, content='url',
                                   sReqNonce=sVerifyNonce)
