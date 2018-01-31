@@ -35,8 +35,8 @@ class DevConfig(Config):
     DEBUG = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     SQLALCHEMY_DATABASE_URI = SQL_URI
-    CELERY_BROKER_URL = "amqp://guest:guest@localhost:5672//"
-    CELERY_BACKEND_URL = "amqp://guest:guest@localhost:5672//"
+    CELERY_BROKER_URL = "redis://localhost:6379/0"
+    CELERY_BACKEND_URL = "redis://localhost:6379/1"
 
     CELERYBEAT_SCHEDULE = {
         'weekly-digest': {

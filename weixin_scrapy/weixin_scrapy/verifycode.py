@@ -3,9 +3,10 @@ from qyweixin import qyweixin_api
 import time
 from web.utils import timeoutFn
 from weixin_scrapy.settings import PHANTOMJS_PATH
+import redis
 
 
-def handel_verifycode(url, operation='weixin'):
+def handel_verifycode(url, operation='weixin', by_qyweixin=False):
     if len(PHANTOMJS_PATH) > 0:
         driver = webdriver.PhantomJS(PHANTOMJS_PATH)
     else:
@@ -18,7 +19,7 @@ def handel_verifycode(url, operation='weixin'):
     driver.get_screenshot_as_file("/tmp/HiGDPU/index.png")
     media_id = qyweixin_api.upload_media(qyweixin_api.qyweixin_img_type, "/tmp/HiGDPU/index.png")
     qyweixin_api.send_weixin_message(qyweixin_api.qyweixin_img_type, {'media_id': media_id})
-    code = timeoutFn(get_code, timeout_duration=20, default=None)
+    code = timeoutFn(get_code, kwargs={'by_qyweixin': by_qyweixin}, timeout_duration=20, default=None)
     if code:
         if operation == 'weixin':
             driver.find_element_by_id('input').send_keys(code)
@@ -43,9 +44,24 @@ def handel_verifycode(url, operation='weixin'):
     return True
 
 
-def get_code():
-    code = input('输入验证码')
-    return code
+def get_code(by_qyweixin):
+    if not by_qyweixin:
+        code = input('输入验证码')
+        return code
+    else:
+        r = redis.Redis(host='localhost', port=6379, db=0)
+        for i in range(20):
+            try:
+                a = r.get('code')
+                if a:
+                    print('success to get code')
+                    return a
+                else:
+                    time.sleep(1)
+                    print('fail to get code,count {}'.format(i + 1))
+            except:
+                print('fail to get code,count {}'.format(i+1))
+        return None
 
 
 if __name__ == '__main__':

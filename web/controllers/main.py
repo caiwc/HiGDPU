@@ -10,6 +10,7 @@ from flask import (current_app,
 from web import config
 import requests
 import json
+import redis
 from web import utils
 from flask_restful import reqparse
 from web.models import db
