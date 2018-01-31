@@ -55,7 +55,7 @@ def get_code(by_qyweixin):
                 a = r.get('code')
                 if a:
                     print('success to get code')
-                    return a
+                    return str(a)
                 else:
                     time.sleep(1)
                     print('fail to get code,count {}'.format(i + 1))

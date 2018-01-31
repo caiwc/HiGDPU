@@ -66,7 +66,6 @@ def authorization():
             return res_json['errmsg']
     return 'request error'
 
-
 @main_blueprint.route('/api/qyweixin', methods=['GET', 'POST'])
 def qyweixin_authorization():
     import xml.etree.cElementTree as ET
@@ -102,16 +101,29 @@ def qyweixin_authorization():
                 response = make_response(res)
                 response.content_type = 'application/xml'
                 return response
-            else:
-                res = utils.msg_encrp(wxcpt=wxcpt, to_user=to_user, from_user=from_user, content='url',
-                                      sReqNonce=sVerifyNonce)
-                return res
+
+            elif content.endswith('url'):
+                content = content.splite(" ")
+                from weixin_scrapy.verifycode import handel_verifycode
+                url = content[1]
+                operation = content[0]
+                if url and operation:
+                    handel_verifycode(url=url, operation=operation, by_qyweixin=True)
+
+            elif content.startswith('$'):
+                content = content.splite(" ")
+                code = content[-1]
+                r = redis.Redis(host='localhost', port=6379, db=0)
+                r.set('code', code)
+
+            res = utils.msg_encrp(wxcpt=wxcpt, to_user=to_user, from_user=from_user, content='url',
+                                  sReqNonce=sVerifyNonce)
+            return res
+
         if 'event' in msg_type:
             event_key = xml_tree.find("EventKey").text
             print(event_key)
             if event_key == 'verifycode':
-                from weixin_scrapy.verifycode import handel_verifycode
-                handel_verifycode(url='', operation='weixin', by_qyweixin=True)
                 res = utils.msg_encrp(wxcpt=wxcpt, to_user=to_user, from_user=from_user, content='url',
                                       sReqNonce=sVerifyNonce)
                 response = make_response(res)
