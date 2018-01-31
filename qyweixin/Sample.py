@@ -98,7 +98,7 @@ if __name__ == "__main__":
     2.将明文加密得到密文。   3.用密文，步骤1生成的timestamp,nonce和企业在企业微信设定的token生成消息体签名。   4.将密文，消息体签名，时间戳，随机数字串拼接成xml格式的字符串，发送给企业号。
     以上2，3，4步可以用企业微信提供的库函数EncryptMsg来实现。
     '''
-    sRespData = "<xml><ToUserName>ww1436e0e65a779aee</ToUserName><FromUserName>ChenJiaShun</FromUserName><CreateTime>1476422779</CreateTime><MsgType>text</MsgType><Content>{xx}</Content><MsgId>1456453720</MsgId><AgentID>1000002</AgentID></xml>".format(xx='识别验证码'.encode('utf-8'))
+    sRespData = "<xml><ToUserName>ww1436e0e65a779aee</ToUserName><FromUserName>ChenJiaShun</FromUserName><CreateTime>1476422779</CreateTime><MsgType>text</MsgType><Content>{xx}</Content><MsgId>1456453720</MsgId><AgentID>1000002</AgentID></xml>".format(xx='url')
     ret, sEncryptMsg = wxcpt.EncryptMsg(sRespData, sReqNonce, sReqTimeStamp)
     if (ret != 0):
         print("ERR: EncryptMsg ret: " + str(ret))
