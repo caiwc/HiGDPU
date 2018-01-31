@@ -66,6 +66,7 @@ def authorization():
             return res_json['errmsg']
     return 'request error'
 
+
 @main_blueprint.route('/api/qyweixin', methods=['GET', 'POST'])
 def qyweixin_authorization():
     import xml.etree.cElementTree as ET
@@ -103,10 +104,11 @@ def qyweixin_authorization():
                 return response
 
             elif content.endswith('url'):
-                content = content.splite(" ")
+                content = content.split(" ")
                 from weixin_scrapy.verifycode import handel_verifycode
                 url = content[1]
                 operation = content[0]
+                print(url, operation)
                 if url and operation:
                     handel_verifycode(url=url, operation=operation, by_qyweixin=True)
 
