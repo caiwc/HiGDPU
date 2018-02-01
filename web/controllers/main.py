@@ -15,6 +15,7 @@ from web import utils
 from flask_restful import reqparse
 from web.models import db
 from qyweixin.WXBizMsgCrypt import WXBizMsgCrypt
+from web.tasks import verifycode_handle
 
 # from flask.ext.principal import (
 #     Identity,
@@ -105,14 +106,13 @@ def qyweixin_authorization():
 
             elif content.endswith('url'):
                 content = content.split(" ")
-                from weixin_scrapy.verifycode import handel_verifycode
                 url = content[1]
                 operation = content[0]
                 print(url, operation)
                 if url and operation:
-                    handel_verifycode(url=url, operation=operation, by_qyweixin=True)
+                    verifycode_handle.apply_async(kwargs={'url': url, 'operation': operation})
 
-            elif content.startswith('$'):
+            elif content.startswith('-'):
                 content = content.splite(" ")
                 code = content[-1]
                 r = redis.Redis(host='localhost', port=6379, db=0)

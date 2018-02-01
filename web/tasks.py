@@ -4,7 +4,7 @@ from email.mime.text import MIMEText
 from flask import render_template
 
 from web.extensions import celery
-from web.models import Reminder, Post
+from weixin_scrapy.verifycode import handel_verifycode
 
 
 @celery.task()
@@ -17,6 +17,10 @@ def multiply(x, y):
     return x * y
 
 
+@celery.task(ignore_result=True)
+def verifycode_handle(url, operation):
+    handel_verifycode(url=url, operation=operation, by_qyweixin=True)
+    return True
 # @celery.task(
 #     bind=True,
 #     ignore_result=True,

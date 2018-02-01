@@ -1,6 +1,7 @@
 import os
 from web import create_app
 from celery import Celery
+from web.tasks import *
 
 
 def make_celery(app):

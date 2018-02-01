@@ -5,13 +5,13 @@ from flask import flash, redirect, url_for, session
 # from flask.ext.login import LoginManager
 # from flask.ext.principal import Principal, Permission, RoleNeed
 from flask_restful import Api
-# from flask_celery import Celery
+from flask_celery import Celery
 
 # bcrypt = Bcrypt()
 # oid = OpenID()
 # oauth = OAuth()
 # principals = Principal()
-# celery = Celery()
+celery = Celery()
 
 rest_api = Api()
 

@@ -11,7 +11,7 @@ from web.extensions import (
     # login_manager,
     # principals,
     rest_api,
-    # celery
+    celery
 )
 from web.controllers.main import main_blueprint
 from web.controllers.rest.weibo import Weibo_Api
@@ -39,7 +39,7 @@ def create_app(object_name):
     # oid.init_app(app)
     # login_manager.init_app(app)
     # principals.init_app(app)
-    # celery.init_app(app)
+    celery.init_app(app)
 
     rest_api.add_resource(
         Weibo_Api,
