@@ -3,5 +3,5 @@ from web import create_app
 
 app = create_app('web.config.DevConfig')
 
-server = WSGIServer(('', 80), app)
+server = WSGIServer(('', 5000), app)
 server.serve_forever()
