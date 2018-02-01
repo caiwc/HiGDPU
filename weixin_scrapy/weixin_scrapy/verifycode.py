@@ -2,7 +2,7 @@ from selenium import webdriver
 from qyweixin import qyweixin_api
 import time
 from web.utils import timeoutFn
-from weixin_scrapy.settings import PHANTOMJS_PATH
+from weixin_scrapy.weixin_scrapy.settings import PHANTOMJS_PATH
 import redis
 
 
