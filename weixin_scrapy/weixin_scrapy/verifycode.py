@@ -46,6 +46,7 @@ def handel_verifycode(url, operation='weixin', by_qyweixin=False):
 
 
 def get_code(by_qyweixin):
+    time.sleep(10)
     if not by_qyweixin:
         code = input('输入验证码')
         return code
