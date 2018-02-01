@@ -1,3 +1,3 @@
 from web import create_app
 
-app = create_app("webapp.config.DevConfig")
+app = create_app("web.config.DevConfig")

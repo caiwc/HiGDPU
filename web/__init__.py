@@ -1,4 +1,4 @@
-from sqlalchemy import event
+# from sqlalchemy import event
 
 from flask import Flask
 
