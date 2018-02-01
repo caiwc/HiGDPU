@@ -113,7 +113,7 @@ def qyweixin_authorization():
                     verifycode_handle.apply_async(kwargs={'url': url, 'operation': operation})
 
             elif content.startswith('-'):
-                content = content.splite(" ")
+                content = content.split(" ")
                 code = content[-1]
                 r = redis.Redis(host='localhost', port=6379, db=0)
                 r.set('code', code, ex=10)
