@@ -20,6 +20,7 @@ def handel_verifycode(url, operation='weixin', by_qyweixin=False):
     media_id = qyweixin_api.upload_media(qyweixin_api.qyweixin_img_type, "/tmp/HiGDPU/index.png")
     qyweixin_api.send_weixin_message(qyweixin_api.qyweixin_img_type, {'media_id': media_id})
     code = timeoutFn(get_code, kwargs={'by_qyweixin': by_qyweixin}, timeout_duration=30, default=None)
+    print('code', code)
     if code:
         if operation == 'weixin':
             driver.find_element_by_id('input').send_keys(code)
@@ -60,7 +61,7 @@ def get_code(by_qyweixin):
                     time.sleep(1)
                     print('fail to get code,count {}'.format(i + 1))
             except:
-                print('fail to get code,count {}'.format(i+1))
+                print('fail to get code,count {}'.format(i + 1))
         return None
 
 
