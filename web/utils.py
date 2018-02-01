@@ -65,12 +65,3 @@ def timeoutFn(func, kwargs={}, timeout_duration=1, default=None):
         signal.signal(signal.SIGALRM, signal.SIG_DFL)
 
     return result
-
-
-def get_code():
-    code = input('输入验证码')
-    return code
-
-
-if __name__ == '__main__':
-    print(timeoutFn(get_code, timeout_duration=5, default='no'))
