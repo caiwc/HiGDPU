@@ -107,13 +107,13 @@ def qyweixin_authorization():
                 res_content = "waiting..."
                 print(wxcpt.verify_url, wxcpt.verify_operation)
                 verifycode_handle.apply_async(kwargs={'url': wxcpt.verify_url, 'operation': wxcpt.verify_operation})
-                wxcpt.verify_code = None
                 wxcpt.verify_url = None
                 wxcpt.verify_operation = None
             elif wxcpt.verify_code == can_commit:
                 r = redis.Redis(host='localhost', port=6379, db=0)
                 r.set('code', content, ex=10)
                 res_content = "success to input code"
+                wxcpt.verify_code = None
             else:
                 res_content = "I don't know what you say,please input again"
 
