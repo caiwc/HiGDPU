@@ -15,7 +15,6 @@ import time
 import struct
 from Crypto.Cipher import AES
 import xml.etree.cElementTree as ET
-import sys
 import socket
 from qyweixin import ierror
 
@@ -217,6 +216,10 @@ class WXBizMsgCrypt(object):
             # return ierror.WXBizMsgCrypt_IllegalAesKey,None
         self.m_sToken = sToken
         self.m_sCorpid = sCorpId
+
+        self.verify_url = None
+        self.verify_operation = None
+        self.verify_code = None
 
         # 验证URL
         # @param sMsgSignature: 签名串，对应URL参数的msg_signature

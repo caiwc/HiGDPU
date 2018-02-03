@@ -67,15 +67,18 @@ def authorization():
             return res_json['errmsg']
     return 'request error'
 
-
+can_commit = 'can_commit'
+wxcpt = None
 @main_blueprint.route('/api/qyweixin', methods=['GET', 'POST'])
 def qyweixin_authorization():
+    global wxcpt
     import xml.etree.cElementTree as ET
     arg = request.args
     sVerifyMsgSig = arg['msg_signature']
     sVerifyTimeStamp = arg['timestamp']
     sVerifyNonce = arg['nonce']
-    wxcpt = WXBizMsgCrypt(config.Token, config.EncodingAESKey, config.CORPID)
+    if not wxcpt or not isinstance(wxcpt, WXBizMsgCrypt):
+        wxcpt = WXBizMsgCrypt(config.Token, config.EncodingAESKey, config.CORPID)
     if request.method == 'GET':
         sVerifyEchoStr = arg['echostr']
         ret, sEchoStr = wxcpt.VerifyURL(sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce, sVerifyEchoStr)
@@ -94,42 +97,42 @@ def qyweixin_authorization():
         to_user = xml_tree.find('FromUserName').text
         if 'text' in msg_type:
             content = xml_tree.find("Content").text
-            if content == config.QYWEIXIN_VERIFYCODE:
-                res = utils.msg_encrp(wxcpt=wxcpt, to_user=from_user, from_user=to_user,
-                                      content='',
-                                      sReqNonce=sVerifyNonce)
-                print(res)
-                response = make_response(res)
-                response.content_type = 'application/xml'
-                return response
-
-            elif content.endswith('url'):
-                content = content.split(" ")
-                url = content[1]
-                operation = content[0]
-                print(url, operation)
-                if url and operation:
-                    verifycode_handle.apply_async(kwargs={'url': url, 'operation': operation})
-
-            elif content.startswith('-'):
-                content = content.split(" ")
-                code = content[-1]
+            print(content)
+            if content.startswith("http") and wxcpt.verify_url == can_commit:
+                wxcpt.verify_url = content
+                wxcpt.verify_operation = can_commit
+                res_content = "please input operation"
+            elif wxcpt.verify_operation == can_commit:
+                wxcpt.verify_operation = content
+                res_content = "waiting..."
+                print(wxcpt.verify_url, wxcpt.verify_operation)
+                verifycode_handle.apply_async(kwargs={'url': wxcpt.verify_url, 'operation': wxcpt.verify_operation})
+                wxcpt.verify_code = None
+                wxcpt.verify_url = None
+                wxcpt.verify_operation = None
+            elif wxcpt.verify_code == can_commit:
                 r = redis.Redis(host='localhost', port=6379, db=0)
-                r.set('code', code, ex=10)
+                r.set('code', content, ex=10)
+                res_content = "success to input code"
+            else:
+                res_content = "I don't know what you say,please input again"
 
-            res = utils.msg_encrp(wxcpt=wxcpt, to_user=to_user, from_user=from_user, content='url',
-                                  sReqNonce=sVerifyNonce)
-            return res
-
-        if 'event' in msg_type:
+        elif 'event' in msg_type:
             event_key = xml_tree.find("EventKey").text
             print(event_key)
             if event_key == 'verifycode':
-                res = utils.msg_encrp(wxcpt=wxcpt, to_user=to_user, from_user=from_user, content='input url',
-                                      sReqNonce=sVerifyNonce)
-                response = make_response(res)
-                response.content_type = 'application/xml'
-                return response
+                res_content = "please input url"
+                wxcpt.verify_url = can_commit
+                wxcpt.verify_operation = can_commit
+            else:
+                res_content = "without thi event"
+        else:
+            res_content = "I don't know what you say,please input again"
+        res = utils.msg_encrp(wxcpt=wxcpt, to_user=to_user, from_user=from_user, content=res_content,
+                              sReqNonce=sVerifyNonce)
+        response = make_response(res)
+        response.content_type = 'application/xml'
+        return response
 
 # @main_blueprint.route('/login', methods=['GET', 'POST'])
 # @oid.loginhandler
