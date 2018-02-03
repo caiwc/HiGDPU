@@ -32,15 +32,7 @@ def msg_encrp(wxcpt, to_user, from_user, content, sReqNonce):
     ret, sEncryptMsg,item = wxcpt.EncryptMsg(sRespData, sReqNonce, timestamp)
     if (ret != 0):
         raise ValueError("ERR: EncryptMsg ret: " + str(ret))
-    res = """
-    <xml>
-<Encrypt><![CDATA[m69NhQ1UCXVSV4nbqh0o/8Dw/+7uHQuabEFLpb5Sss8SYne1C/F/JUwECLZ3+6BEQcFYowh+PXGjOCRRm0REYLs9461btuOl/NUoqCUNpS9lcKp+VJANiM+wn2ULFjJGYw8w1VPs9OPuaPzGy53tY1iERy//eSV3o2y3H6f9W/JEdD8BF66g1uOKq7V15OwRNCVsNUKLWnbq8+UxigZqCqPXlPjXr7ZqbygfhopkADjJN2ijc1EzEuQ9FBHOORP+UPgch/BNp5Edf4W/m81aqEiifoabjOq/ChfniaahawstaJNaWJ3cCKnI+uP4xw7bDUegVI26FKI1TFrv4WRp3ISBr2u03AZj+/g9rzG7e2c0+cUZSpwKRu6epGQoERxwY3avuMvrgVsMZ3X8zGw7B7DQLt/o0ImpEP20Shx/swxOi6+roOP1fPq0yNr+ccPXEUSXb9TxxVBizCGhkPHz5w==]]></Encrypt>
-<MsgSignature><![CDATA[4b07f10c27d4537e159a88d90cbda858b4513f5b]]></MsgSignature>
-<TimeStamp>1517375802</TimeStamp>
-<Nonce><![CDATA[1597212914]]></Nonce>
-</xml>
-    """
-    return res
+    return sEncryptMsg
 
 
 def timeoutFn(func, kwargs={}, timeout_duration=1, default=None):
