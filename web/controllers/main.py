@@ -96,8 +96,7 @@ def qyweixin_authorization():
             content = xml_tree.find("Content").text
             if content == config.QYWEIXIN_VERIFYCODE:
                 res = utils.msg_encrp(wxcpt=wxcpt, to_user=from_user, from_user=to_user,
-                                      content='\xe8\xaf\x86\xe5\x88\xab\xe9\xaa\x8c\xe8\xaf\x81\xe7\xa0\x81'.encode(
-                                          'utf-8'),
+                                      content='',
                                       sReqNonce=sVerifyNonce)
                 print(res)
                 response = make_response(res)
@@ -126,7 +125,7 @@ def qyweixin_authorization():
             event_key = xml_tree.find("EventKey").text
             print(event_key)
             if event_key == 'verifycode':
-                res = utils.msg_encrp(wxcpt=wxcpt, to_user=to_user, from_user=from_user, content='url',
+                res = utils.msg_encrp(wxcpt=wxcpt, to_user=to_user, from_user=from_user, content='input url',
                                       sReqNonce=sVerifyNonce)
                 response = make_response(res)
                 response.content_type = 'application/xml'

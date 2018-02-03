@@ -147,7 +147,8 @@ class Prpcrypt(object):
         @return: 加密得到的字符串
         """
         # 16位随机字符串添加到明文开头
-        text = self.get_random_str() + str(struct.pack("I", socket.htonl(len(text)))) + text + corpid
+
+        text = "dHNJYBDsWX0EzKtI" + struct.pack("I", socket.htonl(len(text))).decode("utf-8") + text + corpid
         # 使用自定义的填充方式对明文进行补位填充
         pkcs7 = PKCS7Encoder()
         text = pkcs7.encode(text)
@@ -247,6 +248,7 @@ class WXBizMsgCrypt(object):
         """
         pc = Prpcrypt(self.key)
         ret, encrypt = pc.encrypt(sReplyMsg, self.m_sCorpid)
+        encrypt = encrypt.decode('utf-8')
         if ret != 0:
             return ret, None
         if timestamp is None:
@@ -257,7 +259,7 @@ class WXBizMsgCrypt(object):
         if ret != 0:
             return ret, None
         xmlParse = XMLParse()
-        return ret, xmlParse.generate(encrypt.decode('utf-8'), signature, timestamp, sNonce)
+        return ret, xmlParse.generate(encrypt, signature, timestamp, sNonce),{'signature':signature,'timestamp':timestamp,'sNonce':sNonce,'encrypt':encrypt}
 
     def DecryptMsg(self, sPostData, sMsgSignature, sTimeStamp, sNonce):
         """

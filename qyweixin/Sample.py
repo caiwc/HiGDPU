@@ -65,7 +65,8 @@ if __name__ == "__main__":
     sReqMsgSig = "0c3914025cb4b4d68103f6bfc8db550f79dcf48e"
     sReqTimeStamp = "1476422779"
     sReqNonce = "1597212914"
-    sReqData = "<xml><ToUserName><![CDATA[ww1436e0e65a779aee]]></ToUserName>\n<Encrypt><![CDATA[Kl7kjoSf6DMD1zh7rtrHjFaDapSCkaOnwu3bqLc5tAybhhMl9pFeK8NslNPVdMwmBQTNoW4mY7AIjeLvEl3NyeTkAgGzBhzTtRLNshw2AEew+kkYcD+Fq72Kt00fT0WnN87hGrW8SqGc+NcT3mu87Ha3dz1pSDi6GaUA6A0sqfde0VJPQbZ9U+3JWcoD4Z5jaU0y9GSh010wsHF8KZD24YhmZH4ch4Ka7ilEbjbfvhKkNL65HHL0J6EYJIZUC2pFrdkJ7MhmEbU2qARR4iQHE7wy24qy0cRX3Mfp6iELcDNfSsPGjUQVDGxQDCWjayJOpcwocugux082f49HKYg84EpHSGXAyh+/oxwaWbvL6aSDPOYuPDGOCI8jmnKiypE+]]></Encrypt>\n<AgentID><![CDATA[1000002]]></AgentID>\n</xml>"
+    ReqData = "<xml><ToUserName><![CDATA[ww1436e0e65a779aee]]></ToUserName>\n<Encrypt><![CDATA[{a}]]></Encrypt>\n<AgentID><![CDATA[1000002]]></AgentID>\n</xml>"
+    sReqData = ReqData.format(a="""Kl7kjoSf6DMD1zh7rtrHjFaDapSCkaOnwu3bqLc5tAybhhMl9pFeK8NslNPVdMwmBQTNoW4mY7AIjeLvEl3NyeTkAgGzBhzTtRLNshw2AEew+kkYcD+Fq72Kt00fT0WnN87hGrW8SqGc+NcT3mu87Ha3dz1pSDi6GaUA6A0sqfde0VJPQbZ9U+3JWcoD4Z5jaU0y9GSh010wsHF8KZD24YhmZH4ch4Ka7ilEbjbfvhKkNL65HHL0J6EYJIZUC2pFrdkJ7MhmEbU2qARR4iQHE7wy24qy0cRX3Mfp6iELcDNfSsPGjUQVDGxQDCWjayJOpcwocugux082f49HKYg84EpHSGXAyh+/oxwaWbvL6aSDPOYuPDGOCI8jmnKiypE+""")
     ret, sMsg = wxcpt.DecryptMsg(sReqData, sReqMsgSig, sReqTimeStamp, sReqNonce)
     print(ret, sMsg)
     if (ret != 0):
@@ -98,8 +99,19 @@ if __name__ == "__main__":
     2.将明文加密得到密文。   3.用密文，步骤1生成的timestamp,nonce和企业在企业微信设定的token生成消息体签名。   4.将密文，消息体签名，时间戳，随机数字串拼接成xml格式的字符串，发送给企业号。
     以上2，3，4步可以用企业微信提供的库函数EncryptMsg来实现。
     '''
-    sRespData = "<xml><ToUserName>ww1436e0e65a779aee</ToUserName><FromUserName>ChenJiaShun</FromUserName><CreateTime>1476422779</CreateTime><MsgType>text</MsgType><Content>{xx}</Content><MsgId>1456453720</MsgId><AgentID>1000002</AgentID></xml>".format(xx='url')
-    ret, sEncryptMsg = wxcpt.EncryptMsg(sRespData, sReqNonce, sReqTimeStamp)
+    import time
+
+    timestamp = str(int(time.time()))
+    sRespData = """
+       <xml>
+                <ToUserName><![CDATA[CaiWeiCheng]]></ToUserName>
+                <FromUserName><![CDATA[ww24936ac3ddabc59e]]></FromUserName>
+                <CreateTime>{time}</CreateTime>
+                <MsgType><![CDATA[text]]></MsgType>
+                <Content><![CDATA[{content}]]></Content>
+                </xml>
+       """.format(time=timestamp, content='url')
+    ret, sEncryptMsg, item = wxcpt.EncryptMsg(sRespData, sReqNonce, sReqTimeStamp)
     if (ret != 0):
         print("ERR: EncryptMsg ret: " + str(ret))
         sys.exit(1)
@@ -107,3 +119,14 @@ if __name__ == "__main__":
     # ret == 0 加密成功，企业需要将sEncryptMsg返回给企业号
     # TODO:
     # HttpUitls.SetResponse(sEncryptMsg)
+    sReqData = ReqData.format(a=item['encrypt'])
+    ret, sMsg = wxcpt.DecryptMsg(sReqData, item['signature'], item['timestamp'], item['sNonce'])
+    if (ret != 0):
+        print("ERR: DecryptMsg ret: " + str(ret))
+        sys.exit(1)
+    # 解密成功，sMsg即为xml格式的明文
+    # TODO: 对明文的处理
+    # For example:
+    xml_tree = ET.fromstring(sMsg)
+    content = xml_tree.find("Content").text
+    print(content, xml_tree.find('ToUserName').text)
