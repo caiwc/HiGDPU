@@ -28,8 +28,8 @@ def msg_encrp(wxcpt, to_user, from_user, content, sReqNonce):
             <Content><![CDATA[{content}]]></Content>
             </xml>
         """.format(to_user=to_user, from_user=from_user, timestamp=timestamp, content=content)
-    print(sRespData)
-    ret, sEncryptMsg = wxcpt.EncryptMsg(sRespData, sReqNonce, timestamp)
+    print('sRespData', sRespData)
+    ret, sEncryptMsg,item = wxcpt.EncryptMsg(sRespData, sReqNonce, timestamp)
     if (ret != 0):
         raise ValueError("ERR: EncryptMsg ret: " + str(ret))
     res = """

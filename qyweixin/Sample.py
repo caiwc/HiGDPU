@@ -103,13 +103,13 @@ if __name__ == "__main__":
 
     timestamp = str(int(time.time()))
     sRespData = """
-       <xml>
-                <ToUserName><![CDATA[CaiWeiCheng]]></ToUserName>
-                <FromUserName><![CDATA[ww24936ac3ddabc59e]]></FromUserName>
-                <CreateTime>{time}</CreateTime>
-                <MsgType><![CDATA[text]]></MsgType>
-                <Content><![CDATA[{content}]]></Content>
-                </xml>
+        <xml>
+            <ToUserName><![CDATA[CaiWeiCheng]]></ToUserName>
+            <FromUserName><![CDATA[ww24936ac3ddabc59e]]></FromUserName>
+            <CreateTime>1517650248</CreateTime>
+            <MsgType><![CDATA[text]]></MsgType>
+            <Content><![CDATA[url]]></Content>
+            </xml>
        """.format(time=timestamp, content='url')
     ret, sEncryptMsg, item = wxcpt.EncryptMsg(sRespData, sReqNonce, sReqTimeStamp)
     if (ret != 0):
