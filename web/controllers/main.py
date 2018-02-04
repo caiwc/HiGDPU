@@ -107,6 +107,7 @@ def qyweixin_authorization():
                 res_content = "waiting..."
                 print(wxcpt.verify_url, wxcpt.verify_operation)
                 verifycode_handle.apply_async(kwargs={'url': wxcpt.verify_url, 'operation': wxcpt.verify_operation})
+                wxcpt.verify_code = can_commit
                 wxcpt.verify_url = None
                 wxcpt.verify_operation = None
             elif wxcpt.verify_code == can_commit:
