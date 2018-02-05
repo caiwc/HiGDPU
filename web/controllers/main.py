@@ -107,7 +107,7 @@ def qyweixin_authorization():
                 res_content = "success to input code"
                 wxcpt.verify_code = None
             else:
-                res_content = "我根本唔知你讲紧乜".encode('utf-8')
+                res_content = "我根本唔知你讲紧乜"
 
         elif 'event' in msg_type:
             event_key = xml_tree.find("EventKey").text
