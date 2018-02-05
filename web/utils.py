@@ -27,7 +27,7 @@ def msg_encrp(wxcpt, to_user, from_user, content, sReqNonce):
             <MsgType><![CDATA[text]]></MsgType>
             <Content><![CDATA[{content}]]></Content>
             </xml>
-        """.format(to_user=to_user, from_user=from_user, timestamp=timestamp, content=content.encode('utf-8'))
+        """.format(to_user=to_user, from_user=from_user, timestamp=timestamp, content=content)
     print('sRespData', sRespData)
     ret, sEncryptMsg,item = wxcpt.EncryptMsg(sRespData, sReqNonce, timestamp)
     if (ret != 0):
