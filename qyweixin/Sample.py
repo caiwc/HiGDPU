@@ -110,7 +110,7 @@ if __name__ == "__main__":
             <MsgType><![CDATA[text]]></MsgType>
             <Content><![CDATA[{content}]]></Content>
             </xml>
-       """.format(time=timestamp, content='english')
+       """.format(time=timestamp, content='abc')
     ret, sEncryptMsg, item = wxcpt.EncryptMsg(sRespData, sReqNonce, timestamp)
     if (ret != 0):
         print("ERR: EncryptMsg ret: " + str(ret))

@@ -151,7 +151,7 @@ class Prpcrypt(object):
         # 使用自定义的填充方式对明文进行补位填充
         pkcs7 = PKCS7Encoder()
         text = pkcs7.encode(text)
-        # 加密    
+        # 加密
         cryptor = AES.new(self.key, self.mode, self.key[:16])
         try:
 

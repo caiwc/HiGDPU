@@ -1,14 +1,12 @@
 from flask import current_app
 from flask_sqlalchemy import SQLAlchemy
 # from flask.ext.login import AnonymousUserMixin
-
+import datetime
 from itsdangerous import (
     TimedJSONWebSignatureSerializer as Serializer,
     BadSignature,
     SignatureExpired
 )
-
-# from web.extensions import bcrypt
 
 db = SQLAlchemy()
 
@@ -28,7 +26,7 @@ db = SQLAlchemy()
 class User(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     username = db.Column(db.String(255))
-    express_id = db.Column(db.TIME())
+    express_in = db.Column(db.DATETIME())
     openid_id = db.Column(db.String(255))
     thrid_session = db.Column(db.String(255))
 #     roles = db.relationship(
@@ -38,32 +36,16 @@ class User(db.Model):
 #     )
 #
 
-    def __init__(self, username):
-        self.username = username
+    # def __init__(self, username):
+    #     self.username = username
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
-#
-#     # def set_password(self, password):
-#     #     self.password = bcrypt.generate_password_hash(password)
-#     #
-#     # def check_password(self, password):
-#     #     return bcrypt.check_password_hash(self.password, password)
-#     #
-#     # def is_authenticated(self):
-#     #     if isinstance(self, AnonymousUserMixin):
-#     #         return False
-#     #     else:
-#     #         return True
-#
-#     def is_active(self):
-#         return True
-#
-#     def is_anonymous(self):
-#         if isinstance(self, AnonymousUserMixin):
-#             return True
-#         else:
-#             return False
+
+    def is_express(self):
+        if self.express_in < datetime.datetime.now():
+            return False
+        return True
 
     def get_id(self):
         return self.id
@@ -105,7 +87,7 @@ class Weibo(db.Model):
     comments = db.Column(db.Integer())
     reports = db.Column(db.Integer())
     weibo_name = db.Column(db.String(45))
-    # author_id = db.Column(db.Integer(), db.ForeignKey('user.id'))
+    author_id = db.Column(db.Integer(), db.ForeignKey('user.id'))
     publish_time = db.Column(db.DATETIME())
 
 
