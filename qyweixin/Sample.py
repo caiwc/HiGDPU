@@ -106,12 +106,12 @@ if __name__ == "__main__":
         <xml>
             <ToUserName><![CDATA[CaiWeiCheng]]></ToUserName>
             <FromUserName><![CDATA[ww24936ac3ddabc59e]]></FromUserName>
-            <CreateTime>1517650248</CreateTime>
+            <CreateTime>{time}</CreateTime>
             <MsgType><![CDATA[text]]></MsgType>
-            <Content><![CDATA[url]]></Content>
+            <Content><![CDATA[{content}]]></Content>
             </xml>
-       """.format(time=timestamp, content='url')
-    ret, sEncryptMsg, item = wxcpt.EncryptMsg(sRespData, sReqNonce, sReqTimeStamp)
+       """.format(time=timestamp, content='出去玩'.encode('utf-8'))
+    ret, sEncryptMsg, item = wxcpt.EncryptMsg(sRespData, sReqNonce, timestamp)
     if (ret != 0):
         print("ERR: EncryptMsg ret: " + str(ret))
         sys.exit(1)

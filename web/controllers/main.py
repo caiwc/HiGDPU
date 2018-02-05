@@ -23,19 +23,10 @@ from web.tasks import verifycode_handle
 #     identity_changed
 # )
 
-# from web.extensions import oid, facebook, twitter
 
 main_blueprint = Blueprint(
     'main',
     __name__,
-)
-
-authorization_post_parser = reqparse.RequestParser()
-authorization_post_parser.add_argument(
-    'code',
-    type=str,
-    required=True,
-    help="js code to get authorization"
 )
 
 
@@ -116,7 +107,7 @@ def qyweixin_authorization():
                 res_content = "success to input code"
                 wxcpt.verify_code = None
             else:
-                res_content = "I don't know what you say,please input again"
+                res_content = "我根本唔知你讲紧乜".encode('utf-8')
 
         elif 'event' in msg_type:
             event_key = xml_tree.find("EventKey").text
