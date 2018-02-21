@@ -5,6 +5,7 @@ from flask import render_template
 
 from web.extensions import celery
 from weixin_scrapy.verifycode import handel_verifycode
+from web.models import db, User
 
 
 @celery.task()
@@ -14,13 +15,34 @@ def log(msg):
 
 @celery.task()
 def multiply(x, y):
-    return x * y
+    a = x * y
+    print(a)
+    return a
 
 
-@celery.task(ignore_result=True)
+@celery.task(ignore_result=True, time_limit=300)
 def verifycode_handle(url, operation):
     handel_verifycode(url=url, operation=operation, by_qyweixin=True)
     return True
+
+
+# @celery.task()
+# def add_user(username, third_session, expires_in, session_key, openid_id):
+#     user = User.query.filter_by(openid_id=openid_id).first()
+#     if not user:
+#         user = User()
+#         user.username = username
+#         now = datetime.datetime.now()
+#         expires = now+datetime.timedelta(seconds=expires_in)
+#         user.expires_in = expires
+#         user.third_session = third_session
+#         user.openid_id = openid_id
+#         user.session_key = session_key
+#         db.session.add(user)
+#         db.session.commit()
+#         print('新增用户 {}'.format(username))
+#     return user.id
+
 # @celery.task(
 #     bind=True,
 #     ignore_result=True,

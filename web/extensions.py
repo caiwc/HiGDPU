@@ -6,6 +6,8 @@ from flask import flash, redirect, url_for, session
 # from flask.ext.principal import Principal, Permission, RoleNeed
 from flask_restful import Api
 from flask_celery import Celery
+from werkzeug.datastructures import Headers
+from flask import Response
 
 # bcrypt = Bcrypt()
 # oid = OpenID()
@@ -14,6 +16,22 @@ from flask_celery import Celery
 celery = Celery()
 
 rest_api = Api()
+
+
+class MyResponse(Response):
+    def __init__(self, response=None, **kwargs):
+        kwargs['headers'] = ''
+        headers = kwargs.get('headers')
+        # 跨域控制
+        origin = ('Access-Control-Allow-Origin', '*')
+        methods = ('Access-Control-Allow-Methods', 'HEAD, OPTIONS, GET, POST, DELETE, PUT')
+        if headers:
+            headers.add(*origin)
+            headers.add(*methods)
+        else:
+            headers = Headers([origin, methods])
+        kwargs['headers'] = headers
+        super().__init__(response, **kwargs)
 
 # admin_permission = Permission(RoleNeed('admin'))
 # poster_permission = Permission(RoleNeed('poster'))

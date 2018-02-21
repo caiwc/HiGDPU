@@ -10,6 +10,7 @@ from itsdangerous import (
 
 db = SQLAlchemy()
 
+
 # tags = db.Table(
 #     'post_tags',
 #     db.Column('post_id', db.Integer, db.ForeignKey('post.id')),
@@ -26,15 +27,17 @@ db = SQLAlchemy()
 class User(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     username = db.Column(db.String(255))
-    express_in = db.Column(db.DATETIME())
-    openid_id = db.Column(db.String(255))
-    thrid_session = db.Column(db.String(255))
-#     roles = db.relationship(
-#         'Role',
-#         secondary=roles,
-#         backref=db.backref('users', lazy='dynamic')
-#     )
-#
+    expires_in = db.Column(db.DATETIME())
+    openid = db.Column(db.String(255))
+    third_session = db.Column(db.String(255))
+    session_key = db.Column(db.String(255))
+
+    #     roles = db.relationship(
+    #         'Role',
+    #         secondary=roles,
+    #         backref=db.backref('users', lazy='dynamic')
+    #     )
+    #
 
     # def __init__(self, username):
     #     self.username = username
@@ -50,19 +53,63 @@ class User(db.Model):
     def get_id(self):
         return self.id
 
-    @staticmethod
-    def verify_auth_token(token):
+    @classmethod
+    def gen_3rdsession(cls, value, expires_in=None):
+        # 用OpenId加密生成3rdsession
+        if not expires_in:
+            expires_in = current_app.config['TOKEN_EXPIRES']
+        s = Serializer(current_app.config['SECRET_KEY'], expires_in=expires_in)
+        third_session = s.dumps(value)
+        return third_session
+
+    @classmethod
+    def verify_auth_3rdsession(cls, thirdsession):
         s = Serializer(current_app.config['SECRET_KEY'])
-
         try:
-            data = s.loads(token)
+            data = s.loads(thirdsession)
         except SignatureExpired:
-            return None
+            return False, {'status': 'fail', 'data': {'msg': 'expired token'}}
         except BadSignature:
-            return None
+            return False, {'status': 'fail', 'data': {'msg': 'useless token'}}
+        print(data)
+        user = cls.get_user(data['openid'])
+        return True, user
 
-        user = User.query.get(data['id'])
+    @classmethod
+    def refresh_3rdsession(cls, thirdsession):
+        flag, user = cls.verify_auth_3rdsession(thirdsession=thirdsession)
+        if not flag:
+            return False, user
+        value = {'openid': user.openid, 'session_key': user.session_key, 'expires_in': user.expires_in}
+        third_session = cls.User.gen_3rdsession(value=value).decode('utf-8')
+        user.third_session = third_session
+        db.session.add(user)
+        db.session.commit()
+        return True, user
+
+    @classmethod
+    def get_user(cls, openid):
+        user = cls.query.filter_by(openid=openid).first()
+        if not user:
+            raise ValueError('不存在当前用户')
         return user
+
+    @classmethod
+    def add(cls, username, expires_in, openid, third_session, session_key):
+        user = cls.query.filter_by(openid=openid).first()
+        if not user:
+            user = cls()
+            user.openid = openid
+            print('新增用户 {}'.format(username))
+        user.username = username
+        now = datetime.datetime.now()
+        expires = now + datetime.timedelta(seconds=expires_in)
+        user.expires_in = expires
+        user.third_session = third_session
+        user.session_key = session_key
+        db.session.add(user)
+        db.session.commit()
+        return user.id
 
 
 class Weixin_Gzh(db.Model):
@@ -78,6 +125,27 @@ class Weixin_Gzh(db.Model):
     gzh = db.Column(db.CHAR(50))
     success = db.Column(db.BOOLEAN(), default=False)
 
+    @classmethod
+    def to_dict(cls, m, detail=False):
+        tmp = dict()
+        tmp['id'] = m.title_md5
+        tmp['title'] = m.title
+        tmp['publish_time'] = m.publish_time
+        tmp['url'] = m.url
+        tmp['cover'] = m.cover
+        tmp['digest'] = m.digest
+        tmp['gzh'] = m.gzh
+        if detail:
+            tmp['content'] = m.content
+            tmp['html_content'] = m.html_content
+        return tmp
+
+    @classmethod
+    def to_list(cls, ms, detail=False):
+        res = []
+        for m in ms:
+            res.append(cls.to_dict(m, detail))
+
 
 class Weibo(db.Model):
     weibo_id = db.Column(db.String(50), primary_key=True)
@@ -90,6 +158,28 @@ class Weibo(db.Model):
     author_id = db.Column(db.Integer(), db.ForeignKey('user.id'))
     publish_time = db.Column(db.DATETIME())
 
+    @classmethod
+    def to_list(cls, ms, detail=False):
+        res = []
+        for m in ms:
+            res.append(cls.to_dict(m, detail))
+        return res
+
+    @classmethod
+    def to_dict(cls, m, detail=False):
+        tmp = dict()
+        tmp['id'] = m.weibo_id
+        tmp['content'] = m.content
+        tmp['img'] = m.img
+        tmp['likes'] = m.likes
+        tmp['comments'] = m.comments
+        tmp['reports'] = m.reports
+        tmp['weibo_name'] = m.weibo_name
+        tmp['publish_time'] = m.publish_time
+        tmp['author_id'] = m.author_id
+        if detail:
+            pass
+        return tmp
 
 # class Role(db.Model):
 #     id = db.Column(db.Integer(), primary_key=True)

@@ -16,6 +16,7 @@ from web.extensions import (
 from web.controllers.main import main_blueprint
 from web.controllers.rest.weibo import Weibo_Api
 from web.controllers.rest.weixin import Weixin_Gzh_Api
+from web.extensions import MyResponse
 # from .tasks import on_reminder_save
 
 
@@ -30,6 +31,7 @@ def create_app(object_name):
     """
 
     app = Flask(__name__)
+    app.response_class = MyResponse
     app.config.from_object(object_name)
 
     db.init_app(app)
@@ -49,7 +51,7 @@ def create_app(object_name):
     rest_api.add_resource(
         Weixin_Gzh_Api,
         '/api/weixin',
-        '/api/weixin/<string:gzh_id>'
+        '/api/weixin/<string:article_id>'
     )
     rest_api.init_app(app)
 

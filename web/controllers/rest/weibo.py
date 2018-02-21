@@ -1,6 +1,6 @@
 import datetime
 
-from flask import abort
+from flask import abort, jsonify
 from flask_restful import Resource, fields, marshal_with
 
 from web.models import db, Weibo
@@ -26,21 +26,20 @@ post_fields = {
 
 
 class Weibo_Api(Resource):
-    @marshal_with(post_fields)
     def get(self, weibo_id=None):
         if weibo_id:
             post = Weibo.query.filter_by(weibo_id=weibo_id).first()
             if not post:
                 abort(404)
 
-            return post
+            return jsonify(Weibo.to_dict(post, detail=True))
         else:
             args = weibo_get_parser.parse_args()
             page = args['page'] or 1
             posts = Weibo.query.order_by(
                 Weibo.publish_time.desc()
             ).paginate(page, 30)
-            return posts.items
+            return jsonify(Weibo.to_list(ms=posts.items))
 
     def post(self, post_id=None):
         pass

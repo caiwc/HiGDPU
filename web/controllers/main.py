@@ -11,9 +11,9 @@ from web import config
 import requests
 import json
 import redis
-from web import utils
+from web.controllers import api_tool
 from flask_restful import reqparse
-from web.models import db
+from web.models import db, User
 from qyweixin.WXBizMsgCrypt import WXBizMsgCrypt
 from web.tasks import verifycode_handle
 
@@ -29,37 +29,29 @@ main_blueprint = Blueprint(
     __name__,
 )
 
+can_commit = 'can_commit'
+wxcpt = None
+
 
 @main_blueprint.route('/')
 def index():
-    return redirect(url_for('weibo_api'))
+    return jsonify('Hi')
 
 
 @main_blueprint.route('/api/authorization', methods=['POST'])
 def authorization():
-    url = config.WEIXIN_AUTH_URL
-    headers = {"content-type": "application/json"}
     js_code = request.json['code']
-    res = requests.get(url=url.format(JSCODE=js_code), headers=headers)
-    if res.status_code == 200:
-        res_json = res.json()
-        if 'session_key' in res_json:
-            openId = res_json['openid']
-            secret_value = {
-                'openid': openId,
-                'session_key': res_json['session_key']
-            }
-            expires_in = res_json['expires_in']
-            thrid_session = utils.gen_3rdsession({'openId': openId}).decode('utf-8')
-            print(thrid_session)
-            secret_value = json.dumps(secret_value)
-            return jsonify({thrid_session: secret_value})
-        elif 'errcode' in res_json:
-            return res_json['errmsg']
-    return 'request error'
+    username = request.json['username']
+    flag, res, meta = api_tool.weixin_authorization(username=username, js_code=js_code)
+    if flag:
+        user_id = User.add(username=username, third_session=meta['third_session'], expires_in=meta['expires_in'],
+                           session_key=meta['session_key'], openid=meta['openid'])
+        res.update({'user_id': user_id})
+        return jsonify(res), 200
+    else:
+        return jsonify(res), 400
 
-can_commit = 'can_commit'
-wxcpt = None
+
 @main_blueprint.route('/api/qyweixin', methods=['GET', 'POST'])
 def qyweixin_authorization():
     global wxcpt
@@ -82,7 +74,7 @@ def qyweixin_authorization():
         if (ret != 0):
             raise ValueError("ERR: VerifyURL ret: " + str(ret))
         xml_tree = ET.fromstring(sMsg)
-        print('sMsg',sMsg)
+        print('sMsg', sMsg)
         msg_type = xml_tree.find("MsgType").text
         from_user = xml_tree.find('ToUserName').text
         to_user = xml_tree.find('FromUserName').text
@@ -120,8 +112,8 @@ def qyweixin_authorization():
                 res_content = "without thi event"
         else:
             res_content = "I don't know what you say,please input again"
-        res = utils.msg_encrp(wxcpt=wxcpt, to_user=to_user, from_user=from_user, content=res_content,
-                              sReqNonce=sVerifyNonce)
+        res = api_tool.msg_encrp(wxcpt=wxcpt, to_user=to_user, from_user=from_user, content=res_content,
+                                 sReqNonce=sVerifyNonce)
         response = make_response(res)
         response.content_type = 'application/xml'
         return response
