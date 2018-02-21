@@ -145,6 +145,7 @@ class Weixin_Gzh(db.Model):
         res = []
         for m in ms:
             res.append(cls.to_dict(m, detail))
+        return res
 
 
 class Weibo(db.Model):
