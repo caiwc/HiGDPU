@@ -38,8 +38,8 @@ class Weibo_Api(Resource):
             page = args['page'] or 1
             posts = Weibo.query.order_by(
                 Weibo.publish_time.desc()
-            ).paginate(page, 30)
-            return jsonify(Weibo.to_list(ms=posts.items))
+            ).paginate(page, 30).items
+            return jsonify(Weibo.to_list(ms=posts))
 
     def post(self, post_id=None):
         pass

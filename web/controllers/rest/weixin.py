@@ -29,6 +29,6 @@ class Weixin_Gzh_Api(Resource):
                 query = query.filter_by(gzh=gzh)
             posts = query.order_by(
                 Weixin_Gzh.publish_time.desc()
-            ).paginate(page, 10)
+            ).paginate(page, 10).items
             resp = jsonify(Weixin_Gzh.to_list(posts))
             return resp
