@@ -6,7 +6,7 @@ from web.weibo_api import post_weibo
 from web.extensions import celery
 from weixin_scrapy.verifycode import handel_verifycode
 from web.models import db, User, Weibo
-from weixin_scrapy.utils import scrapy_crawl
+from weixin_scrapy.tools import scrapy_crawl
 
 @celery.task()
 def log(msg):

@@ -1,7 +1,6 @@
 import functools
 import copy
 
-
 def validate_decorator(**need_arg):
     '''
        参数验证装饰器
