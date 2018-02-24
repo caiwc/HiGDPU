@@ -46,6 +46,9 @@ class DevConfig(Config):
     )
 
     CELERY_ROUTES = {
+        "web.tasks.verifycode_handle":{"queue": "default", "routing_key": "default"},
+        "web.tasks.crawl":{"queue": "default", "routing_key": "default"},
+        "web.tasks.multiply":{"queue": "default", "routing_key": "default"},
         "web.tasks.send_weibo": {"queue": "send_weibo", "routing_key": "send_weibo"},
     }
 
