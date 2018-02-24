@@ -109,12 +109,12 @@ def qyweixin_authorization():
                 wxcpt.verify_url = can_commit
                 wxcpt.verify_operation = can_commit
             elif event_key == 'crawl_weixin':
+                crawl.apply_async(kwargs={'operation': 'weixin'})
                 res_content = "crawling..."
             elif event_key == 'crawl_weibo':
-                crawl.apply_async(kwargs={'operation': 'weixin'})
-                res_content = "crawling"
-            else:
                 crawl.apply_async(kwargs={'operation': 'weibo'})
+                res_content = "crawling..."
+            else:
                 res_content = "without thi event"
         else:
             res_content = "I don't know what you say,please input again"
