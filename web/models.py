@@ -184,6 +184,7 @@ class Weibo(db.Model):
 
 
 class Weibo_comment(db.Model):
+    id = db.Column(db.String(50), primary_key=True)
     weibo = db.Column(db.Integer(), db.ForeignKey('weibo.id'))
     comment = db.Column(db.String(200))
     publish_time = db.Column(db.DATETIME())
