@@ -42,7 +42,7 @@ def send_weibo(content, file=None):
         db.session.commit()
 
 
-@celery.tasks(ignore_result=True)
+@celery.task(ignore_result=True)
 def crawl(operation):
     scrapy_crawl(spider=operation)
 
