@@ -1,6 +1,10 @@
 from weixin_scrapy.settings import SQL_DATETIME_FORMAT, SQL_DATE_FORMAT
 import re
 import datetime
+from weixin_scrapy.spiders.weibo import WeiboSpider
+from weixin_scrapy.spiders.weixin import WeixinSpider
+from scrapy.crawler import CrawlerProcess
+from scrapy.utils.project import get_project_settings
 
 
 def str_md5(text):
@@ -26,7 +30,8 @@ def time_str_format(time_str):
         return today + ' ' + re_today.group(1) + ':00'
     elif re_this_year:
         year = datetime.date.today().year
-        return str(year) + "-" + re_this_year.group(1) + '-' + re_this_year.group(2) + ' ' + re_this_year.group(3) + ':00'
+        return str(year) + "-" + re_this_year.group(1) + '-' + re_this_year.group(2) + ' ' + re_this_year.group(
+            3) + ':00'
     elif re_min:
         now = datetime.datetime.today() - datetime.timedelta(minutes=int(re_min.group(1)))
         return now.strftime(SQL_DATETIME_FORMAT)
@@ -34,7 +39,18 @@ def time_str_format(time_str):
         return False
 
 
-item_dict = {"list": [{"app_msg_ext_info": {"author": "", "content": "",
+def scrapy_crawl(spider):
+    spider_dict = {
+        'weixin': WeixinSpider,
+        'weibo': WeiboSpider
+    }
+    process = CrawlerProcess(get_project_settings())
+    process.crawl(spider_dict[spider])
+    process.start()
+
+
+item_dict = {
+    "list": [{"app_msg_ext_info": {"author": "", "content": "",
                                             "content_url": "/s?timestamp=1511931536&amp;src=3&amp;ver=1&amp;signature=xys*ZNss1Qe8f*PyTMhk1k-g9nwqdQd5U6klgjz7jLOCRkEKh28V7H-p5WLIMgvWFIOFGnoXQ9Zgg50LClrT7gn4rdtWAwEJq23f3WOJ*gzHGI*hrOIFOJOCJCAFD-LWovva3r0Qd6VgZXFNrAs81WD1gH8E7xij9EO9NyUL0-k=",
                                             "copyright_stat": 100,
                                             "cover": "http://mmbiz.qpic.cn/mmbiz_jpg/hp6WA88JQ4Tbd42ZSicMCHDG4KUo6mrOIeJWTF2JZTWnYMGKv6oRYeXxdquKCiaD85nwib6GC0k5PlQQ1YhR9Pg0g/0?wx_fmt=jpeg",

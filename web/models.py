@@ -182,6 +182,16 @@ class Weibo(db.Model):
             pass
         return tmp
 
+
+class Weibo_comment(db.Model):
+    weibo = db.Column(db.Integer(), db.ForeignKey('weibo.id'))
+    comment = db.Column(db.String(200))
+    publish_time = db.Column(db.DATETIME())
+    author_id = db.Column(db.Integer(), db.ForeignKey('user.id'))
+
+    def __repr__(self):
+        return "<Comment '{}'>".format(self.comment[:15])
+
 # class Role(db.Model):
 #     id = db.Column(db.Integer(), primary_key=True)
 #     name = db.Column(db.String(80), unique=True)

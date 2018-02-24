@@ -27,15 +27,10 @@ weibo_post_parser.add_argument(
     help="Title is required"
 )
 weibo_post_parser.add_argument(
-    'text',
+    'content',
     type=str,
     required=True,
     help="Body text is required"
-)
-weibo_post_parser.add_argument(
-    'tags',
-    type=str,
-    action='append'
 )
 
 weibo_put_parser = reqparse.RequestParser()

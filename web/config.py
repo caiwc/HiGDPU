@@ -1,4 +1,5 @@
 from celery.schedules import crontab
+from kombu import Queue, Exchange
 import os
 
 WEB_PATH = os.path.dirname(__file__)
@@ -38,6 +39,15 @@ class DevConfig(Config):
     SQLALCHEMY_DATABASE_URI = SQL_URI
     CELERY_BROKER_URL = "redis://localhost:6379/0"
     CELERY_BACKEND_URL = "redis://localhost:6379/1"
+
+    CELERY_QUEUES = (
+        Queue('default', Exchange('default'), routing_key='default'),
+        Queue('send_weibo', Exchange('send_weibo'), routing_key='send_weibo')
+    )
+
+    CELERY_ROUTES = {
+        "web.tasks.send_weibo": {"queue": "send_weibo", "routing_key": "send_weibo"},
+    }
 
     CELERYBEAT_SCHEDULE = {
         'weekly-digest': {

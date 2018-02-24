@@ -150,7 +150,7 @@ class WeiboSpider(scrapy.Spider):
     def __init__(self, *args, **kwargs):
         super(WeiboSpider, self).__init__(*args, **kwargs)
         if not hasattr(self, 'end_page'):
-            self.end_page = 500
+            self.end_page = 50
         if not hasattr(self, 'start_page'):
             self.start_page = 1
         self.start_page = int(self.start_page)

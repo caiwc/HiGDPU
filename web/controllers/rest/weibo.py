@@ -2,7 +2,7 @@ import datetime
 
 from flask import abort, jsonify
 from flask_restful import Resource, fields, marshal_with
-
+from web.tasks import send_weibo
 from web.models import db, Weibo
 from .parsers import (
     weibo_get_parser,
@@ -42,4 +42,7 @@ class Weibo_Api(Resource):
             return jsonify(Weibo.to_list(ms=posts))
 
     def post(self, post_id=None):
-        pass
+        args = weibo_post_parser.parse_args(strict=True)
+        content = args['content']
+        file = args.get('file', None)
+        send_weibo.apply_async(kwargs={'content': content, 'file': file})

@@ -253,7 +253,7 @@ def get_weibo_detial(client, weibo_id):
     params = {'id': weibo_id}
     return client.get.statuses__show(params=params)
 
-
+@client_decorator
 def get_emotions(client, e_type='普通表情', lang='cnname'):
     emotions_dict = {
         '普通表情': 'face',
@@ -284,6 +284,8 @@ def get_client():
     CALLBACK_URL = config.CALLBACK_URL
     # step 2 引导用户到授权地址
     client = APIClient(app_key=APP_KEY, app_secret=APP_SECRET, redirect_uri=CALLBACK_URL)
+    client.access_token = config.WEIBO_TOKEN
+    client.expires = config.WEIBO_TOKEN_EXP
     return client
 
 
@@ -297,12 +299,11 @@ def main():
         client.set_access_token(r['access_token'], r['expires_in'])
         print(r['expires_in'])
         print(r['access_token'])
-        # # step 4 使用获得的OAuth2.0 Access Token调用API
+        # step 4 使用获得的OAuth2.0 Access Token调用API
         # print(client.get.account__get_uid())
         # print(client.post.statuses__share(data={'access_token': r['access_token'],
         #                                         'status': '测试Python3 + OAuth 2.0发微博 ' + str(
         #                                             time.time()) + 'https://weibo.com/HiGDPU'}))
-
 
     except Exception as pyOauth2Error:
         print(str(pyOauth2Error))
@@ -310,8 +311,9 @@ def main():
 
 if __name__ == '__main__':
     # main()
-    client = get_client()
-    client.access_token = '2.00KTSG6CWXfQzB4432cee7e0253_yC'
-    client.expires = 1674288747
-    res = get_weibo_comment(client, 4190310256614338)
+    # client = get_client()
+    # client.access_token = '2.00KTSG6CWXfQzB4432cee7e0253_yC'
+    # client.expires = 1674288747
+    # res = get_emotions()
+    res = post_weibo(content='HIacasa [胡巴宝宝睡了][胡巴目瞪口呆]' + str(time.time()))
     print(res)

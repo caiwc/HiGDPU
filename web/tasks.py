@@ -2,11 +2,12 @@ import smtplib
 import datetime
 from email.mime.text import MIMEText
 from flask import render_template
-
+from web.weibo_api import post_weibo
 from web.extensions import celery
 from weixin_scrapy.verifycode import handel_verifycode
-from web.models import db, User
+from web.models import db, User, Weibo
 
+from weixin_scrapy.utils import scrapy_crawl
 
 @celery.task()
 def log(msg):
@@ -25,6 +26,26 @@ def verifycode_handle(url, operation):
     handel_verifycode(url=url, operation=operation, by_qyweixin=True)
     return True
 
+
+@celery.task()
+def send_weibo(content, file=None):
+    from web.utils import weibo_time_format
+    res = post_weibo(content=content, files_path=file)
+    if res:
+        weibo = Weibo()
+        weibo.content = content
+        created_time = weibo_time_format(res['created_at'])
+        weibo.publish_time = created_time
+        weibo.img = res['pic_urls']
+        weibo.weibo_id = res['id']
+        weibo.weibo_name = res['user']['domain']
+        db.session.add(weibo)
+        db.session.commit()
+
+
+@celery.tasks(ignore_result=True)
+def crawl(operation):
+    scrapy_crawl(spider=operation)
 
 # @celery.task()
 # def add_user(username, third_session, expires_in, session_key, openid_id):

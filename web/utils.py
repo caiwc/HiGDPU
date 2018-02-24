@@ -1,3 +1,4 @@
+import datetime
 
 
 def timeoutFn(func, kwargs={}, timeout_duration=1, default=None):
@@ -22,3 +23,8 @@ def timeoutFn(func, kwargs={}, timeout_duration=1, default=None):
         signal.signal(signal.SIGALRM, signal.SIG_DFL)
 
     return result
+
+
+def weibo_time_format(time_str):
+    GMT_FORMAT = '%a %b %d %H:%M:%S +0800 %Y'
+    return datetime.datetime.strptime(time_str, GMT_FORMAT)

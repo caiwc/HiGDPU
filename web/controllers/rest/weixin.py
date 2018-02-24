@@ -5,8 +5,8 @@ from flask_restful import Resource, fields, marshal_with
 
 from web.models import db, Weixin_Gzh
 from .parsers import (
-    weixin_get_parser
-    #     post_post_parser,
+    weixin_get_parser,
+        # post_post_parser,
     #     post_put_parser,
     #     post_delete_parser
 )
