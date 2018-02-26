@@ -6,7 +6,7 @@ from web.weibo_api import post_weibo
 from web.extensions import celery
 from weixin_scrapy.verifycode import handel_verifycode
 from web.models import db, User, Weibo
-from weixin_scrapy.tools import scrapy_crawl
+from weixin_scrapy.main import run
 
 
 @celery.task()
@@ -51,7 +51,7 @@ def send_weibo(content, file=None):
 
 @celery.task(ignore_result=True)
 def crawl(operation):
-    scrapy_crawl(spider=operation)
+    run(spider=operation)
 
 # @celery.task()
 # def add_user(username, third_session, expires_in, session_key, openid_id):
