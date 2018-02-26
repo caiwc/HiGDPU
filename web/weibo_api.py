@@ -263,7 +263,7 @@ def get_emotions(client, e_type='普通表情', lang='cnname'):
     params = {'type': emotions_dict[e_type], 'language': lang}
     return client.get.emotions(params=params)
 
-
+@client_decorator
 def get_weibo_comment(client, weibo_id):
     params = {
         'id': weibo_id,
@@ -271,7 +271,7 @@ def get_weibo_comment(client, weibo_id):
     res = client.get.comments__show(params=params)
     return res['comments']
 
-
+@client_decorator
 def post_weibo_commet(client, weibo_id, comment):
     data = {'id': weibo_id, 'comment': comment}
     res = client.post.comments__create(data=data)

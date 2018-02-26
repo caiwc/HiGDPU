@@ -8,6 +8,7 @@ from weixin_scrapy.verifycode import handel_verifycode
 from web.models import db, User, Weibo
 from weixin_scrapy.tools import scrapy_crawl
 
+
 @celery.task()
 def log(msg):
     return msg
@@ -30,14 +31,20 @@ def verifycode_handle(url, operation):
 def send_weibo(content, file=None):
     from web.utils import weibo_time_format
     res = post_weibo(content=content, files_path=file)
+    print(res)
     if res:
         weibo = Weibo()
         weibo.content = content
         created_time = weibo_time_format(res['created_at'])
+        pic_list = res['pic_urls']
+        pic = pic_list[0] if pic_list else ''
         weibo.publish_time = created_time
-        weibo.img = res['pic_urls']
+        weibo.img = pic
         weibo.weibo_id = res['id']
         weibo.weibo_name = res['user']['domain']
+        weibo.likes = 0
+        weibo.reports = 0
+        weibo.comments = 0
         db.session.add(weibo)
         db.session.commit()
 
