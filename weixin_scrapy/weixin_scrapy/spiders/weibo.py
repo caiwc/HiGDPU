@@ -198,7 +198,7 @@ class WeiboSpider(scrapy.Spider):
                     '时间格式错误:{time},page:{page},weibo:{weibo}'.format(time=time_str, page=current_page, weibo=name))
             item_loader.add_value('publish_time', time_format)
             ori_content = weibo.xpath('.//div/span[@class="ctt"]/text()[1]').extract_first("")
-            item_loader.add_xpath('content', ori_content.strip().strip(' ——微波炉Plus'))
+            item_loader.add_value('content', ori_content.strip().strip(' ——微波炉Plus'))
             item_loader.add_xpath('weibo_id', '@id')
             item_loader.add_xpath('img', './/img[@class="ib"]/@src')
             item_loader.add_value('weibo_name', name)

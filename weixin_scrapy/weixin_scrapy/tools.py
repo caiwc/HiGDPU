@@ -12,3 +12,6 @@ def scrapy_crawl(spider):
     process = CrawlerProcess(get_project_settings())
     process.crawl(spider_dict[spider])
     process.start()
+
+if __name__ == '__main__':
+    scrapy_crawl('weibo')
