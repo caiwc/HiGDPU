@@ -28,7 +28,7 @@ class User(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     username = db.Column(db.String(255))
     expires_in = db.Column(db.DATETIME())
-    openid = db.Column(db.String(255),unique=True)
+    openid = db.Column(db.String(255), unique=True)
     third_session = db.Column(db.String(255))
     session_key = db.Column(db.String(255))
 
@@ -179,7 +179,9 @@ class Weibo(db.Model):
         tmp['publish_time'] = m.publish_time
         tmp['author_id'] = m.author_id
         if detail:
-            pass
+            if tmp['comments'] > 0:
+                comments = Weibo_comment.query.filter(weibo=tmp['id'])
+                tmp['comments'] = Weibo_comment.to_list(ms=comments)
         return tmp
 
 
@@ -194,6 +196,26 @@ class Weibo_comment(db.Model):
 
     def __repr__(self):
         return "<Comment '{}'>".format(self.comment[:15])
+
+    @classmethod
+    def to_list(cls, ms, detail=False):
+        res = []
+        for m in ms:
+            res.append(cls.to_dict(m, detail))
+        return res
+
+    @classmethod
+    def to_dict(cls, m, detail=False):
+        tmp = dict()
+        tmp['comment_id'] = m.comment_id
+        tmp['weibo'] = m.weibo
+        tmp['comment'] = m.comment
+        tmp['publish_time'] = m.publish_time
+        tmp['author'] = m.author
+        if m.reply_author:
+            tmp['reply_author'] = m.reply_author
+        tmp['likes'] = m.likes
+        return tmp
 
 # class Role(db.Model):
 #     id = db.Column(db.Integer(), primary_key=True)

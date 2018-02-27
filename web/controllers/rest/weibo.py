@@ -39,7 +39,7 @@ class Weibo_Api(Resource):
             posts = Weibo.query.order_by(
                 Weibo.publish_time.desc()
             ).paginate(page, 30).items
-            return jsonify(Weibo.to_list(ms=posts))
+            return jsonify(Weibo.to_list(ms=posts, detail=False))
 
     def post(self, post_id=None):
         args = weibo_post_parser.parse_args(strict=True)
