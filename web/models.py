@@ -180,7 +180,7 @@ class Weibo(db.Model):
         tmp['author_id'] = m.author_id
         if detail:
             if tmp['comments'] > 0:
-                comments = Weibo_comment.query.filter(weibo=tmp['id'])
+                comments = Weibo_comment.query.filter_by(weibo=tmp['id'])
                 tmp['comments'] = Weibo_comment.to_list(ms=comments)
         return tmp
 
