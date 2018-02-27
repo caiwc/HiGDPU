@@ -7,7 +7,7 @@ from random import choice
 import re
 import time
 from weixin_scrapy import settings
-from weixin_scrapy.items import TakeFirstScrapyLoader, WeiboScrapyItem
+from weixin_scrapy.items import TakeFirstScrapyLoader, WeiboScrapyItem, WeiboCommentItem
 from weixin_scrapy.utils import time_str_format
 
 
@@ -147,10 +147,12 @@ class WeiboSpider(scrapy.Spider):
     re_report = re.compile("转发\[(\d+)]")
     re_comment = re.compile("评论\[(\d+)]")
 
+    re_reply_author = re.compile("^回复@(.*?):(.*)")
+
     def __init__(self, *args, **kwargs):
         super(WeiboSpider, self).__init__(*args, **kwargs)
         if not hasattr(self, 'end_page'):
-            self.end_page = 50
+            self.end_page = 3
         if not hasattr(self, 'start_page'):
             self.start_page = 1
         self.start_page = int(self.start_page)
@@ -197,15 +199,25 @@ class WeiboSpider(scrapy.Spider):
                 self.logger.error(
                     '时间格式错误:{time},page:{page},weibo:{weibo}'.format(time=time_str, page=current_page, weibo=name))
             item_loader.add_value('publish_time', time_format)
-            ori_content = weibo.xpath('.//div/span[@class="ctt"]/text()[1]').extract_first("")
-            item_loader.add_value('content', ori_content.strip().strip(' ——微波炉Plus'))
-            item_loader.add_xpath('weibo_id', '@id')
+            ori_content = weibo.xpath('.//div/span[@class="ctt"]/text()').extract()
+            ori_content = "\n".join(ori_content[:-1])
+            content = ori_content.strip().strip(' ——微波炉Plus')
+            if not len(content):
+                content = ' '
+            item_loader.add_value('content', content)
+            weibo_id = weibo.xpath('@id').extract_first("").lstrip('M_')
+            item_loader.add_value('weibo_id', weibo_id)
             item_loader.add_xpath('img', './/img[@class="ib"]/@src')
             item_loader.add_value('weibo_name', name)
             meta_list = weibo.xpath('.//div[last()]/a/text()').extract()
+            comment_url = weibo.xpath('.//div[last()]/a[@class="cc"]/@href').extract_first("")
             for meta in meta_list:
                 if self.re_comment.match(meta):
-                    item_loader.add_value('comment', int(self.re_comment.match(meta).group(1)))
+                    comment = int(self.re_comment.match(meta).group(1))
+                    item_loader.add_value('comment', comment)
+                    if comment > 0:
+                        yield Request(url=comment_url, headers=self.headers, cookies=self.get_cookies(),
+                                      callback=self.comment_parse, meta={'weibo_id': weibo_id})
                 elif self.re_like.match(meta):
                     item_loader.add_value('like', int(self.re_like.match(meta).group(1)))
                 elif self.re_report.match(meta):
@@ -219,3 +231,34 @@ class WeiboSpider(scrapy.Spider):
             cookies = self.get_cookies()
             yield Request(url=next_url, headers=self.headers, cookies=cookies, callback=self.parse,
                           meta={'page': next_page, 'name': name, 'max_page': pages})
+
+    def comment_parse(self, response):
+        weibo_id = response.meta.get('weibo_id')
+        comment_list = response.xpath('//*[starts-with(@id,"C_")]')
+        for comment in comment_list:
+            item_loader = TakeFirstScrapyLoader(item=WeiboCommentItem(), selector=comment)
+            item_loader.add_value('weibo', weibo_id)
+            ori_content = comment.xpath('.//span[@class="ctt"]')
+            contents = ori_content[0].xpath('string(.)').extract()
+            content = "\n".join(contents)
+            ra = self.re_reply_author.match(content)
+            if ra:
+                reply_author = ra.group(1)
+                content = ra.group(2)
+                print(reply_author, content)
+                item_loader.add_value('reply_author', reply_author)
+            item_loader.add_value('comment', content)
+            item_loader.add_xpath('author', './/a[1]/text()[1]')
+            time_str = comment.xpath('.//span[@class="ct"]/text()').extract_first("")
+            time_format = time_str_format(time_str=time_str)
+            if not time_format:
+                self.logger.error(
+                    '时间格式错误:{time},weibo_id:{weibo_id}'.format(time=time_str, weibo_id=weibo_id))
+            item_loader.add_value('publish_time', time_format)
+            comment_id = comment.xpath('@id').extract_first("").lstrip('C_')
+            item_loader.add_value('comment_id', comment_id)
+            meta_list = comment.xpath('.//span[@class="cc"]/a/text()').extract()
+            for meta in meta_list:
+                if self.re_like.match(meta):
+                    item_loader.add_value('likes', int(self.re_like.match(meta).group(1)))
+            yield item_loader.load_item()

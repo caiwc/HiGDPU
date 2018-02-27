@@ -248,7 +248,7 @@ def get_weibo(client, page_size=5, page=1):
     params = {'screen_name': 'HiGDPU', 'count': page_size, 'page': page}
     return client.get.statuses__user_timeline(params=params)
 
-
+@client_decorator
 def get_weibo_detial(client, weibo_id):
     params = {'id': weibo_id}
     return client.get.statuses__show(params=params)
@@ -315,5 +315,5 @@ if __name__ == '__main__':
     # client.access_token = '2.00KTSG6CWXfQzB4432cee7e0253_yC'
     # client.expires = 1674288747
     # res = get_emotions()
-    res = post_weibo(content='HIacasa [胡巴宝宝睡了][胡巴目瞪口呆]' + str(time.time()))
+    res = get_weibo_comment(weibo_id=4211016852254679)
     print(res)

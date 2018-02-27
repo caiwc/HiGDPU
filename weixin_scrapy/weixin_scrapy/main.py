@@ -11,3 +11,7 @@ def run(spider):
         execute(['scrapy', 'crawl', 'weixin'])
     elif spider == 'weibo':
         execute('scrapy crawl weibo -a start_page=1 -a end_page=50'.split(' '))
+
+
+if __name__ == '__main__':
+    run(spider='weibo')

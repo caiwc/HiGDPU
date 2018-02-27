@@ -39,6 +39,7 @@ class MysqlTwistedPipeline(object):
     def handle_error(self, failure, item, spider):
         # 处理异步插入的异常
         print(failure)
+        print(item)
         spider.logger.exception(failure)
 
     def do_insert(self, cursor, item):

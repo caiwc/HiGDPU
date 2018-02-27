@@ -28,7 +28,7 @@ class User(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     username = db.Column(db.String(255))
     expires_in = db.Column(db.DATETIME())
-    openid = db.Column(db.String(255))
+    openid = db.Column(db.String(255),unique=True)
     third_session = db.Column(db.String(255))
     session_key = db.Column(db.String(255))
 
@@ -156,7 +156,7 @@ class Weibo(db.Model):
     comments = db.Column(db.Integer())
     reports = db.Column(db.Integer())
     weibo_name = db.Column(db.String(45))
-    author_id = db.Column(db.Integer(), db.ForeignKey('user.id'))
+    author_id = db.Column(db.Integer(), db.ForeignKey('user.id'), nullable=True)
     publish_time = db.Column(db.DATETIME())
 
     @classmethod
@@ -184,11 +184,13 @@ class Weibo(db.Model):
 
 
 class Weibo_comment(db.Model):
-    id = db.Column(db.String(50), primary_key=True)
-    weibo = db.Column(db.Integer(), db.ForeignKey('weibo.id'))
+    comment_id = db.Column(db.String(50), primary_key=True)
+    weibo = db.Column(db.String(50), db.ForeignKey('weibo.weibo_id'))
     comment = db.Column(db.String(200))
     publish_time = db.Column(db.DATETIME())
-    author_id = db.Column(db.Integer(), db.ForeignKey('user.id'))
+    author = db.Column(db.String(100))
+    reply_author = db.Column(db.String(100), nullable=True)
+    likes = db.Column(db.Integer())
 
     def __repr__(self):
         return "<Comment '{}'>".format(self.comment[:15])
