@@ -57,11 +57,32 @@ class WeiboScrapyItem(scrapy.Item):
     def get_insert_sql(self):
         insert_sql = """
         insert into weibo(weibo_id,content,img,publish_time,likes,comments,reports,weibo_name)
-        VALUES (%s,%s,%s,%s,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE likes=VALUES(likes),
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE likes=VALUES(likes),content=VALUES(content),
         comments=VALUES(comments),reports=VALUES(reports),weibo_name=VALUES(weibo_name),publish_time=VALUES(publish_time)
         """
         params = (
             self['weibo_id'], self['content'].encode('utf-8'), self.get('img', ''), self['publish_time'],
-            self['like'], self['comment'], self['report'],self['weibo_name']
+            self['like'], self['comment'], self['report'], self['weibo_name']
+        )
+        return insert_sql, params
+
+
+class WeiboCommentItem(scrapy.Item):
+    comment_id = scrapy.Field()
+    weibo_id = scrapy.Field()
+    comment = scrapy.Field()
+    publish_time = scrapy.Field()
+    likes = scrapy.Field()
+    author = scrapy.Field()
+    reply_comment = scrapy.Field()
+
+    def get_insert_sql(self):
+        insert_sql = """
+                insert into weibo_comment(comment_id,weibo_id,comment,publish_time,likes,author,reply_comment)
+                VALUES (%s,%s,%s,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE likes=VALUES(likes)
+                """
+        params = (
+            self['comment_id'], self['weibo_id'], self['comment'].encode('utf-8'), self['publish_time'],
+            self['likes'], self['author'], self['reply_comment'],
         )
         return insert_sql, params
