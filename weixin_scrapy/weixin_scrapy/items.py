@@ -59,7 +59,8 @@ class WeiboScrapyItem(scrapy.Item):
         insert_sql = """
         insert into weibo(weibo_id,content,img,large_img,publish_time,likes,comments,reports,weibo_name)
         VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE likes=VALUES(likes),content=VALUES(content),
-        comments=VALUES(comments),reports=VALUES(reports),weibo_name=VALUES(weibo_name),publish_time=VALUES(publish_time)
+        comments=VALUES(comments),reports=VALUES(reports),weibo_name=VALUES(weibo_name),publish_time=VALUES(publish_time),
+        large_img=VALUES(large_img)
         """
         params = (
             self['weibo_id'], self['content'].encode('utf-8'), self.get('img', ''), self.get('large_img', ''),
