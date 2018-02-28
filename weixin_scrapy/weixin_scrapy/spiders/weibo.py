@@ -146,7 +146,7 @@ class WeiboSpider(scrapy.Spider):
     re_like = re.compile("赞\[(\d+)]")
     re_report = re.compile("转发\[(\d+)]")
     re_comment = re.compile("评论\[(\d+)]")
-
+    re_large_img = re.compile("wap180")
     re_reply_author = re.compile("^回复@(.*?):(.*)")
 
     def __init__(self, *args, **kwargs):
@@ -207,7 +207,10 @@ class WeiboSpider(scrapy.Spider):
             item_loader.add_value('content', content)
             weibo_id = weibo.xpath('@id').extract_first("").lstrip('M_')
             item_loader.add_value('weibo_id', weibo_id)
-            item_loader.add_xpath('img', './/img[@class="ib"]/@src')
+            img = weibo.xpath('.//img[@class="ib"]/@src').extract_first("")
+            large_img = self.re_large_img.sub('large',img)
+            item_loader.add_value('img', img)
+            item_loader.add_value('large_img', large_img)
             item_loader.add_value('weibo_name', name)
             meta_list = weibo.xpath('.//div[last()]/a/text()').extract()
             comment_url = weibo.xpath('.//div[last()]/a[@class="cc"]/@href').extract_first("")

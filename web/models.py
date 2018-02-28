@@ -152,6 +152,7 @@ class Weibo(db.Model):
     weibo_id = db.Column(db.String(50), primary_key=True)
     content = db.Column(db.String(300))
     img = db.Column(db.String(300))
+    large_img = db.Column(db.String(300))
     likes = db.Column(db.Integer())
     comments = db.Column(db.Integer())
     reports = db.Column(db.Integer())
