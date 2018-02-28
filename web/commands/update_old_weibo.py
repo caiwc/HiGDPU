@@ -19,3 +19,4 @@ class Update(Command):
             print('update '+weibo_id)
 
         db.session.commit()
+        print('完成')

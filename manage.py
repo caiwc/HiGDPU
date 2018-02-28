@@ -16,7 +16,7 @@ migrate = Migrate(app, db)
 manager = Manager(app)
 manager.add_command("server", Server())
 manager.add_command('db', MigrateCommand)
-manager.add_command("delete_weibo", update_old_weibo.Update())
+manager.add_command("update_weibo", update_old_weibo.Update())
 
 @manager.shell
 def make_shell_context():
