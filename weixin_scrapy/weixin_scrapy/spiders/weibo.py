@@ -140,7 +140,7 @@ class WeiboSpider(scrapy.Spider):
         'connection': "keep-alive",
         'host': "weibo.cn",
         'upgrade-insecure-requests': "1",
-        'user-agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36",
+        'user-agent': "Mozilla/5.0 (iPhone; CPU iPhone OS 10_3 like Mac OS X) AppleWebKit/602.1.50 (KHTML, like Gecko) CriOS/56.0.2924.75 Mobile/14E5239e Safari/602.1",
     }
 
     re_like = re.compile("赞\[(\d+)]")
@@ -152,7 +152,7 @@ class WeiboSpider(scrapy.Spider):
     def __init__(self, *args, **kwargs):
         super(WeiboSpider, self).__init__(*args, **kwargs)
         if not hasattr(self, 'end_page'):
-            self.end_page = 3
+            self.end_page = 8
         if not hasattr(self, 'start_page'):
             self.start_page = 1
         self.start_page = int(self.start_page)
@@ -208,7 +208,7 @@ class WeiboSpider(scrapy.Spider):
             weibo_id = weibo.xpath('@id').extract_first("").lstrip('M_')
             item_loader.add_value('weibo_id', weibo_id)
             img = weibo.xpath('.//img[@class="ib"]/@src').extract_first("")
-            large_img = self.re_large_img.sub('large',img)
+            large_img = self.re_large_img.sub('large', img)
             item_loader.add_value('img', img)
             item_loader.add_value('large_img', large_img)
             item_loader.add_value('weibo_name', name)
@@ -238,6 +238,19 @@ class WeiboSpider(scrapy.Spider):
     def comment_parse(self, response):
         weibo_id = response.meta.get('weibo_id')
         comment_list = response.xpath('//*[starts-with(@id,"C_")]')
+        page_list = response.xpath('//*[@id="pagelist"]/form/div/text()').extract()
+        if page_list:
+            pages_str = page_list[-1]
+            res = re.findall("(\d+)/(\d+)页", pages_str)
+            now_pages = int(res[0][0])
+            all_pages = int(res[0][1])
+            print('crawl comment page %s, all %s' % (now_pages, all_pages))
+            if now_pages != all_pages:
+                next_comment_path = response.xpath('//*[@id="pagelist"]/form/div/a[1]/@href').extract_first("")
+                next_comment_url = "https://weibo.cn" + next_comment_path
+                print(next_comment_url)
+                yield Request(url=next_comment_url, headers=self.headers, cookies=self.get_cookies(),
+                              callback=self.comment_parse, meta={'weibo_id': weibo_id})
         for comment in comment_list:
             item_loader = TakeFirstScrapyLoader(item=WeiboCommentItem(), selector=comment)
             item_loader.add_value('weibo', weibo_id)
