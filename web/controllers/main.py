@@ -121,28 +121,36 @@ def qyweixin_authorization():
                     save_classify_weibo_mode(wxcpt.weibo, 2)
                     weibo = get_classify_weibo()
                     wxcpt.weibo = weibo
-                    res_content = "下一个: {}".format(weibo.content)
+                    res_content = ""
+                    msg = "下一个: {}".format(weibo.content)
+                    send_chinese_msg(msg)
                 elif wxcpt.classify and event_key == "classify_pos":
                     write_weibo(file_path + 'pos.txt', wxcpt.weibo.content)
                     save_classify_weibo_mode(wxcpt.weibo, 0)
                     weibo = get_classify_weibo()
                     wxcpt.weibo = weibo
-                    res_content = "下一个: {}".format(weibo.content)
+                    res_content = ""
+                    msg = "下一个: {}".format(weibo.content)
+                    send_chinese_msg(msg)
                 elif wxcpt.classify and event_key == "classify_neg":
                     write_weibo(file_path + 'neg.txt', wxcpt.weibo.content)
                     save_classify_weibo_mode(wxcpt.weibo, 1)
                     weibo = get_classify_weibo()
                     wxcpt.weibo = weibo
-                    res_content = "下一个: {}".format(weibo.content)
+                    res_content = ""
+                    msg = "下一个: {}".format(weibo.content)
+                    send_chinese_msg(msg)
                 elif event_key == "classify_weibo":
                     weibo = get_classify_weibo()
                     wxcpt.weibo = weibo
                     wxcpt.classify = True
-                    res_content = "开始分类 {}".format(weibo.content)
+                    res_content = ""
+                    msg = "开始: {}".format(weibo.content)
+                    send_chinese_msg(msg)
                 elif event_key == "classify_quit":
                     wxcpt.classify = False
                     wxcpt.weibo = None
-                    res_content = "停止分类"
+                    res_content = "stop"
                 else:
                     res_content = "error"
 
@@ -156,6 +164,9 @@ def qyweixin_authorization():
         response.content_type = 'application/xml'
         return response
 
+def send_chinese_msg(msg):
+    from qyweixin.qyweixin_api import send_weixin_message, qyweixin_text_type
+    send_weixin_message(send_type=qyweixin_text_type, msg_content=msg)
 
 def save_classify_weibo_mode(weibo, mode):
     from web.models import db
