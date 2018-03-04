@@ -10,7 +10,6 @@ from weixin_scrapy import settings
 from weixin_scrapy.items import TakeFirstScrapyLoader, WeiboScrapyItem, WeiboCommentItem
 from weixin_scrapy.utils import time_str_format
 
-
 class WeiboSpider(scrapy.Spider):
     name = 'weibo'
     allowed_domains = ['weibo.cn']
@@ -149,6 +148,7 @@ class WeiboSpider(scrapy.Spider):
     re_large_img = re.compile("wap180")
     re_reply_author = re.compile("^回复@(.*?):(.*)")
 
+
     def __init__(self, *args, **kwargs):
         super(WeiboSpider, self).__init__(*args, **kwargs)
         if not hasattr(self, 'end_page'):
@@ -157,6 +157,7 @@ class WeiboSpider(scrapy.Spider):
             self.start_page = 1
         self.start_page = int(self.start_page)
         self.end_page = int(self.end_page)
+
         from scrapy import signals
         dispatcher.connect(self.spider_close, signals.spider_closed)
 
@@ -218,9 +219,9 @@ class WeiboSpider(scrapy.Spider):
                 if self.re_comment.match(meta):
                     comment = int(self.re_comment.match(meta).group(1))
                     item_loader.add_value('comment', comment)
-                    if comment > 0:
-                        yield Request(url=comment_url, headers=self.headers, cookies=self.get_cookies(),
-                                      callback=self.comment_parse, meta={'weibo_id': weibo_id})
+                    # if comment > 0:
+                    #     yield Request(url=comment_url, headers=self.headers, cookies=self.get_cookies(),
+                    #                   callback=self.comment_parse, meta={'weibo_id': weibo_id})
                 elif self.re_like.match(meta):
                     item_loader.add_value('like', int(self.re_like.match(meta).group(1)))
                 elif self.re_report.match(meta):

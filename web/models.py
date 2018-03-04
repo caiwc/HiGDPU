@@ -159,7 +159,7 @@ class Weibo(db.Model):
     weibo_name = db.Column(db.String(45))
     author_id = db.Column(db.Integer(), db.ForeignKey('user.id'), nullable=True)
     publish_time = db.Column(db.DATETIME())
-
+    mode = db.Column(db.CHAR(2))
     @classmethod
     def to_list(cls, ms, detail=False):
         res = []

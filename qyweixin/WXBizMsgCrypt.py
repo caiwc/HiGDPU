@@ -221,6 +221,9 @@ class WXBizMsgCrypt(object):
         self.verify_operation = None
         self.verify_code = None
 
+        self.classify = False
+        self.weibo = None
+
         # 验证URL
         # @param sMsgSignature: 签名串，对应URL参数的msg_signature
         # @param sTimeStamp: 时间戳，对应URL参数的timestamp

@@ -45,6 +45,29 @@ def validate_decorator(**need_arg):
 
     return decorator
 
+def timeoutFn(func, kwargs={}, timeout_duration=1, default=None):
+    import signal
+
+    class TimeoutError(Exception):
+        pass
+
+    def handler(signum, frame):
+        print('time out')
+        raise TimeoutError()
+
+    # set the timeout handler
+    signal.signal(signal.SIGALRM, handler)
+    signal.alarm(timeout_duration)
+    try:
+        result = func(**kwargs)
+    except TimeoutError as exc:
+        result = default
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, signal.SIG_DFL)
+
+    return result
+
 
 a = {'total_number': 20, 'hasvisible': False, 'statuses': [
     {'visible': {'type': 0, 'list_id': 0}, 'hasActionTypeCard': 0, 'userType': 0, 'id': 4211016852254679, 'geo': None,

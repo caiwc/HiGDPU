@@ -114,8 +114,40 @@ def qyweixin_authorization():
             elif event_key == 'crawl_weibo':
                 crawl.apply_async(kwargs={'operation': 'weibo'})
                 res_content = "crawling..."
+            elif event_key.startswith("classify"):
+                file_path = config.PROJECT_PATH + "/weibo_nlp/"
+                if wxcpt.classify and event_key == "classify_else":
+                    write_weibo(file_path + 'else.txt', wxcpt.weibo.content)
+                    save_classify_weibo_mode(wxcpt.weibo, 2)
+                    weibo = get_classify_weibo()
+                    wxcpt.weibo = weibo
+                    res_content = "下一个: {}".format(weibo.content)
+                elif wxcpt.classify and event_key == "classify_pos":
+                    write_weibo(file_path + 'pos.txt', wxcpt.weibo.content)
+                    save_classify_weibo_mode(wxcpt.weibo, 0)
+                    weibo = get_classify_weibo()
+                    wxcpt.weibo = weibo
+                    res_content = "下一个: {}".format(weibo.content)
+                elif wxcpt.classify and event_key == "classify_neg":
+                    write_weibo(file_path + 'neg.txt', wxcpt.weibo.content)
+                    save_classify_weibo_mode(wxcpt.weibo, 1)
+                    weibo = get_classify_weibo()
+                    wxcpt.weibo = weibo
+                    res_content = "下一个: {}".format(weibo.content)
+                elif event_key == "classify_weibo":
+                    weibo = get_classify_weibo()
+                    wxcpt.weibo = weibo
+                    wxcpt.classify = True
+                    res_content = "开始分类 {}".format(weibo.content)
+                elif event_key == "classify_quit":
+                    wxcpt.classify = False
+                    wxcpt.weibo = None
+                    res_content = "停止分类"
+                else:
+                    res_content = "error"
+
             else:
-                res_content = "without thi event"
+                res_content = "without this event"
         else:
             res_content = "I don't know what you say,please input again"
         res = api_tool.msg_encrp(wxcpt=wxcpt, to_user=to_user, from_user=from_user, content=res_content,
@@ -123,6 +155,25 @@ def qyweixin_authorization():
         response = make_response(res)
         response.content_type = 'application/xml'
         return response
+
+
+def save_classify_weibo_mode(weibo, mode):
+    from web.models import db
+    weibo.mode = mode
+    db.session.commit()
+
+
+def get_classify_weibo():
+    from web.models import db, Weibo
+    weibo = Weibo.query.filter_by(mode=None).order_by(Weibo.publish_time.desc()).first()
+    return weibo
+
+
+def write_weibo(file_path, str):
+    f = open(file_path, 'w+')
+    f.write(str)
+    f.write('\n\n')
+    f.close()
 
 # @main_blueprint.route('/login', methods=['GET', 'POST'])
 # @oid.loginhandler

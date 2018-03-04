@@ -3,6 +3,7 @@ from kombu import Queue, Exchange
 import os
 
 WEB_PATH = os.path.dirname(__file__)
+PROJECT_PATH = os.path.dirname(WEB_PATH)
 if os.path.exists(os.path.join(os.path.dirname(WEB_PATH), 'local_settings.py')):
     from local_settings import *
 
