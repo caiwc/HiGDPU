@@ -118,7 +118,7 @@ def qyweixin_authorization():
                 file_path = config.PROJECT_PATH + "/weibo_nlp/"
                 if wxcpt.classify and event_key == "classify_else":
                     write_weibo(file_path + 'else.txt', wxcpt.weibo.content)
-                    save_classify_weibo_mode(wxcpt.weibo, 2)
+                    save_classify_weibo_mode(wxcpt.weibo, '2')
                     weibo = get_classify_weibo()
                     wxcpt.weibo = weibo
                     res_content = ""
@@ -126,7 +126,7 @@ def qyweixin_authorization():
                     send_chinese_msg(msg)
                 elif wxcpt.classify and event_key == "classify_pos":
                     write_weibo(file_path + 'pos.txt', wxcpt.weibo.content)
-                    save_classify_weibo_mode(wxcpt.weibo, 0)
+                    save_classify_weibo_mode(wxcpt.weibo, '0')
                     weibo = get_classify_weibo()
                     wxcpt.weibo = weibo
                     res_content = ""
@@ -134,7 +134,7 @@ def qyweixin_authorization():
                     send_chinese_msg(msg)
                 elif wxcpt.classify and event_key == "classify_neg":
                     write_weibo(file_path + 'neg.txt', wxcpt.weibo.content)
-                    save_classify_weibo_mode(wxcpt.weibo, 1)
+                    save_classify_weibo_mode(wxcpt.weibo, '1')
                     weibo = get_classify_weibo()
                     wxcpt.weibo = weibo
                     res_content = ""
@@ -164,9 +164,11 @@ def qyweixin_authorization():
         response.content_type = 'application/xml'
         return response
 
+
 def send_chinese_msg(msg):
     from qyweixin.qyweixin_api import send_weixin_message, qyweixin_text_type
     send_weixin_message(send_type=qyweixin_text_type, msg_content=msg)
+
 
 def save_classify_weibo_mode(weibo, mode):
     from web.models import db
