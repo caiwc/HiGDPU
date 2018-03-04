@@ -8,8 +8,7 @@ file_path = os.path.join(PROJECT_PATH, 'weibo_nlp')
 
 class Classify(Command):
     def run(self):
-        weibo_list = Weibo.query.filter_by(mode=None).order_by(Weibo.publish_time.desc()).paginate(1,
-                                                                                                             5000).items
+        weibo_list = Weibo.query.filter_by(mode=None).order_by(Weibo.publish_time.desc()).paginate(1,5000).items
 
         neg_f = open(file_path + '/neg.txt', 'w+')
         pos_f = open(file_path + '/pos.txt', 'w+')

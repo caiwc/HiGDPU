@@ -171,7 +171,6 @@ def send_chinese_msg(msg):
 
 
 def save_classify_weibo_mode(weibo, mode):
-    from web.models import db
     weibo.mode = mode
     db.session.commit()
 
