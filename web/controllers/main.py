@@ -175,11 +175,12 @@ def send_chinese_msg(msg):
 
 def save_classify_weibo_mode(weibo, mode):
     weibo.mode = mode
+    db.session.add(weibo)
     db.session.commit()
 
 
 def get_classify_weibo():
-    from web.models import db, Weibo
+    from web.models import Weibo
     weibo = Weibo.query.filter_by(mode=None).order_by(Weibo.publish_time.desc()).first()
     return weibo
 
