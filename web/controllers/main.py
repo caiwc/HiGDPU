@@ -117,6 +117,7 @@ def qyweixin_authorization():
             elif event_key.startswith("classify"):
                 file_path = config.PROJECT_PATH + "/weibo_nlp/"
                 if wxcpt.classify and event_key == "classify_else":
+                    print(wxcpt.weibo.content)
                     write_weibo(file_path + 'else.txt', wxcpt.weibo.content)
                     save_classify_weibo_mode(wxcpt.weibo, '2')
                     weibo = get_classify_weibo()
@@ -125,6 +126,7 @@ def qyweixin_authorization():
                     msg = "下一个: {}".format(weibo.content)
                     send_chinese_msg(msg)
                 elif wxcpt.classify and event_key == "classify_pos":
+                    print(wxcpt.weibo.content)
                     write_weibo(file_path + 'pos.txt', wxcpt.weibo.content)
                     save_classify_weibo_mode(wxcpt.weibo, '0')
                     weibo = get_classify_weibo()
@@ -133,6 +135,7 @@ def qyweixin_authorization():
                     msg = "下一个: {}".format(weibo.content)
                     send_chinese_msg(msg)
                 elif wxcpt.classify and event_key == "classify_neg":
+                    print(wxcpt.weibo.content)
                     write_weibo(file_path + 'neg.txt', wxcpt.weibo.content)
                     save_classify_weibo_mode(wxcpt.weibo, '1')
                     weibo = get_classify_weibo()
