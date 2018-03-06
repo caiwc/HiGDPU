@@ -61,7 +61,7 @@ def allowed_file(filename):
 
 @main_blueprint.route('/api/authorization', methods=['POST'])
 def authorization():
-    js_code = request.json['code']
+    js_code = request.form['code']
     flag, res, meta = api_tool.weixin_authorization(js_code=js_code)
     if flag:
         user_id = User.add(third_session=meta['third_session'], expires_in=meta['expires_in'],
@@ -69,7 +69,7 @@ def authorization():
         res.update({'user_id': user_id})
         return jsonify(res), 200
     else:
-        return jsonify(res), 400
+        return jsonify({'error':res}), 400
 
 
 @main_blueprint.route('/api/qyweixin', methods=['GET', 'POST'])

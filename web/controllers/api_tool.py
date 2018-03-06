@@ -40,7 +40,7 @@ def weixin_authorization(js_code):
     url = base_url.format(JSCODE=js_code)
     flag, res = do_requests(url=url, method='get')
     if not flag:
-        return flag, res
+        return flag, res, None
     if res.status_code == 200:
         res_json = res.json()
         if 'session_key' in res_json:
@@ -54,5 +54,7 @@ def weixin_authorization(js_code):
                     'expires_in': expires_in, 'third_session': third_session}
             return True, {'third_session': third_session}, meta
         elif 'errcode' in res_json:
-            return False, res_json['errmsg']
-    return False, 'request error'
+            if res_json['errcode'] == 40029:
+                return False, "js code 不合法", None
+            return False, res_json['errmsg'], None
+    return False, 'request error', None
