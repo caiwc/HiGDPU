@@ -218,6 +218,31 @@ class Weibo_comment(db.Model):
         tmp['likes'] = m.likes
         return tmp
 
+
+class Official(db.Model):
+    article_id = db.Column(db.String(50), primary_key=True)
+    title = db.Column(db.String(200))
+    content = db.Column(db.TEXT())
+    html_content = db.Column(db.TEXT())
+    publish_time = db.Column(db.DATE())
+    url = db.Column(db.String(256))
+
+    @classmethod
+    def to_list(cls, ms, detail=False):
+        res = []
+        for m in ms:
+            res.append(cls.to_dict(m, detail))
+        return res
+
+    @classmethod
+    def to_dict(cls, m, detail=False):
+        tmp = dict()
+        tmp['article_id'] = m.article_id
+        tmp['title'] = m.title
+        tmp['publish_time'] = m.publish_time
+        if detail:
+            tmp['content'] = m.content
+        return tmp
 # class Role(db.Model):
 #     id = db.Column(db.Integer(), primary_key=True)
 #     name = db.Column(db.String(80), unique=True)

@@ -4,14 +4,15 @@ user_post_parser = reqparse.RequestParser()
 user_post_parser.add_argument('username', type=str, required=True)
 user_post_parser.add_argument('password', type=str, required=True)
 
+official_get_parser = reqparse.RequestParser()
+official_get_parser.add_argument('page', type=int, location=['args'])
+
 weibo_get_parser = reqparse.RequestParser()
 weibo_get_parser.add_argument('page', type=int, location=['args', 'headers'])
-weibo_get_parser.add_argument('user', type=str, location=['args', 'headers'])
 
 weixin_get_parser = reqparse.RequestParser()
 weixin_get_parser.add_argument('page', type=int, location=['args', 'headers'])
 weixin_get_parser.add_argument('gzh', type=str, location=['args', 'headers'])
-weixin_get_parser.add_argument('article_id', type=str, location=['args', 'headers'])
 
 weibo_post_parser = reqparse.RequestParser()
 weibo_post_parser.add_argument(

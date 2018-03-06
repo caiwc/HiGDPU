@@ -89,3 +89,22 @@ class WeiboCommentItem(scrapy.Item):
             self['likes'], self['author'], self.get('reply_author', ''),
         )
         return insert_sql, params
+
+
+class OfficialItem(scrapy.Item):
+    article_id = scrapy.Field()
+    content = scrapy.Field()
+    publish_time = scrapy.Field()
+    title = scrapy.Field()
+    html_content = scrapy.Field()
+    url = scrapy.Field()
+    def get_insert_sql(self):
+        insert_sql = """
+                insert into official(article_id,content,publish_time,title,html_content,url)
+                VALUES (%s,%s,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE content=VALUES(content), url=VALUES(url)
+                """
+        params = (
+            self['article_id'], self['content'], self['publish_time'],
+            self['title'], self['html_content'],self['url']
+        )
+        return insert_sql, params

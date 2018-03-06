@@ -1,9 +1,7 @@
-import datetime
-
 from flask import abort, jsonify
 from flask_restful import Resource, fields, marshal_with
 from web.tasks import send_weibo
-from web.models import db, Weibo
+from web.models import db, Weibo, User
 from .parsers import (
     weibo_get_parser,
     weibo_post_parser,
@@ -41,8 +39,12 @@ class Weibo_Api(Resource):
             ).paginate(page, 30).items
             return jsonify(Weibo.to_list(ms=posts, detail=False))
 
-    def post(self, post_id=None):
+    def post(self):
         args = weibo_post_parser.parse_args(strict=True)
+        third_session = args['third_session']
+        flag, data = User.verify_auth_3rdsession(thirdsession=third_session)
+        if not flag:
+            return data['msg']
         content = args['content']
         file = args.get('file', None)
-        send_weibo.apply_async(kwargs={'content': content, 'file': file})
+        send_weibo.apply_async(kwargs={'user': data, 'content': content, 'file': file})

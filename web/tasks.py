@@ -28,7 +28,7 @@ def verifycode_handle(url, operation):
 
 
 @celery.task()
-def send_weibo(content, file=None):
+def send_weibo(user, content, file=None):
     from web.utils import weibo_time_format
     res = post_weibo(content=content, files_path=file)
     print(res)
@@ -45,6 +45,7 @@ def send_weibo(content, file=None):
         weibo.likes = 0
         weibo.reports = 0
         weibo.comments = 0
+        weibo.author_id = user.id
         db.session.add(weibo)
         db.session.commit()
 
