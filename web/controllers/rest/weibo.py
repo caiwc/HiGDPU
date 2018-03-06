@@ -2,12 +2,15 @@ from flask import abort, jsonify
 from flask_restful import Resource, fields, marshal_with
 from web.tasks import send_weibo
 from web.models import db, Weibo, User
+from web import config
 from .parsers import (
     weibo_get_parser,
     weibo_post_parser,
     weibo_put_parser,
     weibo_delete_parser
 )
+
+import os
 
 # from .fields import HTMLField
 
@@ -47,4 +50,6 @@ class Weibo_Api(Resource):
             return data['msg']
         content = args['content']
         file = args.get('file', None)
+        if file:
+            file = os.path.join(config.UPLOAD_PATH, file)
         send_weibo.apply_async(kwargs={'user': data, 'content': content, 'file': file})

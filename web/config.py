@@ -22,6 +22,7 @@ CALLBACK_URL = CALLBACK_URL
 
 QYWEIXIN_VERIFYCODE = '识别验证码'
 
+UPLOAD_PATH = os.path.join(PROJECT_PATH, 'files')
 
 class Config(object):
     SECRET_KEY = '736670cb10a600b695a55839ca3a5aa54a7d7356cdef815d2ad6e19a2031182b'
@@ -41,15 +42,18 @@ class DevConfig(Config):
     CELERY_BROKER_URL = "redis://localhost:6379/0"
     CELERY_BACKEND_URL = "redis://localhost:6379/1"
 
+    ALLOWED_EXTENSIONS = {'png', 'jpeg', 'gif'}
+    MAX_CONTENT_LENGTH = 5 * 1024 * 1024
+
     CELERY_QUEUES = (
         Queue('default', Exchange('default'), routing_key='default'),
         Queue('send_weibo', Exchange('send_weibo'), routing_key='send_weibo')
     )
 
     CELERY_ROUTES = {
-        "web.tasks.verifycode_handle":{"queue": "default", "routing_key": "default"},
-        "web.tasks.crawl":{"queue": "default", "routing_key": "default"},
-        "web.tasks.multiply":{"queue": "default", "routing_key": "default"},
+        "web.tasks.verifycode_handle": {"queue": "default", "routing_key": "default"},
+        "web.tasks.crawl": {"queue": "default", "routing_key": "default"},
+        "web.tasks.multiply": {"queue": "default", "routing_key": "default"},
         "web.tasks.send_weibo": {"queue": "send_weibo", "routing_key": "send_weibo"},
     }
 

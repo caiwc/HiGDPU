@@ -1,6 +1,5 @@
 from flask import current_app
 from flask_sqlalchemy import SQLAlchemy
-# from flask.ext.login import AnonymousUserMixin
 import datetime
 from itsdangerous import (
     TimedJSONWebSignatureSerializer as Serializer,
@@ -44,11 +43,6 @@ class User(db.Model):
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
-
-    def is_express(self):
-        if self.express_in < datetime.datetime.now():
-            return False
-        return True
 
     def get_id(self):
         return self.id

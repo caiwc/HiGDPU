@@ -8,21 +8,12 @@ from flask import (current_app,
                    flash,
                    session)
 from web import config
-import requests
-import json
+import os
 import redis
 from web.controllers import api_tool
-from flask_restful import reqparse
 from web.models import db, User
 from qyweixin.WXBizMsgCrypt import WXBizMsgCrypt
 from web.tasks import verifycode_handle, crawl
-
-# from flask.ext.principal import (
-#     Identity,
-#     AnonymousIdentity,
-#     identity_changed
-# )
-
 
 main_blueprint = Blueprint(
     'main',
@@ -35,7 +26,27 @@ wxcpt = None
 
 @main_blueprint.route('/')
 def index():
-    return jsonify('Hi')
+    return jsonify('城哥最帅')
+
+
+@main_blueprint.route('/api/upload', methods=['POST'])
+def upload_file():
+    from web.utils import gen_filename
+    if 'file' not in request.files:
+        return jsonify({'error': '未获取到文件'}), 400
+    file = request.files['file']
+    if not allowed_file(file.filename):
+        return jsonify({'error': '仅支持JPEG、GIF、PNG图片'}), 400
+    filename = gen_filename(file.filename)
+    if not os.path.exists(config.UPLOAD_PATH):
+        os.mkdir(config.UPLOAD_PATH)
+    file.save(os.path.join(config.UPLOAD_PATH, filename))
+    return jsonify({'filename': filename}), 200
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
 
 
 @main_blueprint.route('/api/authorization', methods=['POST'])
