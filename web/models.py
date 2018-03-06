@@ -25,7 +25,6 @@ db = SQLAlchemy()
 
 class User(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
-    username = db.Column(db.String(255))
     expires_in = db.Column(db.DATETIME())
     openid = db.Column(db.String(255), unique=True)
     third_session = db.Column(db.String(255))
@@ -38,11 +37,8 @@ class User(db.Model):
     #     )
     #
 
-    # def __init__(self, username):
-    #     self.username = username
-
     def __repr__(self):
-        return '<User {}>'.format(self.username)
+        return '<User {}>'.format(self.openid)
 
     def get_id(self):
         return self.id
@@ -62,9 +58,9 @@ class User(db.Model):
         try:
             data = s.loads(thirdsession)
         except SignatureExpired:
-            return False, {'status': 'fail', 'data': {'msg': 'expired token'}}
+            return False, {'status': 'fail', 'error': '认证已过期'}
         except BadSignature:
-            return False, {'status': 'fail', 'data': {'msg': 'useless token'}}
+            return False, {'status': 'fail', 'data': 'session无效'}
         print(data)
         user = cls.get_user(data['openid'])
         return True, user
@@ -89,13 +85,12 @@ class User(db.Model):
         return user
 
     @classmethod
-    def add(cls, username, expires_in, openid, third_session, session_key):
+    def add(cls, expires_in, openid, third_session, session_key):
         user = cls.query.filter_by(openid=openid).first()
         if not user:
             user = cls()
             user.openid = openid
-            print('新增用户 {}'.format(username))
-        user.username = username
+            print('新增用户 {}'.format(openid))
         now = datetime.datetime.now()
         expires = now + datetime.timedelta(seconds=expires_in)
         user.expires_in = expires

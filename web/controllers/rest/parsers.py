@@ -8,30 +8,30 @@ official_get_parser = reqparse.RequestParser()
 official_get_parser.add_argument('page', type=int, location=['args'])
 
 weibo_get_parser = reqparse.RequestParser()
-weibo_get_parser.add_argument('page', type=int, location=['args', 'headers'])
+weibo_get_parser.add_argument('page', type=int, location=['args'])
 
 weixin_get_parser = reqparse.RequestParser()
-weixin_get_parser.add_argument('page', type=int, location=['args', 'headers'])
-weixin_get_parser.add_argument('gzh', type=str, location=['args', 'headers'])
+weixin_get_parser.add_argument('page', type=int, location=['args'])
+weixin_get_parser.add_argument('gzh', type=str, location=['args'])
 
 weibo_post_parser = reqparse.RequestParser()
 weibo_post_parser.add_argument(
-    'token',
+    'third_session',
     type=str,
     required=True,
-    help="Auth Token is required to edit posts"
+    help="third_session is required to edit posts",
 )
 weibo_post_parser.add_argument(
-    'title',
+    'file',
     type=str,
-    required=True,
-    help="Title is required"
+    required=False,
+    help="file name"
 )
 weibo_post_parser.add_argument(
     'content',
     type=str,
     required=True,
-    help="Body text is required"
+    help="content text is required"
 )
 
 weibo_put_parser = reqparse.RequestParser()

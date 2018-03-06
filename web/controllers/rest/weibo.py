@@ -12,26 +12,13 @@ from .parsers import (
 
 import os
 
-# from .fields import HTMLField
-
-
-post_fields = {
-    'weibo_id': fields.String(),
-    'content': fields.String(),
-    'publish_time': fields.DateTime(dt_format='iso8601'),
-    'weibo_name': fields.String(),
-    'reposts': fields.Integer(),
-    'likes': fields.Integer(),
-    'comments': fields.Integer()
-}
-
 
 class Weibo_Api(Resource):
     def get(self, weibo_id=None):
         if weibo_id:
             post = Weibo.query.filter_by(weibo_id=weibo_id).first()
             if not post:
-                abort(404)
+                abort(404, {'error': '不存在此id的微博'})
 
             return jsonify(Weibo.to_dict(post, detail=True))
         else:
@@ -47,7 +34,7 @@ class Weibo_Api(Resource):
         third_session = args['third_session']
         flag, data = User.verify_auth_3rdsession(thirdsession=third_session)
         if not flag:
-            return data['msg']
+            return abort(401, data)
         content = args['content']
         file = args.get('file', None)
         if file:

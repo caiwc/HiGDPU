@@ -26,11 +26,14 @@ wxcpt = None
 
 @main_blueprint.route('/')
 def index():
-    return jsonify('城哥最帅')
+    return '城哥最帅'
 
 
 @main_blueprint.route('/api/upload', methods=['POST'])
 def upload_file():
+    flag, data = verify_3rdsession()
+    if not flag:
+        return jsonify(data), 401
     from web.utils import gen_filename
     if 'file' not in request.files:
         return jsonify({'error': '未获取到文件'}), 400
@@ -44,6 +47,13 @@ def upload_file():
     return jsonify({'filename': filename}), 200
 
 
+def verify_3rdsession():
+    if 'third_session' not in request.form:
+        return False, {'status': 'fail', 'data': '无third_session'}
+    third_session = request.form['third_session']
+    return User.verify_auth_3rdsession(thirdsession=third_session)
+
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
@@ -52,10 +62,9 @@ def allowed_file(filename):
 @main_blueprint.route('/api/authorization', methods=['POST'])
 def authorization():
     js_code = request.json['code']
-    username = request.json['username']
-    flag, res, meta = api_tool.weixin_authorization(username=username, js_code=js_code)
+    flag, res, meta = api_tool.weixin_authorization(js_code=js_code)
     if flag:
-        user_id = User.add(username=username, third_session=meta['third_session'], expires_in=meta['expires_in'],
+        user_id = User.add(third_session=meta['third_session'], expires_in=meta['expires_in'],
                            session_key=meta['session_key'], openid=meta['openid'])
         res.update({'user_id': user_id})
         return jsonify(res), 200

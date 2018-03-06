@@ -2,14 +2,8 @@
 
 from flask import Flask
 
-# from flask.ext.principal import identity_loaded, UserNeed, RoleNeed
-
 from web.models import db
 from web.extensions import (
-    # bcrypt,
-    # oid,
-    # login_manager,
-    # principals,
     rest_api,
     celery
 )
