@@ -1,12 +1,12 @@
 from web.weibo_api import post_weibo, post_weibo_commet, reply_comment
 from web.extensions import celery
 from weixin_scrapy.verifycode import handel_verifycode
-from web.models import db, User, Weibo, Weibo_comment
+from web.models import db, User, Weibo, Weibo_comment, Message
 from web import config
-from web.signals.signals_define import get_message
 from weixin_scrapy.main import run
 import datetime
-from flask import current_app
+from web.utils import str_md5
+
 
 @celery.task()
 def log(msg):
@@ -43,9 +43,12 @@ def send_weibo(user, content, file=None):
         weibo.likes = 0
         weibo.reports = 0
         weibo.comments = 0
-        weibo.author_id = user.id
+        weibo.author = user.openid
         db.session.add(weibo)
         db.session.commit()
+        if file:
+            import os
+            os.remove(file)
 
 
 @celery.task()
@@ -58,12 +61,18 @@ def send_weibo_comment(user, weibo_id, content, reply_author=None, reply_comment
             reply_author = User.get(openid=reply_author)
             comment.reply_author = reply_author.openid
         if weibo.weibo_name == config.WEIBO_NAME:
-            if not reply_author:
-                res = post_weibo_commet(weibo_id=weibo_id, comment=content)
-            else:
-                res = reply_comment(weibo_id=weibo_id, comment_id=reply_comment_id, comment=content)
+            try:
+                if not reply_author:
+                    res = post_weibo_commet(weibo_id=weibo_id, comment=content)
+                else:
+                    res = reply_comment(weibo_id=weibo_id, comment_id=reply_comment_id, comment=content)
+            except Exception as e:
+                print(e)
+                return False
             comment.publish_time = weibo_time_format(res['created_at'])
+            comment.comment_id = res['id']
         else:
+            comment.comment_id = str_md5(weibo_id + content)
             comment.publish_time = datetime.datetime.now()
         comment.weibo = weibo_id
         comment.comment = content
@@ -71,9 +80,14 @@ def send_weibo_comment(user, weibo_id, content, reply_author=None, reply_comment
         comment.likes = 0
         db.session.add(comment)
         db.session.commit()
+
+        if weibo.author:
+            Message.add(weibo=weibo, user_id=weibo.author, content="有人评论了你的微博")
+        if reply_author:
+            Message.add(weibo=weibo, user_id=reply_author, content="有人回复了你的评论")
         return True
     else:
-        return None
+        return False
 
 
 @celery.task(ignore_result=True)

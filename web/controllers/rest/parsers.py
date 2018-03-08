@@ -7,6 +7,9 @@ user_post_parser.add_argument('password', type=str, required=True)
 official_get_parser = reqparse.RequestParser()
 official_get_parser.add_argument('page', type=int, location=['args'])
 
+message_get_parser = reqparse.RequestParser()
+message_get_parser.add_argument('page', type=int, location=['args'])
+
 weibo_get_parser = reqparse.RequestParser()
 weibo_get_parser.add_argument('page', type=int, location=['args'])
 
@@ -37,24 +40,32 @@ weibo_post_parser.add_argument(
     help="content text is required"
 )
 
-weibo_put_parser = reqparse.RequestParser()
-weibo_put_parser.add_argument(
-    'token',
+weibo_comment_post_parser = reqparse.RequestParser()
+weibo_comment_post_parser.add_argument(
+    'third_session',
     type=str,
     required=True,
     help="Auth Token is required to create posts"
 )
-weibo_put_parser.add_argument(
-    'title',
-    type=str
+weibo_comment_post_parser.add_argument(
+    'weibo_id',
+    type=str,
+    required=True
 )
-weibo_put_parser.add_argument(
-    'text',
-    type=str
+weibo_comment_post_parser.add_argument(
+    'content',
+    type=str,
+    required=True
 )
-weibo_put_parser.add_argument(
-    'tags',
-    type=str
+weibo_comment_post_parser.add_argument(
+    'reply_author',
+    type=str,
+    required=False
+)
+weibo_comment_post_parser.add_argument(
+    'reply_comment_id',
+    type=str,
+    required=False
 )
 
 weibo_delete_parser = reqparse.RequestParser()

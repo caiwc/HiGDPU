@@ -13,9 +13,8 @@ class Authorization_Api(Resource):
         js_code = args['code']
         flag, res, meta = api_tool.weixin_authorization(js_code=js_code)
         if flag:
-            user_id = User.add(third_session=meta['third_session'], expires_in=meta['expires_in'],
+            user = User.add(third_session=meta['third_session'], expires_in=meta['expires_in'],
                                session_key=meta['session_key'], openid=meta['openid'])
-            res.update({'user_id': user_id})
             return jsonify(res)
         else:
             return abort(400, {'error': res})

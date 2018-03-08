@@ -13,7 +13,7 @@ from web.controllers.rest.weixin import Weixin_Gzh_Api
 from web.controllers.rest.official import Official_Api
 from web.controllers.rest.message import Message_Api
 from web.controllers.rest.authorization import Authorization_Api
-from web.extensions import MyResponse
+from web.extensions import MyResponse,get_opt_user
 # from .tasks import on_reminder_save
 
 
@@ -39,7 +39,7 @@ def create_app(object_name):
     # login_manager.init_app(app)
     # principals.init_app(app)
     celery.init_app(app)
-
+    app.before_request(get_opt_user)
     rest_api.add_resource(
         Weibo_Api,
         '/api/weibo',

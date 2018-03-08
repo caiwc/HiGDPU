@@ -106,7 +106,7 @@ class User(db.Model):
         user.session_key = session_key
         db.session.add(user)
         db.session.commit()
-        return user.id
+        return user
 
 
 class Weixin_Gzh(db.Model):
@@ -154,7 +154,7 @@ class Weibo(db.Model):
     comments = db.Column(db.Integer())
     reports = db.Column(db.Integer())
     weibo_name = db.Column(db.String(45))
-    author_id = db.Column(db.Integer(), db.ForeignKey('user.id'), nullable=True)
+    author = db.Column(db.String(100), nullable=True)
     publish_time = db.Column(db.DATETIME())
     mode = db.Column(db.CHAR(2))
 
@@ -176,7 +176,7 @@ class Weibo(db.Model):
         tmp['reports'] = m.reports
         tmp['weibo_name'] = m.weibo_name
         tmp['publish_time'] = m.publish_time
-        tmp['author_id'] = m.author_id
+        tmp['author'] = m.author
         if detail:
             if tmp['comments'] > 0:
                 comments = Weibo_comment.query.filter_by(weibo=tmp['id'])
@@ -244,7 +244,7 @@ class Official(db.Model):
 
 
 class Message(db.Model):
-    message_id = db.Column(db.Integer(),primary_key=True)
+    message_id = db.Column(db.Integer(), primary_key=True)
     user_id = db.Column(db.String(100))
     content = db.Column(db.String(300))
     weibo_id = db.Column(db.String(100))
@@ -253,6 +253,47 @@ class Message(db.Model):
 
     def __init__(self):
         self.create_time = datetime.datetime.now()
+
+    @classmethod
+    def list(cls, user_id, page, is_read=False, all=False):
+        ms = cls().query.filter_by(user_id=user_id)
+        if not all:
+            ms = ms.filter_by(is_read=is_read)
+        ms = ms.order_by(
+            Message.create_time.desc()
+        ).paginate(page, 30).items
+        return ms
+
+    @classmethod
+    def to_dict(cls, m, detail=False):
+        tmp = dict()
+        tmp['weibo_id'] = m.weibo_id
+        tmp['content'] = m.content
+        tmp['create_time'] = m.create_time
+        tmp['is_read'] = m.is_read
+        tmp['message_id'] = m.message_id
+        return tmp
+
+    @classmethod
+    def to_list(cls, ms, detail=False):
+        res = []
+        for m in ms:
+            res.append(cls.to_dict(m, detail))
+        return res
+
+    @classmethod
+    def add(cls, weibo, user_id, content):
+        msg = cls()
+        msg.weibo_id = weibo.weibo_id
+        msg.user_id = user_id
+        msg.content = content
+        db.session.add(msg)
+        db.session.commit()
+        return msg
+
+    @classmethod
+    def new_msg_count(cls, user_id):
+        return cls().query.filter_by(is_read=False, user_id=user_id).count()
 
 # class Role(db.Model):
 #     id = db.Column(db.Integer(), primary_key=True)

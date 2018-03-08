@@ -1,9 +1,5 @@
-from flask import flash, redirect, url_for, session
-# from flask.ext.bcrypt import Bcrypt
-# from flask.ext.openid import OpenID
-# from flask_oauth import OAuth
-# from flask.ext.login import LoginManager
-# from flask.ext.principal import Principal, Permission, RoleNeed
+from flask import flash, redirect, request, session
+from web.models import User
 from flask_restful import Api
 from flask_celery import Celery
 from werkzeug.datastructures import Headers
@@ -32,6 +28,16 @@ class MyResponse(Response):
             headers = Headers([origin, methods])
         kwargs['headers'] = headers
         super().__init__(response, **kwargs)
+
+
+def get_opt_user():
+    third_session = request.headers.get('third_session')
+    flag, data = User.verify_auth_3rdsession(thirdsession=third_session)
+    if not flag:
+        user_id = None
+    else:
+        user_id = data.openid
+    session['userid'] = user_id
 
 # admin_permission = Permission(RoleNeed('admin'))
 # poster_permission = Permission(RoleNeed('poster'))

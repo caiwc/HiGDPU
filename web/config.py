@@ -30,7 +30,7 @@ class Config(object):
     SECRET_KEY = '736670cb10a600b695a55839ca3a5aa54a7d7356cdef815d2ad6e19a2031182b'
     RECAPTCHA_PUBLIC_KEY = "6LdKkQQTAAAAAEH0GFj7NLg5tGicaoOus7G9Q5Uw"
     RECAPTCHA_PRIVATE_KEY = '6LdKkQQTAAAAAMYroksPTJ7pWhobYb88fTAcxcYn'
-    TOKEN_EXPIRES = 1440 * 31 * 60
+    TOKEN_EXPIRES = 1440 * 365 * 60
 
 
 class ProdConfig(Config):
@@ -57,6 +57,7 @@ class DevConfig(Config):
         "web.tasks.crawl": {"queue": "default", "routing_key": "default"},
         "web.tasks.multiply": {"queue": "default", "routing_key": "default"},
         "web.tasks.send_weibo": {"queue": "send_weibo", "routing_key": "send_weibo"},
+        "web.tasks.send_weibo_comment": {"queue": "send_weibo", "routing_key": "send_weibo"},
     }
 
     CELERYBEAT_SCHEDULE = {

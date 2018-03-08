@@ -37,6 +37,9 @@ def gen_filename(source_name):
     file_name = hashlib.new("md5", file_name.encode('utf-8')).hexdigest() + extension
     return file_name
 
+def str_md5(text):
+    import hashlib
+    return hashlib.new('md5', (text).encode('utf-8')).hexdigest()
 
 def weibo_time_format(time_str):
     GMT_FORMAT = '%a %b %d %H:%M:%S +0800 %Y'

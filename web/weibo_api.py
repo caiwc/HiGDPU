@@ -125,7 +125,7 @@ def _http_call(url, method, authorization=None, params=None, data=None, files=No
     r = res.json()
     if 'error_code' in r:
         print(r)
-        raise APIError(r['error_code'], r['error_description'], r['request'])
+        raise APIError(r['error_code'], r['error'], r['request'])
     return r
 
 
@@ -230,13 +230,13 @@ def post_weibo(client, content, files_path=None):
     if not isinstance(client, APIClient):
         raise APIError('00001', 'client type error', 'OAuth2 request')
     data = {
-        'status': content + 'https://weibo.com/HiGDPU',
+        'status': content + '-- https://weibo.com/HiGDPU',
         'access_token': client.access_token
     }
     try:
         if files_path:
-            return client.upload.statuses__share(data=data, files={'filename', open(files_path, 'rb'),
-                                                                   'text/plain'})
+            return client.upload.statuses__share(data=data, files={'pic': ('filename', open(files_path, 'rb'),
+                                                                             'text/plain')})
         else:
             return client.post.statuses__share(data=data)
     except Exception as e:
@@ -333,5 +333,5 @@ if __name__ == '__main__':
     # client.expires = 1674288747
     # res = get_emotions()
     # res = get_weibo_comment(weibo_id=4211016852254679)
-    res = get_comment_to_me()
+    res = post_weibo(content="啊啊啊",files_path="/Users/caiweicheng/self/venv/HiGDPU/files/fe1c216cdd1bd4b838bc997f6d841d08.png")
     print(res)

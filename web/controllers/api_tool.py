@@ -47,7 +47,7 @@ def weixin_authorization(js_code):
             openid = res_json['openid']
             session_key = res_json['session_key']
             expires_in = res_json['expires_in']
-            value = {'openid': openid, 'session_key': session_key, 'expires_in': expires_in}
+            value = {'openid': openid, 'session_key': session_key, 'expires_in': config.WEIBO_TOKEN_EXP}
             third_session = models.User.gen_3rdsession(value=value).decode('utf-8')
             print(third_session, expires_in)
             meta = {'openid': openid, 'session_key': session_key,

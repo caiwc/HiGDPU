@@ -2,7 +2,7 @@ from flask import abort, jsonify
 from flask_restful import Resource
 from web.models import db, Message, User
 from .parsers import (
-    official_get_parser,
+    message_get_parser,
 )
 
 
@@ -15,7 +15,7 @@ class Message_Api(Resource):
 
             return jsonify(Message.to_dict(post, detail=True))
         else:
-            args = official_get_parser.parse_args()
+            args = message_get_parser.parse_args()
             page = args['page'] or 1
             posts = Message.query.order_by(
                 Message.publish_time.desc()

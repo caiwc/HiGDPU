@@ -1,10 +1,9 @@
 from flask import (current_app,
                    Blueprint,
-                   redirect,
-                   url_for,
                    request,
                    jsonify,
                    make_response,
+                    g,
                    flash,
                    session)
 from web import config
@@ -57,8 +56,6 @@ def verify_3rdsession():
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
-
-
 
 
 @main_blueprint.route('/api/qyweixin', methods=['GET', 'POST'])
