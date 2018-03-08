@@ -1,4 +1,4 @@
-from flask import abort, jsonify
+from flask import abort, jsonify, session
 from flask_restful import Resource
 from web.models import User
 from web.controllers import api_tool
@@ -15,6 +15,8 @@ class Authorization_Api(Resource):
         if flag:
             user = User.add(third_session=meta['third_session'], expires_in=meta['expires_in'],
                                session_key=meta['session_key'], openid=meta['openid'])
+            session['user_id'] = user.openid
+            session['is_authorization'] = False
             return jsonify(res)
         else:
             return abort(400, {'error': res})

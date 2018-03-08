@@ -5,10 +5,6 @@ from flask_celery import Celery
 from werkzeug.datastructures import Headers
 from flask import Response
 
-# bcrypt = Bcrypt()
-# oid = OpenID()
-# oauth = OAuth()
-# principals = Principal()
 celery = Celery()
 
 rest_api = Api()
@@ -31,13 +27,20 @@ class MyResponse(Response):
 
 
 def get_opt_user():
-    third_session = request.headers.get('third_session')
-    flag, data = User.verify_auth_3rdsession(thirdsession=third_session)
-    if not flag:
-        user_id = None
+    third_session = request.headers.get('third_session', None)
+    if not third_session:
+        session['is_authorization'] = False
+        session['error'] = '无third_session'
     else:
-        user_id = data.openid
-    session['userid'] = user_id
+        flag, data = User.verify_auth_3rdsession(thirdsession=third_session)
+        if not flag:
+            session['is_authorization'] = False
+            session['error'] = data['error']
+        else:
+            user_id = data.openid
+            session['user_id'] = user_id
+            session['is_authorization'] = True
+    return
 
 # admin_permission = Permission(RoleNeed('admin'))
 # poster_permission = Permission(RoleNeed('poster'))

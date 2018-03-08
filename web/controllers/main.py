@@ -3,7 +3,7 @@ from flask import (current_app,
                    request,
                    jsonify,
                    make_response,
-                    g,
+                   g,
                    flash,
                    session)
 from web import config
@@ -30,9 +30,9 @@ def index():
 
 @main_blueprint.route('/api/upload', methods=['POST'])
 def upload_file():
-    flag, data = verify_3rdsession()
-    if not flag:
-        return jsonify(data), 401
+    is_authorization = session.get('is_authorization')
+    if not is_authorization:
+        return jsonify({"error": session.get('errror')}), 401
     from web.utils import gen_filename
     if 'file' not in request.files:
         return jsonify({'error': '未获取到文件'}), 400
@@ -44,13 +44,6 @@ def upload_file():
         os.mkdir(config.UPLOAD_PATH)
     file.save(os.path.join(config.UPLOAD_PATH, filename))
     return jsonify({'filename': filename}), 200
-
-
-def verify_3rdsession():
-    if 'third_session' not in request.form:
-        return False, {'status': 'fail', 'data': '无third_session'}
-    third_session = request.form['third_session']
-    return User.verify_auth_3rdsession(thirdsession=third_session)
 
 
 def allowed_file(filename):

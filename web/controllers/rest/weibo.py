@@ -26,7 +26,7 @@ class Weibo_Api(Resource):
             posts = Weibo.query.order_by(
                 Weibo.publish_time.desc()
             ).paginate(page, 30).items
-            msg_count = Message.new_msg_count(user_id=session.get('userid', ''))
+            msg_count = Message.new_msg_count(user_id=session.get('user_id', ''))
             weibo_list = Weibo.to_list(ms=posts, detail=False)
             res = {
                 "msg_count": msg_count,
@@ -41,30 +41,23 @@ class Weibo_Api(Resource):
             args = weibo_comment_post_parser.parse_args(strict=True)
         else:
             args = weibo_post_parser.parse_args(strict=True)
-        # third_session = args['third_session']
-        # flag, data = User.verify_auth_3rdsession(thirdsession=third_session)
-        # if not flag:
-        #     return abort(401, data)
-        # if path_list[-1] == 'comment':
-        #     content = args['content']
-        #     weibo_id = args['weibo_id']
-        #     reply_author = args.get('reply_author', None)
-        #     reply_comment_id = args.get('reply_comment_id', None)
-        #     send_weibo_comment.apply_async(
-        #         kwargs={'user': data, 'content': content, 'weibo_id': weibo_id, 'reply_author': reply_author,
-        #                 'reply_comment_id': reply_comment_id})
-        #     return jsonify({'msg': 'success'})
-        # else:
-        #     content = args['content']
-        #     file = args.get('file', None)
-        #     if file:
-        #         file = os.path.join(config.UPLOAD_PATH, file)
-        #     send_weibo.apply_async(kwargs={'user': data, 'content': content, 'file': file})
-        #     return jsonify({'msg': 'success'})
-
-        content = args['content']
-        file = args.get('file', None)
-        if file:
-            file = os.path.join(config.UPLOAD_PATH, file)
-        send_weibo.apply_async(kwargs={'user': User.get('oY3oh0Y1z_vypBY31UKFuANfBBF4'), 'content': content, 'file': file})
-        return jsonify({'msg': 'success'})
+        is_authorization = session.get('is_authorization')
+        if not is_authorization:
+            return abort(401, {"error": session.get('errror')})
+        user = User.get(openid=session.get('user_id'))
+        if path_list[-1] == 'comment':
+            content = args['content']
+            weibo_id = args['weibo_id']
+            reply_author = args.get('reply_author', None)
+            reply_comment_id = args.get('reply_comment_id', None)
+            send_weibo_comment.apply_async(
+                kwargs={'user': user, 'content': content, 'weibo_id': weibo_id, 'reply_author': reply_author,
+                        'reply_comment_id': reply_comment_id})
+            return jsonify({'msg': 'success'})
+        else:
+            content = args['content']
+            file = args.get('file', None)
+            if file:
+                file = os.path.join(config.UPLOAD_PATH, file)
+            send_weibo.apply_async(kwargs={'user': user, 'content': content, 'file': file})
+            return jsonify({'msg': 'success'})

@@ -68,7 +68,7 @@ class User(db.Model):
         except SignatureExpired:
             return False, {'status': 'fail', 'error': '认证已过期'}
         except BadSignature:
-            return False, {'status': 'fail', 'data': 'session无效'}
+            return False, {'status': 'fail', 'error': 'session无效'}
         print(data)
         user = cls.get_user(data['openid'])
         return True, user
@@ -255,13 +255,18 @@ class Message(db.Model):
         self.create_time = datetime.datetime.now()
 
     @classmethod
-    def list(cls, user_id, page, is_read=False, all=False):
+    def list(cls, user_id, page, not_read=True):
         ms = cls().query.filter_by(user_id=user_id)
-        if not all:
-            ms = ms.filter_by(is_read=is_read)
+        if not_read:
+            ms = ms.filter_by(is_read=False)
         ms = ms.order_by(
             Message.create_time.desc()
         ).paginate(page, 30).items
+        if not_read:
+            for m in ms:
+                m.is_read = True
+                db.session.add(m)
+            db.session.commit()
         return ms
 
     @classmethod
