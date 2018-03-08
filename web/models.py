@@ -44,6 +44,14 @@ class User(db.Model):
         return self.id
 
     @classmethod
+    def get(cls, openid):
+        user = cls.query.filter_by(openid=openid).first()
+        if not user:
+            return None
+        else:
+            return user
+
+    @classmethod
     def gen_3rdsession(cls, value, expires_in=None):
         # 用OpenId加密生成3rdsession
         if not expires_in:
@@ -149,6 +157,7 @@ class Weibo(db.Model):
     author_id = db.Column(db.Integer(), db.ForeignKey('user.id'), nullable=True)
     publish_time = db.Column(db.DATETIME())
     mode = db.Column(db.CHAR(2))
+
     @classmethod
     def to_list(cls, ms, detail=False):
         res = []
@@ -232,6 +241,19 @@ class Official(db.Model):
         if detail:
             tmp['content'] = m.content
         return tmp
+
+
+class Message(db.Model):
+    message_id = db.Column(db.Integer(),primary_key=True)
+    user_id = db.Column(db.String(100))
+    content = db.Column(db.String(300))
+    weibo_id = db.Column(db.String(100))
+    create_time = db.Column(db.DATETIME())
+    is_read = db.Column(db.BOOLEAN(), default=False)
+
+    def __init__(self):
+        self.create_time = datetime.datetime.now()
+
 # class Role(db.Model):
 #     id = db.Column(db.Integer(), primary_key=True)
 #     name = db.Column(db.String(80), unique=True)

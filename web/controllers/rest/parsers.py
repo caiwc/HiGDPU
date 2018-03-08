@@ -14,6 +14,9 @@ weixin_get_parser = reqparse.RequestParser()
 weixin_get_parser.add_argument('page', type=int, location=['args'])
 weixin_get_parser.add_argument('gzh', type=str, location=['args'])
 
+authorization_post_parser = reqparse.RequestParser()
+authorization_post_parser.add_argument('code', type=str, required=True)
+
 weibo_post_parser = reqparse.RequestParser()
 weibo_post_parser.add_argument(
     'third_session',

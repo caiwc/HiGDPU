@@ -1,13 +1,12 @@
-import smtplib
-import datetime
-from email.mime.text import MIMEText
-from flask import render_template
-from web.weibo_api import post_weibo
+from web.weibo_api import post_weibo, post_weibo_commet, reply_comment
 from web.extensions import celery
 from weixin_scrapy.verifycode import handel_verifycode
-from web.models import db, User, Weibo
+from web.models import db, User, Weibo, Weibo_comment
+from web import config
+from web.signals.signals_define import get_message
 from weixin_scrapy.main import run
-
+import datetime
+from flask import current_app
 
 @celery.task()
 def log(msg):
@@ -47,6 +46,34 @@ def send_weibo(user, content, file=None):
         weibo.author_id = user.id
         db.session.add(weibo)
         db.session.commit()
+
+
+@celery.task()
+def send_weibo_comment(user, weibo_id, content, reply_author=None, reply_comment_id=None):
+    from web.utils import weibo_time_format
+    weibo = Weibo.query.filter_by(weibo_id=weibo_id).first()
+    if weibo:
+        comment = Weibo_comment()
+        if reply_author:
+            reply_author = User.get(openid=reply_author)
+            comment.reply_author = reply_author.openid
+        if weibo.weibo_name == config.WEIBO_NAME:
+            if not reply_author:
+                res = post_weibo_commet(weibo_id=weibo_id, comment=content)
+            else:
+                res = reply_comment(weibo_id=weibo_id, comment_id=reply_comment_id, comment=content)
+            comment.publish_time = weibo_time_format(res['created_at'])
+        else:
+            comment.publish_time = datetime.datetime.now()
+        comment.weibo = weibo_id
+        comment.comment = content
+        comment.author = user.openid
+        comment.likes = 0
+        db.session.add(comment)
+        db.session.commit()
+        return True
+    else:
+        return None
 
 
 @celery.task(ignore_result=True)

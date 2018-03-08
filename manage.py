@@ -5,7 +5,7 @@ from flask_migrate import Migrate, MigrateCommand
 
 from web import create_app
 from web.models import db, Weibo, Weixin_Gzh
-from web.commands import update_old_weibo,weibo_nlp
+from web.commands import update_old_weibo,weibo_nlp,snow_nlp_test
 
 # default to dev config
 env = os.environ.get('WEB_ENV', 'dev')
@@ -18,6 +18,7 @@ manager.add_command("server", Server())
 manager.add_command('db', MigrateCommand)
 manager.add_command("update_weibo", update_old_weibo.Update())
 manager.add_command("classify_weibo", weibo_nlp.Classify())
+manager.add_command("snow_classify_weibo", snow_nlp_test.Classify())
 
 @manager.shell
 def make_shell_context():

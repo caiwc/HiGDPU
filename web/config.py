@@ -22,6 +22,8 @@ CALLBACK_URL = CALLBACK_URL
 
 QYWEIXIN_VERIFYCODE = '识别验证码'
 
+WEIBO_NAME = 'HiGDPU'
+
 UPLOAD_PATH = os.path.join(PROJECT_PATH, 'files')
 
 class Config(object):

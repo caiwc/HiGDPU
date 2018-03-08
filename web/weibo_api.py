@@ -248,10 +248,12 @@ def get_weibo(client, page_size=5, page=1):
     params = {'screen_name': 'HiGDPU', 'count': page_size, 'page': page}
     return client.get.statuses__user_timeline(params=params)
 
+
 @client_decorator
 def get_weibo_detial(client, weibo_id):
     params = {'id': weibo_id}
     return client.get.statuses__show(params=params)
+
 
 @client_decorator
 def get_emotions(client, e_type='普通表情', lang='cnname'):
@@ -263,6 +265,7 @@ def get_emotions(client, e_type='普通表情', lang='cnname'):
     params = {'type': emotions_dict[e_type], 'language': lang}
     return client.get.emotions(params=params)
 
+
 @client_decorator
 def get_weibo_comment(client, weibo_id):
     params = {
@@ -271,10 +274,24 @@ def get_weibo_comment(client, weibo_id):
     res = client.get.comments__show(params=params)
     return res['comments']
 
+
 @client_decorator
 def post_weibo_commet(client, weibo_id, comment):
     data = {'id': weibo_id, 'comment': comment}
     res = client.post.comments__create(data=data)
+    return res
+
+
+@client_decorator
+def reply_comment(client, weibo_id, comment_id, comment):
+    data = {'id': weibo_id, 'cid': comment_id, 'comment': comment}
+    res = client.post.comments__reply(data=data)
+    return res
+
+
+@client_decorator
+def get_comment_to_me(client):
+    res = client.get.comments__to_me()
     return res
 
 
@@ -315,5 +332,6 @@ if __name__ == '__main__':
     # client.access_token = '2.00KTSG6CWXfQzB4432cee7e0253_yC'
     # client.expires = 1674288747
     # res = get_emotions()
-    res = get_weibo_comment(weibo_id=4211016852254679)
+    # res = get_weibo_comment(weibo_id=4211016852254679)
+    res = get_comment_to_me()
     print(res)
