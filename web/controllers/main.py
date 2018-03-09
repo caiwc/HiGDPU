@@ -23,9 +23,9 @@ can_commit = 'can_commit'
 wxcpt = None
 
 
-@main_blueprint.route('/')
+@main_blueprint.route('/api/handsome')
 def index():
-    return '城哥最帅'
+    return '城哥最帅\n城哥真的真的很帅'
 
 
 @main_blueprint.route('/api/upload', methods=['POST'])
