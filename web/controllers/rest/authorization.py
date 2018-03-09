@@ -17,6 +17,7 @@ class Authorization_Api(Resource):
                                session_key=meta['session_key'], openid=meta['openid'])
             session['user_id'] = user.openid
             session['is_authorization'] = False
+            session['third_session'] = user.third_session
             return jsonify(res)
         else:
             return abort(400, {'error': res})

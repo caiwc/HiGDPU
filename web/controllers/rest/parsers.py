@@ -23,12 +23,6 @@ authorization_post_parser.add_argument('code', type=str, required=True)
 
 weibo_post_parser = reqparse.RequestParser()
 weibo_post_parser.add_argument(
-    'third_session',
-    type=str,
-    required=True,
-    help="third_session is required to edit posts",
-)
-weibo_post_parser.add_argument(
     'file',
     type=str,
     required=False,
@@ -42,12 +36,6 @@ weibo_post_parser.add_argument(
 )
 
 weibo_comment_post_parser = reqparse.RequestParser()
-weibo_comment_post_parser.add_argument(
-    'third_session',
-    type=str,
-    required=True,
-    help="Auth Token is required to create posts"
-)
 weibo_comment_post_parser.add_argument(
     'weibo_id',
     type=str,
@@ -71,8 +59,7 @@ weibo_comment_post_parser.add_argument(
 
 weibo_delete_parser = reqparse.RequestParser()
 weibo_delete_parser.add_argument(
-    'token',
+    'weibo_id',
     type=str,
-    required=True,
-    help="Auth Token is required to delete posts"
+    required=True
 )

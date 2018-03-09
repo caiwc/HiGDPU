@@ -52,14 +52,18 @@ def send_weibo(user, content, file=None):
 
 
 @celery.task()
-def send_weibo_comment(user, weibo_id, content, reply_author=None, reply_comment_id=None):
+def send_weibo_comment(user, weibo_id, content, reply_author=None, reply_author_id=None, reply_comment_id=None):
     from web.utils import weibo_time_format
     weibo = Weibo.query.filter_by(weibo_id=weibo_id).first()
     if weibo:
         comment = Weibo_comment()
-        if reply_author:
-            reply_author = User.get(openid=reply_author)
-            comment.reply_author = reply_author.openid
+        if reply_comment_id:
+            if reply_author_id:
+                comment.reply_author = reply_author_id
+                comment.reply_author_source = True
+            else:
+                comment.reply_author = reply_author
+                comment.reply_author_source = False
         if weibo.weibo_name == config.WEIBO_NAME:
             try:
                 if not reply_author:
@@ -78,13 +82,14 @@ def send_weibo_comment(user, weibo_id, content, reply_author=None, reply_comment
         comment.comment = content
         comment.author = user.openid
         comment.likes = 0
+        comment.author_source = True
         db.session.add(comment)
         db.session.commit()
 
         if weibo.author:
-            Message.add(weibo=weibo, user_id=weibo.author, content="有人评论了你的微博")
-        if reply_author:
-            Message.add(weibo=weibo, user_id=reply_author, content="有人回复了你的评论")
+            Message.add(weibo=weibo, user_id=weibo.author, content=config.WEIBO_COMMENT_MSG)
+        if reply_comment_id and reply_author_id:
+            Message.add(weibo=weibo, user_id=reply_author, content=config.WEIBO_REPLY_MSG)
         return True
     else:
         return False

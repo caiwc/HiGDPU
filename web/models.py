@@ -6,6 +6,7 @@ from itsdangerous import (
     BadSignature,
     SignatureExpired
 )
+from web import config
 
 db = SQLAlchemy()
 
@@ -29,13 +30,8 @@ class User(db.Model):
     openid = db.Column(db.String(255), unique=True)
     third_session = db.Column(db.String(255))
     session_key = db.Column(db.String(255))
-
-    #     roles = db.relationship(
-    #         'Role',
-    #         secondary=roles,
-    #         backref=db.backref('users', lazy='dynamic')
-    #     )
-    #
+    manager = db.Column(db.BOOLEAN(), default=False)  # 是否管理员
+    can_send_weibo = db.Column(db.BOOLEAN(), default=True)  # 能否发布微博
 
     def __repr__(self):
         return '<User {}>'.format(self.openid)
@@ -176,7 +172,7 @@ class Weibo(db.Model):
         tmp['reports'] = m.reports
         tmp['weibo_name'] = m.weibo_name
         tmp['publish_time'] = m.publish_time
-        tmp['author'] = m.author
+        # tmp['author'] = m.author
         if detail:
             if tmp['comments'] > 0:
                 comments = Weibo_comment.query.filter_by(weibo=tmp['id'])
@@ -192,6 +188,8 @@ class Weibo_comment(db.Model):
     author = db.Column(db.String(100))
     reply_author = db.Column(db.String(100), nullable=True)
     likes = db.Column(db.Integer())
+    author_source = db.Column(db.BOOLEAN(), default=False)  # 是否本系统用户
+    reply_author_source = db.Column(db.BOOLEAN(), default=False)  # 是否本系统用户
 
     def __repr__(self):
         return "<Comment '{}'>".format(self.comment[:15])
@@ -210,9 +208,22 @@ class Weibo_comment(db.Model):
         tmp['weibo'] = m.weibo
         tmp['comment'] = m.comment
         tmp['publish_time'] = m.publish_time
-        tmp['author'] = m.author
+
+        if m.author_source:
+            name = config.UNNAMED
+            author_id = m.author
+        else:
+            name = m.author
+            author_id = None
+        tmp['author'] = {
+            "name": name,
+            "id": author_id
+        }
         if m.reply_author:
-            tmp['reply_author'] = m.reply_author
+            if m.reply_author_source:
+                tmp['reply_author'] = config.UNNAMED
+            else:
+                tmp['reply_author'] = m.reply_author
         tmp['likes'] = m.likes
         return tmp
 
@@ -292,6 +303,8 @@ class Message(db.Model):
         msg.weibo_id = weibo.weibo_id
         msg.user_id = user_id
         msg.content = content
+        weibo.comments = weibo.comments + 1
+        db.session.add(weibo)
         db.session.add(msg)
         db.session.commit()
         return msg
