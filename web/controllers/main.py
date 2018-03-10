@@ -25,7 +25,9 @@ wxcpt = None
 
 @main_blueprint.route('/api/handsome')
 def index():
-    return '城哥最帅\n城哥真的真的很帅'
+    return """
+    城哥最帅
+    城哥真的真的很帅"""
 
 
 @main_blueprint.route('/api/upload', methods=['POST'])
