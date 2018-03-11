@@ -121,7 +121,9 @@ def _http_call(url, method, authorization=None, params=None, data=None, files=No
         headers.update({'Authorization': 'OAuth2 %s' % authorization})
     if files:
         headers.update({'Content-Type': data.content_type})
+
     res = requests.request(method=method, headers=headers, url=url, data=data, params=params)
+    print(method+' '+res.url)
     r = res.json()
     if 'error_code' in r:
         print(r)
@@ -236,7 +238,7 @@ def post_weibo(client, content, files_path=None):
     try:
         if files_path:
             return client.upload.statuses__share(data=data, files={'pic': ('filename', open(files_path, 'rb'),
-                                                                             'text/plain')})
+                                                                           'text/plain')})
         else:
             return client.post.statuses__share(data=data)
     except Exception as e:
@@ -333,5 +335,6 @@ if __name__ == '__main__':
     # client.expires = 1674288747
     # res = get_emotions()
     # res = get_weibo_comment(weibo_id=4211016852254679)
-    res = post_weibo(content="啊啊啊",files_path="/Users/caiweicheng/self/venv/HiGDPU/files/fe1c216cdd1bd4b838bc997f6d841d08.png")
+    # res = post_weibo(content="啊啊啊",files_path="/Users/caiweicheng/self/venv/HiGDPU/files/fe1c216cdd1bd4b838bc997f6d841d08.png")
+    res = get_comment_to_me()
     print(res)

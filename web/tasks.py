@@ -1,11 +1,11 @@
-from web.weibo_api import post_weibo, post_weibo_commet, reply_comment
+from web.weibo_api import post_weibo, post_weibo_commet, reply_comment, get_comment_to_me
 from web.extensions import celery
 from weixin_scrapy.verifycode import handel_verifycode
 from web.models import db, User, Weibo, Weibo_comment, Message
 from web import config
 from weixin_scrapy.main import run
 import datetime
-from web.utils import str_md5
+from web.utils import str_md5, weibo_time_format
 
 
 @celery.task()
@@ -98,6 +98,67 @@ def send_weibo_comment(user, weibo_id, content, reply_author=None, reply_author_
 @celery.task(ignore_result=True)
 def crawl(operation):
     run(spider=operation)
+
+
+@celery.task(
+    name="tasks.get_comment_message",
+    ignore_result=True
+)
+def get_comment_message():
+    qyweixin_msg = "定时任务反馈: "
+    try:
+        res = get_comment_to_me()
+        comment_list = res.get('comments', [])
+        record = []
+        for msg in comment_list:
+            comment_id = msg['idstr']
+            comment = Weibo_comment.get(comment_id=comment_id)
+            if not comment:
+
+                weibo_id = msg['status']['idstr']
+                print("update weibo " + weibo_id)
+                weibo = Weibo.get(weibo_id=weibo_id)
+
+                comment = Weibo_comment()
+                comment.weibo = weibo.weibo_id
+                comment.comment_id = comment_id
+                comment.author = msg['user']['name']
+                comment.author_source = False
+                comment.publish_time = weibo_time_format(msg['created_at'])
+                if 'reply_original_text' in msg:
+                    comment.comment = msg['reply_original_text']
+                    if msg['reply_comment']['user']['name'] == config.WEIBO_NAME:
+                        reply_comment_id = msg['reply_comment']['idstr']
+                        reply_comment = Weibo_comment.get(reply_comment_id)
+                        if reply_comment:
+                            comment.reply_author = reply_comment.author
+                            comment.reply_author_source = True
+                            Message.add(weibo=weibo, user_id=reply_comment.author, content=config.WEIBO_REPLY_MSG)
+                    else:
+                        comment.reply_author = msg['reply_comment']['user']['name']
+                        comment.reply_author_source = False
+                else:
+                    comment.comment = msg['text']
+                if weibo:
+                    weibo.comments = weibo.comments + 1
+                    db.session.add(weibo)
+                    Message.add(weibo=weibo, user_id=weibo.author, content=config.WEIBO_COMMENT_MSG)
+                log_msg = "save comment object {1}({0})".format(comment.comment_id, comment.comment)
+            else:
+                log_msg = "update comment object {1}({0})".format(comment.comment_id, comment.comment)
+
+            record.append(log_msg)
+            print(log_msg)
+            comment.likes = res['like_count']
+            db.session.add(comment)
+            db.session.commit()
+        qyweixin_msg = qyweixin_msg + ";".join(record)
+    except Exception as e:
+        qyweixin_msg = qyweixin_msg + 'ERROR: ' + str(e)
+        print(qyweixin_msg)
+    finally:
+        from qyweixin.qyweixin_api import send_weixin_message, qyweixin_text_type
+        send_weixin_message(send_type=qyweixin_text_type, msg_content=qyweixin_msg)
 
 # @celery.task()
 # def add_user(username, third_session, expires_in, session_key, openid_id):

@@ -12,6 +12,7 @@ class WeixinScrapyPipeline(object):
     def process_item(self, item, spider):
         return item
 
+
 class MysqlTwistedPipeline(object):
     def __init__(self, dbpool):
         self.dbpool = dbpool
@@ -47,3 +48,10 @@ class MysqlTwistedPipeline(object):
         # 根据不同的item 构建不同的sql语句并插入到mysql中
         insert_sql, params = item.get_insert_sql()
         cursor.execute(insert_sql, params)
+
+
+class ElasticSearchPipeline(object):
+    def process_item(self, item, spider):
+        item.save_to_es()
+
+        return item

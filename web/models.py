@@ -179,6 +179,13 @@ class Weibo(db.Model):
                 tmp['comments'] = Weibo_comment.to_list(ms=comments)
         return tmp
 
+    @classmethod
+    def get(cls, weibo_id):
+        weibo = cls.query.filter_by(weibo_id=weibo_id).first()
+        if weibo:
+            return weibo
+        else:
+            return None
 
 class Weibo_comment(db.Model):
     comment_id = db.Column(db.String(50), primary_key=True)
@@ -227,6 +234,13 @@ class Weibo_comment(db.Model):
         tmp['likes'] = m.likes
         return tmp
 
+    @classmethod
+    def get(cls, comment_id):
+        comment = cls.query.filter_by(comment_id=comment_id).first()
+        if comment:
+            return comment
+        else:
+            return None
 
 class Official(db.Model):
     article_id = db.Column(db.String(50), primary_key=True)

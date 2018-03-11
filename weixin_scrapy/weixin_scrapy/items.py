@@ -9,12 +9,34 @@ import scrapy
 from scrapy.loader.processors import TakeFirst
 from scrapy.loader import ItemLoader
 from weixin_scrapy.settings import SQL_DATETIME_FORMAT
-
+from elasticsearch_tool.init_models import Weibo, connections
 import datetime
 
 
 class TakeFirstScrapyLoader(ItemLoader):
     default_output_processor = TakeFirst()
+
+
+def get_suggests(index, info_tuple, model):
+    es = connections.get_connection(model._doc_type.using)
+    used_word = set()
+    suggests = []
+    for text, weight in info_tuple:
+        if text:
+            word = es.indices.analyze(index=index, body={
+                "analyzer": "ik_max_word",
+                "text": text,
+                "filter": ["lowercase", "asciifolding"],
+            })
+            analyzed_word = set(r['token'] for r in word["tokens"] if len(r['token']) > 1)
+            new_word = analyzed_word - used_word
+        else:
+            new_word = set()
+
+        if new_word:
+            suggests.append({"input": list(new_word), "weight": weight})
+
+    return suggests
 
 
 class WeixinScrapyItem(scrapy.Item):
@@ -68,6 +90,17 @@ class WeiboScrapyItem(scrapy.Item):
         )
         return insert_sql, params
 
+    def save_to_es(self):
+        weibo = Weibo()
+        weibo.id = self['weibo_id']
+        weibo.content = self['content']
+        weibo.publish_time = self['publish_time']
+        weibo.comment = []
+        weibo.suggest = get_suggests(Weibo._doc_type.index, [(weibo.content, 10)],
+                                     Weibo)
+        weibo.save()
+        return
+
 
 class WeiboCommentItem(scrapy.Item):
     comment_id = scrapy.Field()
@@ -90,6 +123,10 @@ class WeiboCommentItem(scrapy.Item):
         )
         return insert_sql, params
 
+    def save_to_es(self):
+
+        return
+
 
 class OfficialItem(scrapy.Item):
     article_id = scrapy.Field()
@@ -98,6 +135,7 @@ class OfficialItem(scrapy.Item):
     title = scrapy.Field()
     html_content = scrapy.Field()
     url = scrapy.Field()
+
     def get_insert_sql(self):
         insert_sql = """
                 insert into official(article_id,content,publish_time,title,html_content,url)
@@ -105,6 +143,6 @@ class OfficialItem(scrapy.Item):
                 """
         params = (
             self['article_id'], self['content'], self['publish_time'],
-            self['title'], self['html_content'],self['url']
+            self['title'], self['html_content'], self['url']
         )
         return insert_sql, params

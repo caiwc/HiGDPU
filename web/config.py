@@ -1,4 +1,4 @@
-from celery.schedules import crontab
+from celery.schedules import timedelta
 from kombu import Queue, Exchange
 import os
 
@@ -61,14 +61,15 @@ class DevConfig(Config):
     CELERY_ROUTES = {
         "web.tasks.verifycode_handle": {"queue": "default", "routing_key": "default"},
         "web.tasks.crawl": {"queue": "default", "routing_key": "default"},
+        "web.tasks.get_comment_message": {"queue": "default", "routing_key": "default"},
         "web.tasks.multiply": {"queue": "default", "routing_key": "default"},
         "web.tasks.send_weibo": {"queue": "send_weibo", "routing_key": "send_weibo"},
         "web.tasks.send_weibo_comment": {"queue": "send_weibo", "routing_key": "send_weibo"},
     }
 
     CELERYBEAT_SCHEDULE = {
-        'weekly-digest': {
-            'task': 'tasks.digest',
-            'schedule': crontab(day_of_week=6, hour='10')
+        'get_comment_message': {
+            'task': 'tasks.get_comment_message',
+            'schedule': timedelta(minutes=30)
         },
     }
