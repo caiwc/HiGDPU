@@ -63,14 +63,17 @@ class Weibo_Api(Resource):
             send_weibo.apply_async(kwargs={'user': user, 'content': content, 'file': file})
             return jsonify({'msg': 'success'})
 
-    def delete(self):
+    def delete(self, weibo_id=None):
         is_authorization = session.get('is_authorization')
         if not is_authorization:
             return abort(401, {"error": session.get('error')})
+        user_id = session.get('user_id')
         args = weibo_delete_parser.parse_args(strict=True)
-        weibo_id = args.get('weibo_id')
+
+
         weibo = Weibo.query.filter_by(weibo_id=weibo_id).first()
         if not weibo:
             return abort(400, {'error': '无此微博'})
         if weibo.author != session['user_id']:
-            return abort(400, {'error': '此微博不是本人, 不能删除'})
+            return abort(400, {'error': '此微博作者不是本人, 不能删除'})
+        Message.add(weibo=weibo, user_id=User.get_manager_user_id(), content=config.WEIBO_DELETE_MSG.format(weibo=weibo.content))

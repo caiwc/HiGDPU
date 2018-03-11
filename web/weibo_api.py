@@ -123,7 +123,7 @@ def _http_call(url, method, authorization=None, params=None, data=None, files=No
         headers.update({'Content-Type': data.content_type})
 
     res = requests.request(method=method, headers=headers, url=url, data=data, params=params)
-    print(method+' '+res.url)
+    print(method + ' ' + res.url)
     r = res.json()
     if 'error_code' in r:
         print(r)

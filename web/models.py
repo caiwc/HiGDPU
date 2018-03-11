@@ -82,11 +82,10 @@ class User(db.Model):
         return True, user
 
     @classmethod
-    def get_user(cls, openid):
-        user = cls.query.filter_by(openid=openid).first()
-        if not user:
-            raise ValueError('不存在当前用户')
-        return user
+    def get_manager_user_id(cls):
+        user_list = cls.query.filter_by(manager=True)
+        res = [user.openid for user in user_list]
+        return res
 
     @classmethod
     def add(cls, expires_in, openid, third_session, session_key):
@@ -187,6 +186,7 @@ class Weibo(db.Model):
         else:
             return None
 
+
 class Weibo_comment(db.Model):
     comment_id = db.Column(db.String(50), primary_key=True)
     weibo = db.Column(db.String(50), db.ForeignKey('weibo.weibo_id'))
@@ -241,6 +241,7 @@ class Weibo_comment(db.Model):
             return comment
         else:
             return None
+
 
 class Official(db.Model):
     article_id = db.Column(db.String(50), primary_key=True)
@@ -313,15 +314,16 @@ class Message(db.Model):
 
     @classmethod
     def add(cls, weibo, user_id, content):
-        msg = cls()
-        msg.weibo_id = weibo.weibo_id
-        msg.user_id = user_id
-        msg.content = content
-        weibo.comments = weibo.comments + 1
-        db.session.add(weibo)
-        db.session.add(msg)
-        db.session.commit()
-        return msg
+        if not isinstance(user_id, list):
+            user_id = [user_id]
+        for user in user_id:
+            msg = cls()
+            msg.weibo_id = weibo.weibo_id
+            msg.user_id = user
+            msg.content = content
+            db.session.add(msg)
+            db.session.commit()
+            return msg
 
     @classmethod
     def new_msg_count(cls, user_id):

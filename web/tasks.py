@@ -87,8 +87,9 @@ def send_weibo_comment(user, weibo_id, content, reply_author=None, reply_author_
         comment.likes = 0
         comment.author_source = True
         db.session.add(comment)
+        weibo.comments = weibo.comments + 1
+        db.session.add(weibo)
         db.session.commit()
-
         if weibo.author:
             Message.add(weibo=weibo, user_id=weibo.author, content=config.WEIBO_COMMENT_MSG)
         if reply_comment_id and reply_author_id:
@@ -109,7 +110,7 @@ def crawl(operation):
     default_retry_delay=30,
     max_retries=3
 )
-def get_comment_message(self):
+def get_comment_message():
     qyweixin_msg = "定时任务反馈: "
     try:
         res = get_comment_to_me()
@@ -154,14 +155,13 @@ def get_comment_message(self):
 
             record.append(log_msg)
             print(log_msg)
-            comment.likes = res['like_count']
+            comment.likes = msg['like_count']
             db.session.add(comment)
             db.session.commit()
         qyweixin_msg = qyweixin_msg + ";".join(record)
     except Exception as e:
         qyweixin_msg = qyweixin_msg + 'ERROR: ' + str(e)
         print(qyweixin_msg)
-        self.retry(exc=e)
     finally:
         from qyweixin.qyweixin_api import send_weixin_message, qyweixin_text_type
         send_weixin_message(send_type=qyweixin_text_type, msg_content=qyweixin_msg)

@@ -4,6 +4,11 @@ user_post_parser = reqparse.RequestParser()
 user_post_parser.add_argument('username', type=str, required=True)
 user_post_parser.add_argument('password', type=str, required=True)
 
+search_get_parser = reqparse.RequestParser()
+search_get_parser.add_argument('page', type=int, location=['args'])
+search_get_parser.add_argument('type', type=str, location=['args'])
+search_get_parser.add_argument('order', type=str, location=['args'])
+
 official_get_parser = reqparse.RequestParser()
 official_get_parser.add_argument('page', type=int, location=['args'])
 
@@ -58,8 +63,4 @@ weibo_comment_post_parser.add_argument(
 )
 
 weibo_delete_parser = reqparse.RequestParser()
-weibo_delete_parser.add_argument(
-    'weibo_id',
-    type=str,
-    required=True
-)
+
