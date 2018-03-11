@@ -70,7 +70,7 @@ DOWNLOAD_DELAY = 3
 ITEM_PIPELINES = {
     # 'weixin_scrapy.pipelines.WeixinScrapyPipeline': 300,
     'weixin_scrapy.pipelines.MysqlTwistedPipeline': 200,
-    'weixin_scrapy.pipelines.ElasticSearchPipeline': 2
+    # 'weixin_scrapy.pipelines.ElasticSearchPipeline': 2
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
