@@ -104,7 +104,7 @@ def crawl(operation):
 
 
 @celery.task(
-    name="tasks.get_comment_message",
+    name="web.tasks.get_comment_message",
     ignore_result=True,
     default_retry_delay=30,
     max_retries=3
