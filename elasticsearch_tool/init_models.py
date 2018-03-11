@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from elasticsearch_dsl import DocType, Text,Keyword,Date, Object
+from elasticsearch_dsl import DocType, Text, Keyword, Date
 from elasticsearch_dsl.connections import connections
 from elasticsearch_dsl import Completion
 from elasticsearch_dsl.analysis import CustomAnalyzer as _CustomAnalyzer
@@ -27,15 +27,18 @@ class Weibo(DocType):
         index = 'weibo'
         doc_type = 'shudong'
 
+
 class Weixin(DocType):
     content_suggest = Completion(analyzer=ik_analyzer, search_analyzer=ik_analyzer)
     title = Text(analyzer="ik_max_word")
     content = Text(analyzer='ik_max_word', search_analyzer="ik_max_word")
     title_md5 = Keyword()
+    publish_time = Date()
 
     class Meta:
         index = 'weixin'
         doc_type = 'gzh'
+
 
 if __name__ == '__main__':
     Weibo.init()

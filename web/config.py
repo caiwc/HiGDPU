@@ -58,6 +58,8 @@ class DevConfig(Config):
         Queue('send_weibo', Exchange('send_weibo'), routing_key='send_weibo')
     )
 
+    CELERY_DEFAULT_ROUTING_KEY = 'default'
+
     CELERY_ROUTES = {
         "web.tasks.verifycode_handle": {"queue": "default", "routing_key": "default"},
         "web.tasks.crawl": {"queue": "default", "routing_key": "default"},
@@ -65,11 +67,12 @@ class DevConfig(Config):
         "web.tasks.multiply": {"queue": "default", "routing_key": "default"},
         "web.tasks.send_weibo": {"queue": "send_weibo", "routing_key": "send_weibo"},
         "web.tasks.send_weibo_comment": {"queue": "send_weibo", "routing_key": "send_weibo"},
+        "web.tasks.test": {"queue": "send_weibo", "routing_key": "send_weibo"},
     }
 
     CELERYBEAT_SCHEDULE = {
         'get_comment_message': {
-            'task': 'tasks.get_comment_message',
+            'task': 'web.tasks.get_comment_message',
             'schedule': timedelta(minutes=30)
-        },
+        }
     }

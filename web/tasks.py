@@ -51,7 +51,10 @@ def send_weibo(user, content, file=None):
             os.remove(file)
 
 
-@celery.task()
+@celery.task(
+    default_retry_delay=300,
+    max_retries=5
+)
 def send_weibo_comment(user, weibo_id, content, reply_author=None, reply_author_id=None, reply_comment_id=None):
     from web.utils import weibo_time_format
     weibo = Weibo.query.filter_by(weibo_id=weibo_id).first()
@@ -102,9 +105,11 @@ def crawl(operation):
 
 @celery.task(
     name="tasks.get_comment_message",
-    ignore_result=True
+    ignore_result=True,
+    default_retry_delay=30,
+    max_retries=3
 )
-def get_comment_message():
+def get_comment_message(self):
     qyweixin_msg = "定时任务反馈: "
     try:
         res = get_comment_to_me()
@@ -156,6 +161,7 @@ def get_comment_message():
     except Exception as e:
         qyweixin_msg = qyweixin_msg + 'ERROR: ' + str(e)
         print(qyweixin_msg)
+        self.retry(exc=e)
     finally:
         from qyweixin.qyweixin_api import send_weixin_message, qyweixin_text_type
         send_weixin_message(send_type=qyweixin_text_type, msg_content=qyweixin_msg)
