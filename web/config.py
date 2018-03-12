@@ -74,6 +74,6 @@ class DevConfig(Config):
     CELERYBEAT_SCHEDULE = {
         'get_comment_message': {
             'task': 'web.tasks.get_comment_message',
-            'schedule': timedelta(minutes=1)
+            'schedule': timedelta(minutes=30)
         }
     }
