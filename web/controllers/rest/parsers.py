@@ -16,6 +16,10 @@ message_get_parser = reqparse.RequestParser()
 message_get_parser.add_argument('page', type=int, location=['args'])
 message_get_parser.add_argument('not_read', type=str, location=['args'])
 
+manage_post_parser = reqparse.RequestParser()
+manage_post_parser.add_argument('weibo_id')
+manage_post_parser.add_argument('reason')
+
 weibo_get_parser = reqparse.RequestParser()
 weibo_get_parser.add_argument('page', type=int, location=['args'])
 

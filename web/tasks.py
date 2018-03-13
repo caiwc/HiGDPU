@@ -116,11 +116,13 @@ def get_comment_message():
         res = get_comment_to_me()
         comment_list = res.get('comments', [])
         record = []
+        old_comment_id_set = set(Weibo_comment.get_other_comment('comment_id'))
+
         for msg in comment_list:
             comment_id = msg['idstr']
+            old_comment_id_set.discard(comment_id)
             comment = Weibo_comment.get(comment_id=comment_id)
             if not comment:
-
                 weibo_id = msg['status']['idstr']
                 print("update weibo " + weibo_id)
                 weibo = Weibo.get(weibo_id=weibo_id)
@@ -157,7 +159,14 @@ def get_comment_message():
             print(log_msg)
             comment.likes = msg['like_count']
             db.session.add(comment)
-            db.session.commit()
+
+        for delete_id in old_comment_id_set:
+            comment = Weibo_comment.get(comment_id=delete_id)
+            if comment:
+                db.session.delete(comment)
+            log_msg = "delete comment object {1}({0})".format(comment.comment_id, comment.comment)
+            record.append(log_msg)
+        db.session.commit()
         qyweixin_msg = qyweixin_msg + ";".join(record)
     except Exception as e:
         qyweixin_msg = qyweixin_msg + 'ERROR: ' + str(e)

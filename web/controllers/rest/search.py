@@ -4,7 +4,7 @@ from web.models import db, Weibo, User
 from .parsers import search_get_parser
 
 
-class Official_Api(Resource):
+class Search_Api(Resource):
     def get(self):
         args = search_get_parser.parse_args()
         page = args['page'] or 1

@@ -28,7 +28,7 @@ UPLOAD_PATH = os.path.join(PROJECT_PATH, 'files')
 
 WEIBO_COMMENT_MSG = "有人评论了你的微博"
 WEIBO_REPLY_MSG = "有人回复了你的评论"
-WEIBO_DELETE_MSG = "用户申请删除微博{weibo}"
+WEIBO_DELETE_MSG = "用户申请删除微博: {weibo}"
 
 UNNAMED = "匿名用户"
 

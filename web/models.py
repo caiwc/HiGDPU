@@ -197,6 +197,7 @@ class Weibo_comment(db.Model):
     likes = db.Column(db.Integer())
     author_source = db.Column(db.BOOLEAN(), default=False)  # 是否本系统用户
     reply_author_source = db.Column(db.BOOLEAN(), default=False)  # 是否本系统用户
+    weibo_obj = db.relationship('Weibo', backref=db.backref('comment_set', lazy='dynamic'))
 
     def __repr__(self):
         return "<Comment '{}'>".format(self.comment[:15])
@@ -241,6 +242,15 @@ class Weibo_comment(db.Model):
             return comment
         else:
             return None
+
+    # 获取非本系统发的微博评论
+    @classmethod
+    def get_other_comment(cls, attr='comment_id'):
+        res = cls.query.filter_by(author_source=False).filter(
+            Weibo_comment.weibo_obj.has(Weibo.weibo_name == config.WEIBO_NAME))
+        if attr:
+            res = [getattr(o, attr) for o in res]
+        return res
 
 
 class Official(db.Model):
