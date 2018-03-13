@@ -42,7 +42,6 @@ def send_weibo(user, content, file=None):
         weibo.weibo_name = res['user']['domain']
         weibo.likes = 0
         weibo.reports = 0
-        weibo.comments = 0
         weibo.author = user.openid
         db.session.add(weibo)
         db.session.commit()
@@ -87,8 +86,6 @@ def send_weibo_comment(user, weibo_id, content, reply_author=None, reply_author_
         comment.likes = 0
         comment.author_source = True
         db.session.add(comment)
-        weibo.comments = weibo.comments + 1
-        db.session.add(weibo)
         db.session.commit()
         if weibo.author:
             Message.add(weibo=weibo, user_id=weibo.author, content=config.WEIBO_COMMENT_MSG)
@@ -148,8 +145,6 @@ def get_comment_message():
                 else:
                     comment.comment = msg['text']
                 if weibo:
-                    weibo.comments = weibo.comments + 1
-                    db.session.add(weibo)
                     Message.add(weibo=weibo, user_id=weibo.author, content=config.WEIBO_COMMENT_MSG)
                 log_msg = "save comment object {1}({0})".format(comment.comment_id, comment.comment)
             else:

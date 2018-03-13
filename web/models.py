@@ -146,7 +146,6 @@ class Weibo(db.Model):
     img = db.Column(db.String(300))
     large_img = db.Column(db.String(300))
     likes = db.Column(db.Integer())
-    comments = db.Column(db.Integer())
     reports = db.Column(db.Integer())
     weibo_name = db.Column(db.String(45))
     author = db.Column(db.String(100), nullable=True)
@@ -167,15 +166,15 @@ class Weibo(db.Model):
         tmp['content'] = m.content
         tmp['img'] = m.img
         tmp['likes'] = m.likes
-        tmp['comments'] = m.comments
         tmp['reports'] = m.reports
+        tmp['comments'] = m.comment_set.count()
         tmp['weibo_name'] = m.weibo_name
         tmp['publish_time'] = m.publish_time
         # tmp['author'] = m.author
         if detail:
-            if tmp['comments'] > 0:
-                comments = Weibo_comment.query.filter_by(weibo=tmp['id'])
-                tmp['comments'] = Weibo_comment.to_list(ms=comments)
+            comments = Weibo_comment.query.filter_by(weibo=tmp['id'])
+            tmp['comment_list'] = Weibo_comment.to_list(ms=comments)
+
         return tmp
 
     @classmethod

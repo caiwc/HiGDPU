@@ -70,7 +70,6 @@ class WeiboScrapyItem(scrapy.Item):
     weibo_id = scrapy.Field()
     content = scrapy.Field()
     like = scrapy.Field()
-    comment = scrapy.Field()
     report = scrapy.Field()
     img = scrapy.Field()
     large_img = scrapy.Field()
@@ -79,14 +78,14 @@ class WeiboScrapyItem(scrapy.Item):
 
     def get_insert_sql(self):
         insert_sql = """
-        insert into weibo(weibo_id,content,img,large_img,publish_time,likes,comments,reports,weibo_name)
-        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE likes=VALUES(likes),content=VALUES(content),
-        comments=VALUES(comments),reports=VALUES(reports),weibo_name=VALUES(weibo_name),publish_time=VALUES(publish_time),
+        insert into weibo(weibo_id,content,img,large_img,publish_time,likes,reports,weibo_name)
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE likes=VALUES(likes),content=VALUES(content),
+       reports=VALUES(reports),weibo_name=VALUES(weibo_name),publish_time=VALUES(publish_time),
         large_img=VALUES(large_img)
         """
         params = (
             self['weibo_id'], self['content'].encode('utf-8'), self.get('img', ''), self.get('large_img', ''),
-            self['publish_time'], self['like'], self['comment'], self['report'], self['weibo_name']
+            self['publish_time'], self['like'],  self['report'], self['weibo_name']
         )
         return insert_sql, params
 
