@@ -35,7 +35,7 @@ class Weibo_Api(Resource):
             return jsonify(res)
 
     def post(self):
-        request_path = request.full_path
+        request_path = request.path
         path_list = request_path.split('/')
         if 'comment' in path_list[-1]:
             args = weibo_comment_post_parser.parse_args(strict=True)

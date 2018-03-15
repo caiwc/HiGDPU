@@ -12,6 +12,7 @@ from web.controllers.rest.weibo import Weibo_Api
 from web.controllers.rest.weixin import Weixin_Gzh_Api
 from web.controllers.rest.official import Official_Api
 from web.controllers.rest.message import Message_Api
+from web.controllers.rest.search import Search_Api
 from web.controllers.rest.authorization import Authorization_Api
 from web.extensions import MyResponse,get_opt_user
 # from .tasks import on_reminder_save
@@ -63,6 +64,11 @@ def create_app(object_name):
     rest_api.add_resource(
         Authorization_Api,
         '/api/authorization'
+    )
+    rest_api.add_resource(
+        Search_Api,
+        '/api/search',
+        '/api/search/suggest'
     )
 
     rest_api.init_app(app)

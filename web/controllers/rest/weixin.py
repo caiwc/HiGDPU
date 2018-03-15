@@ -1,34 +1,56 @@
-import datetime
-
 from flask import abort, jsonify
-from flask_restful import Resource, fields, marshal_with
-
-from web.models import db, Weixin_Gzh
-from .parsers import (
-    weixin_get_parser,
-        # post_post_parser,
-    #     post_put_parser,
-    #     post_delete_parser
-)
+from flask_restful import Resource
+from elasticsearch_tool.init_models import Weixin
+from elasticsearch.exceptions import NotFoundError
+from .parsers import weixin_get_parser
 
 
 class Weixin_Gzh_Api(Resource):
     def get(self, article_id=None):
         if article_id:
-            post = Weixin_Gzh.query.filter_by(title_md5=article_id).first()
-            if not post:
-                abort(404)
-
-            return jsonify(Weixin_Gzh.to_dict(post, detail=True))
+            try:
+                item = Weixin.get(id=article_id)
+                tmp = {}
+                tmp['id'] = item._id
+                tmp['title'] = item.title
+                tmp['url'] = item.url
+                tmp['publish_time'] = item.publish_time
+                tmp['digest'] = item.digest
+                tmp['cover'] = item.cover
+                tmp['gzh'] = item.gzh
+                return jsonify(tmp)
+            except NotFoundError:
+                return abort(404)
         else:
             args = weixin_get_parser.parse_args()
             page = args['page'] or 1
             gzh = args.get('gzh', None)
-            query = Weixin_Gzh.query
+            start = (page - 1) * 10
+            end = page * 10
+            res = []
+            s = Weixin.search().query()
             if gzh:
-                query = query.filter_by(gzh=gzh)
-            posts = query.order_by(
-                Weixin_Gzh.publish_time.desc()
-            ).paginate(page, 10).items
-            resp = jsonify(Weixin_Gzh.to_list(posts))
-            return resp
+                s = s.query("match", gzh=gzh)
+            s = s.sort('-publish_time')
+            s.execute()
+            for hit in s[start:end]:
+                tmp = {}
+                tmp['id'] = hit._id
+                tmp['title'] = hit.title
+                tmp['url'] = hit.url
+                tmp['publish_time'] = hit.publish_time
+                tmp['digest'] = hit.digest
+                tmp['cover'] = hit.cover
+                tmp['gzh'] = hit.gzh
+                res.append(tmp)
+            total_nums = s.count()
+            if (page % 10) > 0:
+                page_nums = int(total_nums / 10) + 1
+            else:
+                page_nums = int(total_nums / 10)
+
+            return jsonify({
+                'total': total_nums,
+                'pages': page_nums,
+                'data': res
+            })

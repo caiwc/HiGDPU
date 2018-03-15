@@ -218,7 +218,7 @@ class WeiboSpider(scrapy.Spider):
             for meta in meta_list:
                 if self.re_comment.match(meta):
                     comment = int(self.re_comment.match(meta).group(1))
-                    # item_loader.add_value('comment', comment)
+                    item_loader.add_value('comment', comment)
                     if comment > 0:
                         yield Request(url=comment_url, headers=self.headers, cookies=self.get_cookies(),
                                       callback=self.comment_parse, meta={'weibo_id': weibo_id})

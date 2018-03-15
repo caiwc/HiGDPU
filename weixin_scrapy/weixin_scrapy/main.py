@@ -10,10 +10,10 @@ def run(spider):
     if spider == 'weixin':
         execute(['scrapy', 'crawl', 'weixin'])
     elif spider == 'weibo':
-        execute('scrapy crawl weibo -a start_page=45 -a end_page=50'.split(' '))
+        execute('scrapy crawl weibo -a start_page=1 -a end_page=10'.split(' '))
     elif spider == 'official':
         execute(['scrapy', 'crawl', 'official'])
 
 
 if __name__ == '__main__':
-    run(spider='weibo')
+    run(spider='weixin')

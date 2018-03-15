@@ -43,6 +43,13 @@ class WeixinSpider(scrapy.Spider):
     weixin_flag = True
     sougou_flag = True
 
+    custom_settings = {
+        'ITEM_PIPELINES': {
+            'weixin_scrapy.pipelines.ElasticSearchPipeline': 2
+        }
+
+    }
+
     def __init__(self):
         super(WeixinSpider, self).__init__()
         from scrapy import signals
@@ -103,7 +110,7 @@ class WeixinSpider(scrapy.Spider):
                 mg_list = mg_list_check.group(1)
                 mg_list = json.loads(mg_list)
                 if 'list' in mg_list:
-                    for art_item in mg_list['list']:
+                    for idx, art_item in enumerate(mg_list['list']):
                         art_url = art_item['app_msg_ext_info']['content_url']
                         art_url = parse.urljoin(self.wx_art_domains[0], art_url)
                         art_url = art_url.replace('amp;', '')
@@ -118,7 +125,7 @@ class WeixinSpider(scrapy.Spider):
                             'title': art_title
                         }
                         yield Request(url=art_url, dont_filter=True, callback=self.parse, headers=self.gzh_headers,
-                                      meta={'art_dict': art, 'gzh': gzh})
+                                      meta={'art_dict': art, 'gzh': gzh, 'idx': idx + 1})
             else:
                 self.error_set.update({'weixin_gzh': response.url})
                 self.logger.error("{} without article".format(gzh))
@@ -128,13 +135,14 @@ class WeixinSpider(scrapy.Spider):
         item_loader = TakeFirstScrapyLoader(item=WeixinScrapyItem(), response=response)
         gzh = response.meta.get('gzh')
         art = response.meta.get('art_dict')
+        idx = response.meta.get('idx')
         title = art['title']
         if not title:
             return
         self.logger.info("parse the {0} article {1}".format(gzh, title))
         item_loader.add_value('gzh', gzh)
         item_loader.add_value('title', title)
-        item_loader.add_value('title_md5', utils.str_md5(gzh + title))
+        item_loader.add_value('id', utils.str_md5(gzh + str(idx)))
         item_loader.add_value('cover', art.get('cover', ""))
         item_loader.add_value('digest', art.get('digest', ""))
         item_loader.add_value('publish_time', utils.timestampe_to_time(art['publish_time']))

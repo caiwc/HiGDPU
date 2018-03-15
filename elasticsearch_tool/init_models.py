@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from elasticsearch_dsl import DocType, Text, Keyword, Date
+from elasticsearch_dsl import DocType, Text, Keyword, Date, Integer
 from elasticsearch_dsl.connections import connections
 from elasticsearch_dsl import Completion
 from elasticsearch_dsl.analysis import CustomAnalyzer as _CustomAnalyzer
@@ -18,10 +18,10 @@ ik_analyzer = CustomAnalyzer('ik_max_word', filter=['lowercase'])
 
 
 class Weibo(DocType):
-    content_suggest = Completion(analyzer=ik_analyzer, search_analyzer=ik_analyzer)
+    suggest = Completion(analyzer=ik_analyzer, search_analyzer=ik_analyzer)
     content = Text(analyzer='ik_max_word', search_analyzer="ik_max_word")
     publish_time = Date()
-    comment = Text(analyzer="ik_max_word")
+    comments = Integer()
 
     class Meta:
         index = 'weibo'
@@ -29,10 +29,12 @@ class Weibo(DocType):
 
 
 class Weixin(DocType):
-    content_suggest = Completion(analyzer=ik_analyzer, search_analyzer=ik_analyzer)
     title = Text(analyzer="ik_max_word")
     content = Text(analyzer='ik_max_word', search_analyzer="ik_max_word")
-    title_md5 = Keyword()
+    url = Keyword()
+    cover = Keyword()
+    gzh = Keyword()
+    digest = Text(analyzer="ik_max_word")
     publish_time = Date()
 
     class Meta:
@@ -41,4 +43,4 @@ class Weixin(DocType):
 
 
 if __name__ == '__main__':
-    Weibo.init()
+    Weixin.init()

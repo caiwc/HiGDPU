@@ -9,8 +9,10 @@ import scrapy
 from scrapy.loader.processors import TakeFirst
 from scrapy.loader import ItemLoader
 from weixin_scrapy.settings import SQL_DATETIME_FORMAT
-from elasticsearch_tool.init_models import Weibo, connections
+from elasticsearch_tool.init_models import Weibo, Weixin, connections
+from elasticsearch.exceptions import NotFoundError
 import datetime
+from weixin_scrapy.utils import get_es_data
 
 
 class TakeFirstScrapyLoader(ItemLoader):
@@ -39,10 +41,19 @@ def get_suggests(index, info_tuple, model):
     return suggests
 
 
+def get_es_obj(model, obj_id):
+    try:
+        return model.get(id=obj_id)
+    except NotFoundError:
+        m = model()
+        m._id = obj_id
+        return m
+
+
 class WeixinScrapyItem(scrapy.Item):
     # define the fields for your item here like:
     title = scrapy.Field()
-    title_md5 = scrapy.Field()
+    id = scrapy.Field()
     html_content = scrapy.Field()
     publish_time = scrapy.Field()
     cover = scrapy.Field()
@@ -58,12 +69,24 @@ class WeixinScrapyItem(scrapy.Item):
         """
         now_time = datetime.datetime.now().strftime(SQL_DATETIME_FORMAT)
         params = (
-            self['title_md5'], self['title'], self['publish_time'], now_time, self['url'],
+            self['id'], self['title'], self['publish_time'], now_time, self['url'],
             self['html_content'].encode('utf-8'),
-            self.get('cover', ""),
+            self.get('digest', ""),
             self.get('digest', ""), self['gzh']
         )
         return insert_sql, params
+
+    def save_to_es(self):
+        weixin = get_es_obj(Weixin, self['id'])
+        weixin.title = self['title']
+        weixin.url = self['url']
+        weixin.cover = self.get('digest', "")
+        weixin.digest = self.get('digest', "")
+        weixin.content = get_es_data(self['html_content'])
+        weixin.publish_time = self['publish_time']
+        weixin.gzh = self['gzh']
+        weixin.save()
+        return
 
 
 class WeiboScrapyItem(scrapy.Item):
@@ -72,6 +95,7 @@ class WeiboScrapyItem(scrapy.Item):
     like = scrapy.Field()
     report = scrapy.Field()
     img = scrapy.Field()
+    comment = scrapy.Field()
     large_img = scrapy.Field()
     publish_time = scrapy.Field()
     weibo_name = scrapy.Field()
@@ -85,18 +109,16 @@ class WeiboScrapyItem(scrapy.Item):
         """
         params = (
             self['weibo_id'], self['content'].encode('utf-8'), self.get('img', ''), self.get('large_img', ''),
-            self['publish_time'], self['like'],  self['report'], self['weibo_name']
+            self['publish_time'], self['like'], self['report'], self['weibo_name']
         )
         return insert_sql, params
 
     def save_to_es(self):
-        weibo = Weibo()
-        weibo.id = self['weibo_id']
-        weibo.content = self['content']
+        weibo = get_es_obj(model=Weibo, obj_id=self['weibo_id'])
+        weibo.content = self['content'].encode('utf-8')
         weibo.publish_time = self['publish_time']
-        weibo.comment = []
-        weibo.suggest = get_suggests(Weibo._doc_type.index, [(weibo.content, 10)],
-                                     Weibo)
+        weibo.comment = int(self['comment'])
+        weibo.suggest = get_suggests(Weibo._doc_type.index, [(weibo.content, 10)], Weibo)
         weibo.save()
         return
 
@@ -123,7 +145,6 @@ class WeiboCommentItem(scrapy.Item):
         return insert_sql, params
 
     def save_to_es(self):
-
         return
 
 

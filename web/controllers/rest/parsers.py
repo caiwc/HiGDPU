@@ -8,6 +8,7 @@ search_get_parser = reqparse.RequestParser()
 search_get_parser.add_argument('page', type=int, location=['args'])
 search_get_parser.add_argument('type', type=str, location=['args'])
 search_get_parser.add_argument('order', type=str, location=['args'])
+search_get_parser.add_argument('query', type=str, location=['args'])
 
 official_get_parser = reqparse.RequestParser()
 official_get_parser.add_argument('page', type=int, location=['args'])
@@ -17,8 +18,19 @@ message_get_parser.add_argument('page', type=int, location=['args'])
 message_get_parser.add_argument('not_read', type=str, location=['args'])
 
 manage_post_parser = reqparse.RequestParser()
-manage_post_parser.add_argument('weibo_id')
-manage_post_parser.add_argument('reason')
+manage_post_parser.add_argument(
+    'weibo_id',
+    type=str,
+    required=True,
+    help="weibo id"
+)
+manage_post_parser.add_argument(
+    'reason',
+    type=str,
+    required=True,
+    help="删除微博原因"
+
+)
 
 weibo_get_parser = reqparse.RequestParser()
 weibo_get_parser.add_argument('page', type=int, location=['args'])
@@ -67,4 +79,3 @@ weibo_comment_post_parser.add_argument(
 )
 
 weibo_delete_parser = reqparse.RequestParser()
-
