@@ -14,6 +14,16 @@ search_dict = {
     "weibo": {"field": ["content"], "size": 5}
 }
 
+sort_dict = {
+    "time": {
+        "publish_time": {
+            "order": "desc"
+        }
+    },
+    "score": "_score",
+    "comment": {"comment": "desc"}
+}
+
 
 class Search_Api(Resource):
     def get(self):
@@ -41,7 +51,7 @@ class Search_Api(Resource):
         else:
             page = args['page'] or 1
             search_type = args['type'] or None
-            order = args['order'] or 'time'
+            order = args['order'] or 'score'
 
             if search_type:
                 do_search = {search_type: {"field": search_dict[search_type]['field'], "size": 10}}
@@ -49,6 +59,12 @@ class Search_Api(Resource):
                 do_search = search_dict
             res = []
             for s_type in do_search:
+                if order == "score":
+                    sort_list = [sort_dict[order]]
+                elif s_type == "weixin" and order == "comment":
+                    sort_list = [sort_dict["score"]]
+                else:
+                    sort_list = [sort_dict[order], sort_dict['score']]
                 size = do_search[s_type]['size']
                 response = client.search(
                     index=s_type,
@@ -76,7 +92,8 @@ class Search_Api(Resource):
 
                                 },
                             }
-                        }
+                        },
+                        "sort": sort_list
                     }
                 )
 
