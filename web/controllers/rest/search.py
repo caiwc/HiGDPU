@@ -79,7 +79,7 @@ class Search_Api(Resource):
                     hit_dict["content"] = hit["_source"]["content"][:200]
 
                 hit_dict["publish_time"] = hit["_source"]["publish_time"]
-                hit_dict["id"] = hit["_source"]["id"]
+                hit_dict["id"] = hit["_id"]
                 hit_dict["score"] = hit["_score"]
                 hit_dict['type'] = hit["_index"]
                 hit_list.append(hit_dict)
