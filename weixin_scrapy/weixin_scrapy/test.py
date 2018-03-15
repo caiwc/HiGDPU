@@ -241,4 +241,3 @@ b = [{'text': 'test', 'floor_number': 1, 'idstr': '4211710300210914', 'disable_r
                'profile_image_url': 'http://tva3.sinaimg.cn/crop.216.238.1137.1137.50/69824f94jw8etpiev8ng4j21kw1kwwob.jpg',
                'block_word': 0, 'city': '1', 'bi_followers_count': 126, 'class': 1, 'verified_reason_url': ''},
       'created_at': 'Mon Feb 26 16:24:08 +0800 2018'}]
-

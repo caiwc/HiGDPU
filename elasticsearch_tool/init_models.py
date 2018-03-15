@@ -43,4 +43,4 @@ class Weixin(DocType):
 
 
 if __name__ == '__main__':
-    Weixin.init()
+    Weibo.init()
