@@ -59,8 +59,8 @@ class Search_Api(Resource):
                                 "fields": do_search[s_type]['field']
                             }
                         },
-                        "from": (page - 1) * 10,
-                        "size": 10,
+                        "from": (page - 1) * size,
+                        "size": size,
                         "highlight": {
                             "pre_tags": [
                                 "<span class='keyWord'>"
