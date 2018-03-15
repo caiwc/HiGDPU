@@ -4,7 +4,7 @@ from flask_restful import Api
 from flask_celery import Celery
 from werkzeug.datastructures import Headers
 from flask import Response
-
+from web.config import TOKEN_KEY
 celery = Celery()
 
 rest_api = Api()
@@ -27,7 +27,7 @@ class MyResponse(Response):
 
 
 def get_opt_user():
-    third_session = request.headers.get('third_session', None)
+    third_session = request.headers.get(TOKEN_KEY, None)
     if not third_session:
         session['is_authorization'] = False
         session['error'] = '无third_session'

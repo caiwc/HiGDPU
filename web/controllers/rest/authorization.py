@@ -5,6 +5,7 @@ from web.controllers import api_tool
 from .parsers import (
     authorization_post_parser,
 )
+from web.config import TOKEN_KEY
 
 
 class Authorization_Api(Resource):
@@ -14,10 +15,10 @@ class Authorization_Api(Resource):
         flag, res, meta = api_tool.weixin_authorization(js_code=js_code)
         if flag:
             user = User.add(third_session=meta['third_session'], expires_in=meta['expires_in'],
-                               session_key=meta['session_key'], openid=meta['openid'])
+                            session_key=meta['session_key'], openid=meta['openid'])
             session['user_id'] = user.openid
             session['is_authorization'] = False
-            session['third_session'] = user.third_session
+            session[TOKEN_KEY] = user.third_session
             return jsonify(res)
         else:
             return abort(400, {'error': res})
