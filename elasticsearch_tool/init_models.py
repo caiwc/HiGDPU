@@ -27,6 +27,16 @@ class Weibo(DocType):
         index = 'weibo'
         doc_type = 'shudong'
 
+    @classmethod
+    def add_comment(cls, weibo_id, add=True):
+        weibo = cls.get(id=weibo_id)
+        if add:
+            num = 1
+        else:
+            num = -1
+        weibo.comment = weibo.comment + num
+        weibo.save()
+
 
 class Weixin(DocType):
     title = Text(analyzer="ik_max_word")
@@ -40,6 +50,28 @@ class Weixin(DocType):
     class Meta:
         index = 'weixin'
         doc_type = 'gzh'
+
+
+def get_suggests(index, info_tuple, model):
+    es = connections.get_connection(model._doc_type.using)
+    used_word = set()
+    suggests = []
+    for text, weight in info_tuple:
+        if text:
+            word = es.indices.analyze(index=index, body={
+                "analyzer": "ik_max_word",
+                "text": text,
+                "filter": ["lowercase", "asciifolding"],
+            })
+            analyzed_word = set(r['token'] for r in word["tokens"] if len(r['token']) > 1)
+            new_word = analyzed_word - used_word
+        else:
+            new_word = set()
+
+        if new_word:
+            suggests.append({"input": list(new_word), "weight": weight})
+
+    return suggests
 
 
 if __name__ == '__main__':

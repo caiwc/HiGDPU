@@ -9,7 +9,7 @@ import scrapy
 from scrapy.loader.processors import TakeFirst
 from scrapy.loader import ItemLoader
 from weixin_scrapy.settings import SQL_DATETIME_FORMAT
-from elasticsearch_tool.init_models import Weibo, Weixin, connections
+from elasticsearch_tool.init_models import Weibo, Weixin, get_suggests
 from elasticsearch.exceptions import NotFoundError
 import datetime
 from weixin_scrapy.utils import get_es_data
@@ -18,27 +18,6 @@ from weixin_scrapy.utils import get_es_data
 class TakeFirstScrapyLoader(ItemLoader):
     default_output_processor = TakeFirst()
 
-
-def get_suggests(index, info_tuple, model):
-    es = connections.get_connection(model._doc_type.using)
-    used_word = set()
-    suggests = []
-    for text, weight in info_tuple:
-        if text:
-            word = es.indices.analyze(index=index, body={
-                "analyzer": "ik_max_word",
-                "text": text,
-                "filter": ["lowercase", "asciifolding"],
-            })
-            analyzed_word = set(r['token'] for r in word["tokens"] if len(r['token']) > 1)
-            new_word = analyzed_word - used_word
-        else:
-            new_word = set()
-
-        if new_word:
-            suggests.append({"input": list(new_word), "weight": weight})
-
-    return suggests
 
 
 def get_es_obj(model, obj_id):

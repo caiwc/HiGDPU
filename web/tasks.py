@@ -6,6 +6,7 @@ from web import config
 from weixin_scrapy.main import run
 import datetime
 from web.utils import str_md5, weibo_time_format
+from elasticsearch_tool.init_models import get_suggests, Weibo as ES_Weibo
 
 
 @celery.task()
@@ -45,6 +46,15 @@ def send_weibo(user, content, file=None):
         weibo.author = user.openid
         db.session.add(weibo)
         db.session.commit()
+
+        es_weibo = ES_Weibo()
+        es_weibo._id = res['id']
+        es_weibo.content = content
+        es_weibo.publish_time = created_time
+        es_weibo.comments = 0
+        es_weibo.suggest = get_suggests(ES_Weibo._doc_type.index, [(weibo.content, 10)], ES_Weibo)
+        es_weibo.save()
+
         if file:
             import os
             os.remove(file)
@@ -91,6 +101,8 @@ def send_weibo_comment(user, weibo_id, content, reply_author=None, reply_author_
             Message.add(weibo=weibo, user_id=weibo.author, content=config.WEIBO_COMMENT_MSG)
         if reply_comment_id and reply_author_id:
             Message.add(weibo=weibo, user_id=reply_author, content=config.WEIBO_REPLY_MSG)
+
+        ES_Weibo.add_comment(weibo_id=weibo_id)
         return True
     else:
         return False
@@ -147,6 +159,9 @@ def get_comment_message():
                 if weibo:
                     Message.add(weibo=weibo, user_id=weibo.author, content=config.WEIBO_COMMENT_MSG)
                 log_msg = "save comment object {1}({0})".format(comment.comment_id, comment.comment)
+
+                ES_Weibo.add_comment(weibo_id=weibo_id)
+
             else:
                 log_msg = "update comment object {1}({0})".format(comment.comment_id, comment.comment)
 
@@ -159,6 +174,9 @@ def get_comment_message():
             comment = Weibo_comment.get(comment_id=delete_id)
             if comment:
                 db.session.delete(comment)
+
+            ES_Weibo.add_comment(weibo_id=delete_id, add=False)
+
             log_msg = "delete comment object {1}({0})".format(comment.comment_id, comment.comment)
             record.append(log_msg)
         db.session.commit()
