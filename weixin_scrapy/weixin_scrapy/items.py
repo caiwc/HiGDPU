@@ -115,7 +115,7 @@ class WeiboScrapyItem(scrapy.Item):
 
     def save_to_es(self):
         weibo = get_es_obj(model=Weibo, obj_id=self['weibo_id'])
-        weibo.content = self['content'].encode('utf-8')
+        weibo.content = self['content']
         weibo.publish_time = self['publish_time']
         weibo.comment = int(self['comment'])
         weibo.suggest = get_suggests(Weibo._doc_type.index, [(weibo.content, 10)], Weibo)
