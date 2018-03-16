@@ -1,9 +1,11 @@
 import local_settings as settings
 from requests_toolbelt import MultipartEncoder
 import requests
+import time
 
 qyweixin_img_type = 'image'
 qyweixin_text_type = 'text'
+
 
 def do_weixin_api(method, url, headers=None, data=None, j_data=None, params=None, files=None):
     if not headers:
@@ -74,11 +76,21 @@ def upload_media(file_type, file_path):
         return ValueError(res)
 
 
+token = None
+get_token_time = None
+
+
 def send_weixin_message(send_type, msg_content, to_list=None):
     if not to_list:
         to_list = settings.USER_LIST
     url = settings.SEND_MESSAGE_URL
-    token = get_access_token()
+    global token, get_token_time
+    if token and get_token_time and time.time() - get_token_time < 7200:
+        pass
+    else:
+        get_token_time = time.time()
+        token = get_access_token()
+
     payload = {'access_token': token}
     send_data = {
         "touser": "|".join(to_list),
@@ -107,5 +119,4 @@ def send_weixin_message(send_type, msg_content, to_list=None):
 
 if __name__ == '__main__':
     # upload_media('image', '/tmp/HiGDPU/index.png')
-    send_weixin_message(qyweixin_img_type,
-                        {'media_id': '3jk6MKNGEbNRaDYFM-aboADUHajlyNCtWEw22nCfTLAaWxYVlMAZMAlwFrd5BuANs'})
+    send_weixin_message(qyweixin_text_type,"test")
