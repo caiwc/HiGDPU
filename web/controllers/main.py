@@ -34,7 +34,7 @@ def index():
 def upload_file():
     is_authorization = session.get('is_authorization')
     if not is_authorization:
-        return jsonify({"error": session.get('errror')}), 401
+        return jsonify({"error": session.get('error')}), 401
     from web.utils import gen_filename
     if 'file' not in request.files:
         return jsonify({'error': '未获取到文件'}), 400
