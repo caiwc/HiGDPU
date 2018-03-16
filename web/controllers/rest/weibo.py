@@ -48,7 +48,7 @@ class Weibo_Api(Resource):
         if path_list[-1] == 'comment':
             content = args['content']
             weibo_id = args['weibo_id']
-            reply_author = args.get('reply_author', None)
+            reply_author = args.get('reply_author_name', None)
             reply_author_id = args.get('reply_author_id', None)
             reply_comment_id = args.get('reply_comment_id', None)
             send_weibo_comment.apply_async(

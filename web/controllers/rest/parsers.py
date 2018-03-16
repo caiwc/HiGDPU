@@ -68,7 +68,12 @@ weibo_comment_post_parser.add_argument(
     required=True
 )
 weibo_comment_post_parser.add_argument(
-    'reply_author',
+    'reply_author_name',
+    type=str,
+    required=False
+)
+weibo_comment_post_parser.add_argument(
+    'reply_author_id',
     type=str,
     required=False
 )
