@@ -174,7 +174,7 @@ class Weibo(db.Model):
         if detail:
             comments = Weibo_comment.query.filter_by(weibo=tmp['id'])
             tmp['comment_list'] = Weibo_comment.to_list(ms=comments)
-
+            tmp['large_img'] = m.large_img
         return tmp
 
     @classmethod
