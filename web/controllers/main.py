@@ -192,6 +192,16 @@ def write_weibo(file_path, str):
     f.write('\n\n')
     f.close()
 
+
+@main_blueprint.route('/api/reason', methods=['GET'])
+def get_delete_reason():
+    from web.models import Weibo_to_delete
+    reason_dict = Weibo_to_delete.reason_choices_dict
+    res = []
+    for k, v in reason_dict:
+        res.append({'id': k, 'content': v})
+    return jsonify(res)
+
 # @main_blueprint.route('/login', methods=['GET', 'POST'])
 # @oid.loginhandler
 # def login():

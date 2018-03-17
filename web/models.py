@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from flask import current_app
 from flask_sqlalchemy import SQLAlchemy
 import datetime
@@ -7,8 +8,9 @@ from itsdangerous import (
     SignatureExpired
 )
 from web import config
+import datetime
 
-db = SQLAlchemy()
+db = SQLAlchemy(use_native_unicode="utf-8")
 
 
 # tags = db.Table(
@@ -151,6 +153,7 @@ class Weibo(db.Model):
     author = db.Column(db.String(100), nullable=True)
     publish_time = db.Column(db.DATETIME())
     mode = db.Column(db.CHAR(2))
+    status = db.Column(db.Boolean(), default=False)  # 是否挂起
 
     @classmethod
     def to_list(cls, ms, detail=False):
@@ -282,12 +285,9 @@ class Message(db.Model):
     message_id = db.Column(db.Integer(), primary_key=True)
     user_id = db.Column(db.String(100))
     content = db.Column(db.String(300))
-    weibo_id = db.Column(db.String(100))
-    create_time = db.Column(db.DATETIME())
+    weibo_id = db.Column(db.String(100),nullable=True)
+    create_time = db.Column(db.DATETIME(), default=datetime.datetime.now())
     is_read = db.Column(db.BOOLEAN(), default=False)
-
-    def __init__(self):
-        self.create_time = datetime.datetime.now()
 
     @classmethod
     def list(cls, user_id, page, not_read=True):
@@ -322,12 +322,13 @@ class Message(db.Model):
         return res
 
     @classmethod
-    def add(cls, weibo, user_id, content):
+    def add(cls, user_id, content,weibo=None):
         if not isinstance(user_id, list):
             user_id = [user_id]
         for user in user_id:
             msg = cls()
-            msg.weibo_id = weibo.weibo_id
+            if weibo:
+                msg.weibo_id = weibo.weibo_id
             msg.user_id = user
             msg.content = content
             db.session.add(msg)
@@ -337,6 +338,32 @@ class Message(db.Model):
     @classmethod
     def new_msg_count(cls, user_id):
         return cls().query.filter_by(is_read=False, user_id=user_id).count()
+
+
+class Weibo_to_delete(db.Model):
+    weibo_id = db.Column(db.String(50), db.ForeignKey('weibo.weibo_id'), primary_key=True)
+    done = db.Column(db.Boolean(), default=False)
+    Cheat = "Cheat"
+    Sexy = "Sexy"
+    Induced = "Induced"
+    Untrue = "Untrue"
+    Illegal = "Illegal"
+    Personal_attacks = "Personal_attacks"
+    Spam_marketing = "Spam_marketing"
+    Self_apply = "Self_apply"
+    Others = "Others"
+    reason_choices_dict = {
+        Cheat: '欺诈',
+        Sexy: '色情',
+        Induced: '诱导行为',
+        Untrue: '不实信息',
+        Illegal: '违法犯罪',
+        Personal_attacks: '人身攻击',
+        Spam_marketing: '垃圾营销',
+        Others: '其他'
+    }
+    reason = db.Column(db.Enum(*reason_choices_dict.keys(), Self_apply))
+    create_time = db.Column(db.DATETIME(), default=datetime.datetime.now())
 
 # class Role(db.Model):
 #     id = db.Column(db.Integer(), primary_key=True)

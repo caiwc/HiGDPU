@@ -188,6 +188,10 @@ def get_comment_message():
         from qyweixin.qyweixin_api import send_weixin_message, qyweixin_text_type
         send_weixin_message(send_type=qyweixin_text_type, msg_content=qyweixin_msg)
 
+
+@celery.task()
+def delete_weibo(weibo_id):
+    pass
 # @celery.task()
 # def add_user(username, third_session, expires_in, session_key, openid_id):
 #     user = User.query.filter_by(openid_id=openid_id).first()

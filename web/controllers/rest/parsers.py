@@ -84,3 +84,8 @@ weibo_comment_post_parser.add_argument(
 )
 
 weibo_delete_parser = reqparse.RequestParser()
+weibo_delete_parser.add_argument(
+    'weibo_id',
+    type=str,
+    required=True
+)

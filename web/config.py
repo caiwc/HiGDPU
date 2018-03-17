@@ -28,11 +28,13 @@ UPLOAD_PATH = os.path.join(PROJECT_PATH, 'files')
 
 WEIBO_COMMENT_MSG = "有人评论了你的微博"
 WEIBO_REPLY_MSG = "有人回复了你的评论"
-WEIBO_DELETE_MSG = "用户申请删除微博: {weibo}"
+WEIBO_APPLY_DELETE_MSG = "用户申请删除微博: {content}"
+WEIBO_DELETE_MSG = "你的微博`{content}`因为涉及`{reason}`,被管理员删除"
 
 UNNAMED = "匿名用户"
 
 TOKEN_KEY = "THIRD_SESSION"
+
 
 class Config(object):
     SECRET_KEY = '736670cb10a600b695a55839ca3a5aa54a7d7356cdef815d2ad6e19a2031182b'

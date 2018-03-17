@@ -1,7 +1,7 @@
 from flask import abort, jsonify, request, session
 from flask_restful import Resource
 from web.tasks import send_weibo, send_weibo_comment
-from web.models import db, Weibo, User, Message
+from web.models import db, Weibo, User, Message, Weibo_to_delete
 from web import config
 from .parsers import (
     weibo_get_parser,
@@ -61,19 +61,30 @@ class Weibo_Api(Resource):
             if file:
                 file = os.path.join(config.UPLOAD_PATH, file)
             send_weibo.apply_async(kwargs={'user': user, 'content': content, 'file': file})
-            return jsonify({'msg': 'success'})
+            return jsonify({'msg': '删除成功,微博将在今天内删除'})
 
-    def delete(self, weibo_id=None):
+    def delete(self):
         is_authorization = session.get('is_authorization')
         if not is_authorization:
             return abort(401, {"error": session.get('error')})
         user_id = session.get('user_id')
         args = weibo_delete_parser.parse_args(strict=True)
-
-
+        weibo_id = args['weibo_id']
         weibo = Weibo.query.filter_by(weibo_id=weibo_id).first()
         if not weibo:
             return abort(400, {'error': '无此微博'})
-        if weibo.author != session['user_id']:
+        if weibo.author != user_id:
             return abort(400, {'error': '此微博作者不是本人, 不能删除'})
-        Message.add(weibo=weibo, user_id=User.get_manager_user_id(), content=config.WEIBO_DELETE_MSG.format(weibo=weibo.content))
+        weibo.status = True
+        db.session.add(weibo)
+
+        weibo_delete = Weibo_to_delete()
+        weibo_delete.reason = Weibo_to_delete.Self_apply
+        weibo_delete.weibo_id = weibo_id
+        weibo_delete.done = False
+        db.session.add(weibo_delete)
+        db.session.commit()
+
+        Message.add(weibo=None, user_id=User.get_manager_user_id(),
+                    content=config.WEIBO_APPLY_DELETE_MSG.format(content=weibo.content))
+        return jsonify({'msg': '删除申请成功,微博将在今天内删除'})
