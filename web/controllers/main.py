@@ -198,7 +198,7 @@ def get_delete_reason():
     from web.models import Weibo_to_delete
     reason_dict = Weibo_to_delete.reason_choices_dict
     res = []
-    for k, v in reason_dict:
+    for k, v in reason_dict.items():
         res.append({'id': k, 'content': v})
     return jsonify(res)
 
