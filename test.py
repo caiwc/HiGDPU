@@ -1,6 +1,19 @@
 from local_settings import Secretid, SecretKey
 from QcloudApi.qcloudapi import QcloudApi
 import json
+import pickle
+
+f = open('/Users/caiweicheng/self/venv/HiGDPU/weibo_nlp/my_nlp.pickle', 'rb')
+classifier = pickle.load(f)
+f.close()
+
+
+def my(content):
+    from nlp import bigrams_words_feature
+    item = bigrams_words_feature(content, 5)
+    sent = classifier.classify(item)
+    print(sent)
+
 
 def qclud(content):
     config = {
@@ -29,6 +42,7 @@ def qclud(content):
 
         print('traceback.format_exc():\n%s' % traceback.format_exc())
 
+
 def baidu(content):
     from aip import AipNlp
     APP_ID = '10922374'
@@ -39,5 +53,6 @@ def baidu(content):
 
     print(client.sentimentClassify(text=content))
 
+
 if __name__ == '__main__':
-    baidu("不喜欢别人下次记得直接拒绝，拖的时间久了对大家都不好。情分一点都没了，以后不见。")
+    my("有需要这些书的吗")

@@ -201,7 +201,8 @@ class WeiboSpider(scrapy.Spider):
                     '时间格式错误:{time},page:{page},weibo:{weibo}'.format(time=time_str, page=current_page, weibo=name))
             item_loader.add_value('publish_time', time_format)
             ori_content = weibo.xpath('.//div/span[@class="ctt"]/text()').extract()
-            ori_content = "\n".join(ori_content[:-1])
+            ori_content = [o.strip("\u200b") for o in ori_content if o.strip("\u200b")]
+            ori_content = "\n".join(ori_content)
             content = ori_content.strip().strip(' ——微波炉Plus')
             if not len(content):
                 content = ' '
@@ -219,9 +220,9 @@ class WeiboSpider(scrapy.Spider):
                 if self.re_comment.match(meta):
                     comment = int(self.re_comment.match(meta).group(1))
                     item_loader.add_value('comment', comment)
-                    if comment > 0:
-                        yield Request(url=comment_url, headers=self.headers, cookies=self.get_cookies(),
-                                      callback=self.comment_parse, meta={'weibo_id': weibo_id})
+                    # if comment > 0:
+                    #     yield Request(url=comment_url, headers=self.headers, cookies=self.get_cookies(),
+                    #                   callback=self.comment_parse, meta={'weibo_id': weibo_id})
                 elif self.re_like.match(meta):
                     item_loader.add_value('like', int(self.re_like.match(meta).group(1)))
                 elif self.re_report.match(meta):

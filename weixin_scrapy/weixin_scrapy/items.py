@@ -87,7 +87,7 @@ class WeiboScrapyItem(scrapy.Item):
         large_img=VALUES(large_img)
         """
         params = (
-            self['weibo_id'], self['content'].encode('utf-8'), self.get('img', ''), self.get('large_img', ''),
+            self['weibo_id'], self['content'], self.get('img', ''), self.get('large_img', ''),
             self['publish_time'], self['like'], self['report'], self['weibo_name']
         )
         return insert_sql, params

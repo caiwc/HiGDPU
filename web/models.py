@@ -189,6 +189,11 @@ class Weibo(db.Model):
             return None
 
 
+class Tag(db.Model):
+    tag_id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
+    name = db.Column(db.String(255))
+    type = db.Column(db.Enum())
+
 class Weibo_comment(db.Model):
     comment_id = db.Column(db.String(50), primary_key=True)
     weibo = db.Column(db.String(50), db.ForeignKey('weibo.weibo_id'))
@@ -285,7 +290,7 @@ class Message(db.Model):
     message_id = db.Column(db.Integer(), primary_key=True)
     user_id = db.Column(db.String(100))
     content = db.Column(db.String(300))
-    weibo_id = db.Column(db.String(100),nullable=True)
+    weibo_id = db.Column(db.String(100), nullable=True)
     create_time = db.Column(db.DATETIME(), default=datetime.datetime.now())
     is_read = db.Column(db.BOOLEAN(), default=False)
 
@@ -322,7 +327,7 @@ class Message(db.Model):
         return res
 
     @classmethod
-    def add(cls, user_id, content,weibo=None):
+    def add(cls, user_id, content, weibo=None):
         if not isinstance(user_id, list):
             user_id = [user_id]
         for user in user_id:

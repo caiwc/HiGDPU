@@ -297,6 +297,11 @@ def get_comment_to_me(client):
     return res
 
 
+@client_decorator
+def get_weibo_by_id(client,weibo_id):
+    params = {'id': weibo_id}
+    return client.get.statuses__show(params=params)
+
 def get_client():
     APP_KEY = config.APP_KEY
     APP_SECRET = config.APP_SECRET
@@ -336,5 +341,9 @@ if __name__ == '__main__':
     # res = get_emotions()
     # res = get_weibo_comment(weibo_id=4211016852254679)
     # res = post_weibo(content="啊啊啊",files_path="/Users/caiweicheng/self/venv/HiGDPU/files/fe1c216cdd1bd4b838bc997f6d841d08.png")
-    res = get_comment_to_me()
+    # res = get_comment_to_me()
+    # res = post_weibo_commet(weibo_id='',comment="123")
+    res = get_weibo_by_id(weibo_id='4190064558549923')
+    import json
+    res = json.dumps(res)
     print(res)

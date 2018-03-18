@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from weixin_scrapy.settings import PROJECT_PATH
 from flask_script import Manager, Command
 import os
@@ -12,28 +11,26 @@ file_path = os.path.join(PROJECT_PATH, 'weibo_nlp')
 
 class Classify(Command):
     def run(self):
-        weibo_list = Weibo.query.filter_by(mode=None).order_by(Weibo.publish_time.desc()).paginate(1, 10).items
-
+        weibo_list = Weibo.query.filter_by(mode=None).order_by(Weibo.publish_time).paginate(1, 1000).items
         for weibo in weibo_list:
             content = weibo.content
             if len(content.strip()) > 0:
                 try:
-                    mode = get_baidu_sentitiment(content)
+                    mode = get_baidu_sentitiment(content.strip('\u200b'))
                     print(content, mode)
                     if mode != 'q' or not mode:
-                        weibo.mode = mode
 
+                        weibo.mode = mode
+                        db.session.add(weibo)
                     else:
                         break
                 except Exception as e:
                     print(content)
                     print(e)
-            else:
-                weibo.mode = 2
-            db.session.add(weibo)
-        print('finish')
 
         db.session.commit()
+        print('finish')
+
 
 
 config = {
@@ -43,6 +40,7 @@ config = {
 }
 module = "wenzhi"
 action = 'TextSentiment'
+
 
 
 def get_qlcloud_sentitiment(content):
@@ -93,3 +91,4 @@ def get_baidu_sentitiment(content):
             return 0
     else:
         return 2
+
