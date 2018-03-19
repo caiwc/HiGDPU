@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import current_app
 from flask_sqlalchemy import SQLAlchemy
-import datetime
 from itsdangerous import (
     TimedJSONWebSignatureSerializer as Serializer,
     BadSignature,
@@ -12,12 +11,13 @@ import datetime
 
 db = SQLAlchemy(use_native_unicode="utf-8")
 
+tags = db.Table(
+    'weibo_tags',
+    db.Column('weibo_id', db.String(50), db.ForeignKey('weibo.weibo_id')),
+    db.Column('tag_id', db.Integer, db.ForeignKey('tag.tag_id'))
+)
 
-# tags = db.Table(
-#     'post_tags',
-#     db.Column('post_id', db.Integer, db.ForeignKey('post.id')),
-#     db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'))
-# )
+
 #
 # roles = db.Table(
 #     'role_users',
@@ -105,6 +105,17 @@ class User(db.Model):
         db.session.commit()
         return user
 
+    def is_over_post(self):
+        import datetime
+        now = datetime.datetime.now()
+        one_hours_before = now - datetime.timedelta(hours=1)
+        post_weibo_count = Weibo.query.filter(author=self.openid).filter(
+            Weibo.publish_time.between(one_hours_before, now)).count()
+        if post_weibo_count >= config.WEIBO_ONE_HOURS_LIMIT:
+            return True
+        else:
+            return False
+
 
 class Weixin_Gzh(db.Model):
     title_md5 = db.Column(db.String(100), primary_key=True)
@@ -155,6 +166,12 @@ class Weibo(db.Model):
     mode = db.Column(db.CHAR(2))
     status = db.Column(db.Boolean(), default=False)  # 是否挂起
 
+    tags = db.relationship(
+        'Tag',
+        secondary=tags,
+        backref=db.backref('weibo', lazy='dynamic')
+    )
+
     @classmethod
     def to_list(cls, ms, detail=False):
         res = []
@@ -192,7 +209,25 @@ class Weibo(db.Model):
 class Tag(db.Model):
     tag_id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
     name = db.Column(db.String(255))
-    type = db.Column(db.Enum())
+    location = "location"
+    function = "function"
+    type_set = {location, function}
+    type = db.Column(db.Enum(*type_set))
+
+    @classmethod
+    def to_list(cls, ms, detail=False):
+        res = []
+        for m in ms:
+            res.append(cls.to_dict(m, detail))
+        return res
+
+    @classmethod
+    def to_dict(cls, m, detail=False):
+        tmp = dict()
+        tmp['id'] = m.tag_id
+        tmp['name'] = m.name
+        tmp['type'] = m.type
+        return tmp
 
 
 class Weibo_comment(db.Model):

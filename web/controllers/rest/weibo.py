@@ -55,13 +55,17 @@ class Weibo_Api(Resource):
                 kwargs={'user': user, 'content': content, 'weibo_id': weibo_id, 'reply_author': reply_author,
                         'reply_author_id': reply_author_id, 'reply_comment_id': reply_comment_id})
             return jsonify({'msg': 'success'})
+
         else:
+            if user.is_over_post():
+                return abort(400, {"error": "你发送微博过于频繁,请稍后再发"})
+
             content = args['content']
             file = args.get('file', None)
             if file:
                 file = os.path.join(config.UPLOAD_PATH, file)
             send_weibo.apply_async(kwargs={'user': user, 'content': content, 'file': file})
-            return jsonify({'msg': '删除成功,微博将在今天内删除'})
+            return jsonify({'msg': 'success'})
 
     def delete(self):
         is_authorization = session.get('is_authorization')

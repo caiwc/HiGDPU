@@ -43,4 +43,4 @@ class Manager_Api(Resource):
             Message.add(weibo=None, user_id=user.openid,
                         content=config.WEIBO_DELETE_MSG.format(content=weibo.content,
                                                                reason=Weibo_to_delete.reason_choices_dict[reason]))
-        return jsonify({'msg': '删除申请成功,微博将在今天内删除'})
+        return jsonify({'msg': '删除申请成功,微博将于今天内删除'})

@@ -188,6 +188,7 @@ def get_comment_message():
         from qyweixin.qyweixin_api import send_weixin_message, qyweixin_text_type
         send_weixin_message(send_type=qyweixin_text_type, msg_content=qyweixin_msg)
 
+
 @celery.task(
     default_retry_delay=20,
     max_retries=3

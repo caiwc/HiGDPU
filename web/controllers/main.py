@@ -99,6 +99,24 @@ def qyweixin_authorization():
                 r.set('code', content, ex=10)
                 res_content = "success to input code"
                 wxcpt.verify_code = None
+            elif wxcpt.post_tag == True:
+                import re
+                re_post = re.match("type:(.*?);name:(.*?);", content)
+                if re_post:
+                    from web.models import Tag
+                    type = re_post.group(1)
+                    name = re_post.group(2)
+                    if type not in Tag.type_set:
+                        res_content = "tag type wrong,({})".format(Tag.type_set)
+                    else:
+                        tag = Tag()
+                        tag.name = name
+                        tag.type = type
+                        db.session.add(tag)
+                        db.session.commit()
+                        res_content = "save tag {}".format(name)
+                else:
+                    res_content = "format wrong"
             else:
                 res_content = "我根本唔知你讲紧乜"
 
@@ -157,7 +175,9 @@ def qyweixin_authorization():
                     res_content = "stop"
                 else:
                     res_content = "error"
-
+            elif event_key == "post_tag":
+                wxcpt.post_tag = True
+                res_content = "please input tag info like'type:{type};name:{name}'"
             else:
                 res_content = "without this event"
         else:

@@ -12,9 +12,10 @@ def my(content):
     from nlp import bigrams_words_feature
     import jieba
     item = bigrams_words_feature(jieba.cut(content, cut_all=False), 10)
-    sent = classifier.prob_classify(item)
-    sent = classifier.classify(item)
-    print(sent)
+    sent1 = classifier.prob_classify(item)
+    prob = sent1._prob_dict
+    print(sent1.max())
+    print('pos:', prob['pos'], 'neg:', prob['neg'])
 
 
 def qclud(content):
@@ -57,4 +58,4 @@ def baidu(content):
 
 
 if __name__ == '__main__':
-    my("坐标大山，11点了，不早了，晚归的师弟师妹不要在校道上面大声喧哗好吗，你们晚归不等于别人晚睡好吗，吵吵吵，吵你mmp啊")
+    my("好好地一个没课下午，11栋某个栋梁之才的宿舍在用冲击转，还让不让人睡 ​​​")

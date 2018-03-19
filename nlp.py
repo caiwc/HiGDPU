@@ -20,6 +20,8 @@ def bigrams_words_feature(words, nbigrams=200, measure=BigramAssocMeasures.chi_s
 
 
 bestwords = None
+
+
 def best_word_feature(words):
     global bestwords
     if not bestwords:
@@ -27,7 +29,7 @@ def best_word_feature(words):
     return dict([word, True] for word in words if word in bestwords)
 
 
-Review = namedtuple("Review", 'text tags')
+Review = namedtuple("Review", 'words tags')
 
 
 def get_reviews(file_path, tag):
@@ -60,12 +62,11 @@ def process_reviews():
 
 
 def best_word_method():
-    import nltk.classify.util, nltk.metrics
     from nltk.probability import FreqDist, ConditionalFreqDist
     reviews_pos, reviews_neg = process_reviews()
 
-    tot_poswords = [val for l in [r.text for r in reviews_pos] for val in l]
-    tot_negwords = [val for l in [r.text for r in reviews_neg] for val in l]
+    tot_poswords = [val for l in [r.words for r in reviews_pos] for val in l]
+    tot_negwords = [val for l in [r.words for r in reviews_neg] for val in l]
 
     word_fd = FreqDist()
     label_word_fd = ConditionalFreqDist()
@@ -99,11 +100,11 @@ def best_word_method():
 def get_feature(method):
     reviews_pos, reviews_neg = process_reviews()
     if method == best_bigrams:
-        negfeature = [(bigrams_words_feature(r.text, 8), 'neg') for r in reviews_neg]
-        posfeature = [(bigrams_words_feature(r.text, 8), 'pos') for r in reviews_pos]
+        negfeature = [(bigrams_words_feature(r.words, 8), 'neg') for r in reviews_neg]
+        posfeature = [(bigrams_words_feature(r.words, 8), 'pos') for r in reviews_pos]
     else:
-        posfeature = [(best_word_feature(r.text), 'neg') for r in reviews_neg]
-        negfeature = [(best_word_feature(r.text), 'pos') for r in reviews_pos]
+        posfeature = [(best_word_feature(r.words), 'neg') for r in reviews_neg]
+        negfeature = [(best_word_feature(r.words), 'pos') for r in reviews_pos]
     return posfeature, negfeature
 
 
@@ -131,7 +132,7 @@ def main():
 
     for r in testfeature:
         sent = classifier.classify(r[0])
-        classifier
+        a = classifier.prob_classify(r[0])
         if sent != r[1]:
             err += 1
 
@@ -142,20 +143,72 @@ def main():
     f.close()
 
 
-def svm_method():
-    import numpy as np
-    neg_file_path = "/Users/caiweicheng/self/venv/HiGDPU/weibo_nlp/neg_1.txt"
-    pos_file_path = "/Users/caiweicheng/self/venv/HiGDPU/weibo_nlp/pos_1.txt"
-    else_file_path = "/Users/caiweicheng/self/venv/HiGDPU/weibo_nlp/else.txt"
-    reviews_neg = get_reviews(neg_file_path, 'neg')
-    reviews_pos = get_reviews(pos_file_path, 'pos')
+def doc2v():
+    from gensim.models import Doc2Vec
+    import multiprocessing
+    reviews_pos, reviews_neg = process_reviews()
+    tot_reviews = reviews_pos + reviews_neg
+    shuffle(tot_reviews)
+    cores = multiprocessing.cpu_count()
+    vec_size = 500
+    model_d2v = Doc2Vec(dm=1, dm_concat=0, vector_size=vec_size, window=5, negative=0, hs=0, min_count=1, workers=cores)
 
+    # build vocab
+    model_d2v.build_vocab(tot_reviews)
+    # train
+    numepochs = 20
+    for epoch in range(numepochs):
+        try:
+            print('epoch %d' % (epoch))
+            model_d2v.train(tot_reviews, total_words=len(tot_reviews), epochs=epoch)
+            model_d2v.alpha *= 0.99
+            model_d2v.min_alpha = model_d2v.alpha
+        except (KeyboardInterrupt, SystemExit):
+            break
+
+    import numpy as np
     trainingsize = 2 * int(len(reviews_pos) * 0.8)
 
-    train_d2v = np.zeros((trainingsize))
+    train_d2v = np.zeros((trainingsize, vec_size))
     train_labels = np.zeros(trainingsize)
-    test_size = len()
+    test_size = len(tot_reviews) - trainingsize
+    test_d2v = np.zeros((test_size, vec_size))
+    test_labels = np.zeros(test_size)
+
+    cnt_train = 0
+    cnt_test = 0
+    for r in reviews_pos:
+        name_pos = r.tags
+        if int(name_pos.split('_')[1]) >= int(trainingsize / 2.):
+            test_d2v[cnt_test] = model_d2v.docvecs[name_pos]
+            test_labels[cnt_test] = 1
+            cnt_test += 1
+        else:
+            train_d2v[cnt_train] = model_d2v.docvecs[name_pos]
+            train_labels[cnt_train] = 1
+            cnt_train += 1
+
+    for r in reviews_neg:
+        name_neg = r.tags
+        if int(name_neg.split('_')[1]) >= int(trainingsize / 2.):
+            test_d2v[cnt_test] = model_d2v.docvecs[name_neg]
+            test_labels[cnt_test] = 0
+            cnt_test += 1
+        else:
+            train_d2v[cnt_train] = model_d2v.docvecs[name_neg]
+            train_labels[cnt_train] = 0
+            cnt_train += 1
+
+    from sklearn.linear_model import LogisticRegression
+    classifier = LogisticRegression()
+    classifier.fit(train_d2v, train_labels)
+    print('accuracy:', classifier.score(test_d2v, test_labels))
+
+    from sklearn.svm import SVC
+    clf = SVC()
+    clf.fit(train_d2v, train_labels)
+    print('accuracy:', clf.score(test_d2v, test_labels))
 
 
 if __name__ == '__main__':
-    main()
+    doc2v()
