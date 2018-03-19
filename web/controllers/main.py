@@ -114,7 +114,8 @@ def qyweixin_authorization():
                         tag.type = type
                         db.session.add(tag)
                         db.session.commit()
-                        res_content = "save tag {}".format(name)
+                        res_content = "success".format(name)
+                        wxcpt.post_tag = False
                 else:
                     res_content = "format wrong"
             else:
