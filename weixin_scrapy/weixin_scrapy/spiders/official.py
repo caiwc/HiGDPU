@@ -49,6 +49,13 @@ class OfficialSpider(scrapy.Spider):
                   'http://www.gdpu.edu.cn/index.php?s=/home/newscenter/lists/category/xwzh.html',
                   'http://www.gdpu.edu.cn/index.php?s=/home/newscenter/lists/category/fc.html']
 
+    custom_settings = {
+        'ITEM_PIPELINES': {
+            'weixin_scrapy.pipelines.MysqlTwistedPipeline': 200,
+        }
+
+    }
+
     def get_cookies(self):
         return json.loads(self.cookies)
 
@@ -69,7 +76,7 @@ class OfficialSpider(scrapy.Spider):
         item_loader.add_value('article_id', str_md5(resp.title))
         item_loader.add_value('title', resp.title)
         item_loader.add_value('publish_time', resp.publish_date)
-        item_loader.add_value('content', "\n".join(resp.content))
-        item_loader.add_value('html_content', response.text)
+        item_loader.add_value('content', "<partition>".join(resp.content))
+        item_loader.add_value('img', "<partition>".join(resp.img))
         item_loader.add_value('url', response.url)
         yield item_loader.load_item()

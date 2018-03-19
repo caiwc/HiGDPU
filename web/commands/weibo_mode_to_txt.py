@@ -8,9 +8,9 @@ file_path = os.path.join(PROJECT_PATH, 'weibo_nlp')
 
 class BaseCommand(Command):
     def run(self):
-        weibo_list = Weibo.query.filter_by(mode=2).order_by(Weibo.publish_time.desc()).paginate(1, 3000).items
+        weibo_list = Weibo.query.filter_by(mode=1).order_by(Weibo.publish_time.desc()).paginate(1, 3000).items
 
-        f = open(file_path + '/else.txt', 'a')
+        f = open(file_path + '/neg_1.txt', 'w')
         print(len(weibo_list))
 
         for weibo in weibo_list:

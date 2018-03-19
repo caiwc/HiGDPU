@@ -194,6 +194,7 @@ class Tag(db.Model):
     name = db.Column(db.String(255))
     type = db.Column(db.Enum())
 
+
 class Weibo_comment(db.Model):
     comment_id = db.Column(db.String(50), primary_key=True)
     weibo = db.Column(db.String(50), db.ForeignKey('weibo.weibo_id'))
@@ -264,7 +265,7 @@ class Official(db.Model):
     article_id = db.Column(db.String(50), primary_key=True)
     title = db.Column(db.String(200))
     content = db.Column(db.TEXT())
-    html_content = db.Column(db.TEXT())
+    img = db.Column(db.TEXT(), nullable=True)
     publish_time = db.Column(db.DATE())
     url = db.Column(db.String(256))
 
@@ -280,9 +281,13 @@ class Official(db.Model):
         tmp = dict()
         tmp['article_id'] = m.article_id
         tmp['title'] = m.title
-        tmp['publish_time'] = m.publish_time
+        tmp['end'] = m.publish_time
         if detail:
-            tmp['content'] = m.content
+            tmp['content'] = m.content.split("<partition>")
+            if len(m.img):
+                tmp['img'] = m.img.split("<partition>")
+            else:
+                tmp['img'] = []
         return tmp
 
 

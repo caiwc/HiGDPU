@@ -19,7 +19,6 @@ class TakeFirstScrapyLoader(ItemLoader):
     default_output_processor = TakeFirst()
 
 
-
 def get_es_obj(model, obj_id):
     try:
         return model.get(id=obj_id)
@@ -132,16 +131,16 @@ class OfficialItem(scrapy.Item):
     content = scrapy.Field()
     publish_time = scrapy.Field()
     title = scrapy.Field()
-    html_content = scrapy.Field()
+    img = scrapy.Field()
     url = scrapy.Field()
 
     def get_insert_sql(self):
         insert_sql = """
-                insert into official(article_id,content,publish_time,title,html_content,url)
-                VALUES (%s,%s,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE content=VALUES(content), url=VALUES(url)
+                insert into official(article_id,content,publish_time,title,img,url)
+                VALUES (%s,%s,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE content=VALUES(content), url=VALUES(url),img=VALUES(img)
                 """
         params = (
             self['article_id'], self['content'], self['publish_time'],
-            self['title'], self['html_content'], self['url']
+            self['title'], self.get('img', ''), self['url']
         )
         return insert_sql, params

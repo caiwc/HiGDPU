@@ -11,12 +11,20 @@ file_path = os.path.join(PROJECT_PATH, 'weibo_nlp')
 
 class Classify(Command):
     def run(self):
-        weibo_list = Weibo.query.filter_by(mode=None).order_by(Weibo.publish_time).paginate(1, 1000).items
+        weibo_list = Weibo.query.filter_by(mode=None).order_by(Weibo.publish_time.desc()).paginate(1, 500).items
         for weibo in weibo_list:
             content = weibo.content
             if len(content.strip()) > 0:
                 try:
-                    mode = get_baidu_sentitiment(content.strip('\u200b'))
+                    mode_1, pos1, neg1 = get_baidu_sentitiment(content.strip('\u200b'))
+                    mode_2, pos2, neg2 = get_qlcloud_sentitiment(content)
+                    if mode_1 == mode_2:
+                        mode = mode_1
+                    else:
+                        # pos_max = max(pos1, pos2)
+                        # neg_max = max(neg1, neg2)
+                        # mode = 0 if pos_max > neg_max else 1
+                        mode=2
                     print(content, mode)
                     if mode != 'q' or not mode:
 
@@ -24,13 +32,13 @@ class Classify(Command):
                         db.session.add(weibo)
                     else:
                         break
+
                 except Exception as e:
                     print(content)
                     print(e)
 
         db.session.commit()
         print('finish')
-
 
 
 config = {
@@ -40,7 +48,6 @@ config = {
 }
 module = "wenzhi"
 action = 'TextSentiment'
-
 
 
 def get_qlcloud_sentitiment(content):
@@ -58,11 +65,11 @@ def get_qlcloud_sentitiment(content):
         pos = res['positive']
         neg = res['negative']
         if pos > neg:
-            return 0
+            return 0, pos, neg
         elif pos < neg:
-            return 1
+            return 1, pos, neg
         else:
-            return 2
+            return 2, pos, neg
     except Exception as e:
         import traceback
 
@@ -82,13 +89,14 @@ def get_baidu_sentitiment(content):
     res = res['items'][0]
     mode = res['sentiment']
     print(res)
+    pos = res['positive_prob']
+    neg = res['negative_prob']
     if res['confidence'] > 0.4:
         if mode == 0:
-            return 1
+            return 1, pos, neg
         elif mode == 1:
-            return 2
+            return 2, pos, neg
         else:
-            return 0
+            return 0, pos, neg
     else:
-        return 2
-
+        return 2,pos,neg

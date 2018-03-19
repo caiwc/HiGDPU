@@ -3,14 +3,16 @@ from QcloudApi.qcloudapi import QcloudApi
 import json
 import pickle
 
-f = open('/Users/caiweicheng/self/venv/HiGDPU/weibo_nlp/my_nlp.pickle', 'rb')
+f = open('/Users/caiweicheng/self/venv/HiGDPU/weibo_nlp/my_nlp2.pickle', 'rb')
 classifier = pickle.load(f)
 f.close()
 
 
 def my(content):
     from nlp import bigrams_words_feature
-    item = bigrams_words_feature(content, 5)
+    import jieba
+    item = bigrams_words_feature(jieba.cut(content, cut_all=False), 10)
+    sent = classifier.prob_classify(item)
     sent = classifier.classify(item)
     print(sent)
 
@@ -55,4 +57,4 @@ def baidu(content):
 
 
 if __name__ == '__main__':
-    my("有需要这些书的吗")
+    my("坐标大山，11点了，不早了，晚归的师弟师妹不要在校道上面大声喧哗好吗，你们晚归不等于别人晚睡好吗，吵吵吵，吵你mmp啊")

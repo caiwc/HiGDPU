@@ -2167,8 +2167,7 @@ class MyHtmlParser(HTMLParser):
         elif tag == 'img' and self.find_content:
             for (variable, value) in attrs:
                 if variable == 'src':
-                    image = "<image src='{}'></image>".format(urljoin(self.base_url, value))
-                    self.content.append(image)
+                    self.img.append(urljoin(self.base_url, value))
 
     def handle_endtag(self, tag):
         if tag == "div":
@@ -2198,15 +2197,15 @@ class MyHtmlParser(HTMLParser):
             if self.tag == "span":
                 if self.l_tag == "p":
                     if self.p_style == "center":
-                        self.content.append(('<view class="center"><text>{}</text></view>'.format(data)))
+                        pass
                     else:
-                        self.content.append(('<view ><text>{}</text></view>'.format(data)))
+                        self.content.append(data)
                 elif self.l_tag == "strong":
                     pass
                 else:
-                    self.content.append("<view ><text>{}</text></view>".format(data))
+                    self.content.append(data)
             elif self.tag == "div" and self.l_tag == "span":
-                self.content.append("<view ><text>{}</text></view>".format(data))
+                self.content.append(data)
 
 
 def parser(html):
