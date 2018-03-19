@@ -186,10 +186,10 @@ class Weibo(db.Model):
         tmp['content'] = m.content
         tmp['img'] = m.img
         tmp['likes'] = m.likes
-        tmp['reports'] = m.reports
         tmp['comments'] = m.comment_set.count()
         tmp['weibo_name'] = m.weibo_name
         tmp['publish_time'] = m.publish_time
+        tmp['tags'] = Tag.to_list(m.tags)
         # tmp['author'] = m.author
         if detail:
             comments = Weibo_comment.query.filter_by(weibo=tmp['id'])
@@ -204,6 +204,16 @@ class Weibo(db.Model):
             return weibo
         else:
             return None
+
+    def add_tags(self, tag_ids):
+        if not isinstance(tag_ids, (list, tuple)):
+            tag_ids = [tag_ids]
+        for tag_id in tag_ids:
+            tag = Tag.get(tag_id=tag_id)
+            if tag and tag not in self.tags:
+                self.tags.append(tag)
+        db.session.add(self)
+        db.session.commit()
 
 
 class Tag(db.Model):
@@ -228,6 +238,16 @@ class Tag(db.Model):
         tmp['name'] = m.name
         tmp['type'] = m.type
         return tmp
+
+    @classmethod
+    def get(cls, tag_id=None, name=None):
+        if tag_id:
+            m = cls.query.filter_by(tag_id=tag_id).first()
+        elif name:
+            m = cls.query.filter_by(name=name).first()
+        else:
+            m = None
+        return m
 
 
 class Weibo_comment(db.Model):

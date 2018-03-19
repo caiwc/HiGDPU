@@ -70,15 +70,21 @@ class DevConfig(Config):
         "web.tasks.verifycode_handle": {"queue": "default", "routing_key": "default"},
         "web.tasks.crawl": {"queue": "default", "routing_key": "default"},
         "web.tasks.get_comment_message": {"queue": "default", "routing_key": "default"},
+        "web.tasks.add_weibo_tags": {"queue": "default", "routing_key": "default"},
         "web.tasks.multiply": {"queue": "default", "routing_key": "default"},
         "web.tasks.send_weibo": {"queue": "send_weibo", "routing_key": "send_weibo"},
         "web.tasks.send_weibo_comment": {"queue": "send_weibo", "routing_key": "send_weibo"},
         "web.tasks.test": {"queue": "send_weibo", "routing_key": "send_weibo"},
+
     }
 
     CELERYBEAT_SCHEDULE = {
         'get_comment_message': {
             'task': 'web.tasks.get_comment_message',
             'schedule': timedelta(minutes=30)
+        },
+        'add_weibo_tags': {
+            'task': 'web.tasks.add_weibo_tags',
+            'schedule': timedelta(hours=3)
         }
     }

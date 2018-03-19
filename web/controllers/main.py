@@ -223,6 +223,13 @@ def get_delete_reason():
         res.append({'id': k, 'content': v})
     return jsonify(res)
 
+
+@main_blueprint.route('/api/tags', methods=['GET'])
+def get_weibo_tags():
+    from web.models import Tag
+    ms = Tag.query.all()
+    return jsonify(Tag.to_list(ms))
+
 # @main_blueprint.route('/login', methods=['GET', 'POST'])
 # @oid.loginhandler
 # def login():

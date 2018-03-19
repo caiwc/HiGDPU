@@ -1,7 +1,7 @@
 from web.weibo_api import post_weibo, post_weibo_commet, reply_comment, get_comment_to_me
 from web.extensions import celery
 from weixin_scrapy.verifycode import handel_verifycode
-from web.models import db, User, Weibo, Weibo_comment, Message
+from web.models import db, User, Weibo, Weibo_comment, Message, Tag
 from web import config
 from weixin_scrapy.main import run
 import datetime
@@ -187,6 +187,21 @@ def get_comment_message():
     finally:
         from qyweixin.qyweixin_api import send_weixin_message, qyweixin_text_type
         send_weixin_message(send_type=qyweixin_text_type, msg_content=qyweixin_msg)
+
+
+@celery.task(
+    name="web.tasks.add_weibo_tags"
+)
+def add_weibo_tags():
+    weibo_list = Weibo.query.filter(~Weibo.tags.any()).order_by(Weibo.publish_time.desc()).paginate(1, 100).items
+    for weibo in weibo_list:
+        if not weibo.tags:
+            if '中山' in weibo.content or '大山' in weibo.content:
+                weibo.add_tags(1)
+                print('{} add tag `{}`'.format(weibo.content, '中山'))
+            elif '大学城' in weibo.content:
+                weibo.add_tags(4)
+                print('{} add tag `{}`'.format(weibo.content, '大学城'))
 
 
 @celery.task(

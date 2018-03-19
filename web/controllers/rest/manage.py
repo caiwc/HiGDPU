@@ -18,7 +18,7 @@ class Manager_Api(Resource):
             return abort(401, {"error": session.get('error')})
         user = User.get(openid=session.get('user_id'))
         if not user.manager:
-            return abort(400, {"error": "此操作只有管理员能执行"})
+            return abort(403, {"error": "此操作只有管理员能执行"})
 
         weibo_id = args['weibo_id']
         reason = args['reason']

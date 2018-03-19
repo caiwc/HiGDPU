@@ -78,7 +78,7 @@ class Weibo_Api(Resource):
         if not weibo:
             return abort(400, {'error': '无此微博'})
         if weibo.author != user_id:
-            return abort(400, {'error': '此微博作者不是本人, 不能删除'})
+            return abort(403, {'error': '此微博作者不是本人, 不能删除'})
         weibo.status = True
         db.session.add(weibo)
 
