@@ -105,7 +105,7 @@ def qyweixin_authorization():
                 wxcpt.classify = False
                 res_content = "ok"
             elif wxcpt.classify_tag and int(content):
-                wxcpt.weibo.add_tags(content)
+                wxcpt.weibo.add_tags(tag_ids=content)
                 weibo = get_classify_weibo(mode=2)
                 wxcpt.weibo = weibo
                 res_content = ""
