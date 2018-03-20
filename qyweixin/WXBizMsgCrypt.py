@@ -222,6 +222,7 @@ class WXBizMsgCrypt(object):
         self.verify_code = None
 
         self.classify = False
+        self.classify_tag = False
         self.weibo = None
 
         self.post_tag = False

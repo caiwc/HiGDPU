@@ -99,6 +99,19 @@ def qyweixin_authorization():
                 r.set('code', content, ex=10)
                 res_content = "success to input code"
                 wxcpt.verify_code = None
+            elif content == "stop":
+                wxcpt.weibo = None
+                wxcpt.classify_tag = False
+                wxcpt.classify = False
+                res_content = "ok"
+            elif wxcpt.classify_tag and int(content):
+                wxcpt.weibo.add_tags(content)
+                weibo = get_classify_weibo(mode=2)
+                wxcpt.weibo = weibo
+                res_content = ""
+                tag_msg = get_tags_msg()
+                msg = "正文: {}\n标签: {}".format(weibo.content, tag_msg)
+                send_chinese_msg(msg)
             elif wxcpt.post_tag == True:
                 import re
                 re_post = re.match("type:(.*?);name:(.*?);", content)
@@ -138,7 +151,7 @@ def qyweixin_authorization():
                 file_path = config.PROJECT_PATH + "/weibo_nlp/"
                 if wxcpt.classify and event_key == "classify_else":
                     print(wxcpt.weibo.content)
-                    write_weibo(file_path + 'else.txt', wxcpt.weibo.content)
+                    # write_weibo(file_path + 'else.txt', wxcpt.weibo.content)
                     save_classify_weibo_mode(wxcpt.weibo, '2')
                     weibo = get_classify_weibo()
                     wxcpt.weibo = weibo
@@ -147,7 +160,7 @@ def qyweixin_authorization():
                     send_chinese_msg(msg)
                 elif wxcpt.classify and event_key == "classify_pos":
                     print(wxcpt.weibo.content)
-                    write_weibo(file_path + 'pos.txt', wxcpt.weibo.content)
+                    # write_weibo(file_path + 'pos.txt', wxcpt.weibo.content)
                     save_classify_weibo_mode(wxcpt.weibo, '0')
                     weibo = get_classify_weibo()
                     wxcpt.weibo = weibo
@@ -156,7 +169,7 @@ def qyweixin_authorization():
                     send_chinese_msg(msg)
                 elif wxcpt.classify and event_key == "classify_neg":
                     print(wxcpt.weibo.content)
-                    write_weibo(file_path + 'neg.txt', wxcpt.weibo.content)
+                    # write_weibo(file_path + 'neg.txt', wxcpt.weibo.content)
                     save_classify_weibo_mode(wxcpt.weibo, '1')
                     weibo = get_classify_weibo()
                     wxcpt.weibo = weibo
@@ -170,10 +183,14 @@ def qyweixin_authorization():
                     res_content = ""
                     msg = "开始: {}".format(weibo.content)
                     send_chinese_msg(msg)
-                elif event_key == "classify_quit":
-                    wxcpt.classify = False
-                    wxcpt.weibo = None
-                    res_content = "stop"
+                elif event_key == "classify_tag":
+                    wxcpt.classify_tag = True
+                    weibo = get_classify_weibo(mode=2)
+                    wxcpt.weibo = weibo
+                    res_content = ""
+                    tag_msg = get_tags_msg()
+                    msg = "正文: {}\n标签: {}".format(weibo.content, tag_msg)
+                    send_chinese_msg(msg)
                 else:
                     res_content = "error"
             elif event_key == "post_tag":
@@ -190,6 +207,15 @@ def qyweixin_authorization():
         return response
 
 
+def get_tags_msg():
+    from web.models import Tag
+    tags = Tag.query.filter(type='function').all()
+    msg = ""
+    for tag in tags:
+        msg = msg + "{}-{};".format(tag.name, tag.tag_id)
+    return msg
+
+
 def send_chinese_msg(msg):
     from qyweixin.qyweixin_api import send_weixin_message, qyweixin_text_type
     send_weixin_message(send_type=qyweixin_text_type, msg_content=msg)
@@ -201,9 +227,9 @@ def save_classify_weibo_mode(weibo, mode):
     db.session.commit()
 
 
-def get_classify_weibo():
+def get_classify_weibo(mode=None):
     from web.models import Weibo
-    weibo = Weibo.query.filter_by(mode=None).order_by(Weibo.publish_time.desc()).first()
+    weibo = Weibo.query.filter_by(mode=mode).order_by(Weibo.publish_time.desc()).first()
     return weibo
 
 
