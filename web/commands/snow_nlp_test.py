@@ -11,20 +11,21 @@ file_path = os.path.join(PROJECT_PATH, 'weibo_nlp')
 
 class Classify(Command):
     def run(self):
-        weibo_list = Weibo.query.filter_by(mode=None).order_by(Weibo.publish_time.desc()).paginate(1, 500).items
+        weibo_list = Weibo.query.filter_by(mode=None).order_by(Weibo.publish_time.desc()).paginate(1, 10).items
         for weibo in weibo_list:
             content = weibo.content
             if len(content.strip()) > 0:
                 try:
-                    mode_1, pos1, neg1 = get_baidu_sentitiment(content.strip('\u200b'))
-                    mode_2, pos2, neg2 = get_qlcloud_sentitiment(content)
-                    if mode_1 == mode_2:
-                        mode = mode_1
-                    else:
-                        # pos_max = max(pos1, pos2)
-                        # neg_max = max(neg1, neg2)
-                        # mode = 0 if pos_max > neg_max else 1
-                        mode=2
+                    # mode_1, pos1, neg1 = get_baidu_sentitiment(content.strip('\u200b'))
+                    # mode_2, pos2, neg2 = get_qlcloud_sentitiment(content)
+                    # if mode_1 == mode_2:
+                    #     mode = mode_1
+                    # else:
+                    #     # pos_max = max(pos1, pos2)
+                    #     # neg_max = max(neg1, neg2)
+                    #     # mode = 0 if pos_max > neg_max else 1
+                    #     mode = 2
+                    mode = boson(content)
                     print(content, mode)
                     if mode != 'q' or not mode:
 
@@ -99,4 +100,18 @@ def get_baidu_sentitiment(content):
         else:
             return 0, pos, neg
     else:
-        return 2,pos,neg
+        return 2, pos, neg
+
+
+def boson(content):
+    from bosonnlp import BosonNLP
+    nlp = BosonNLP('o65Fe84P.24500.MrugM8rSFa7A')
+    resp = nlp.sentiment(content, model='weibo')
+    res = resp[0]
+    print(res)
+    if res[0] - res[1] > 0.5:
+        return 0
+    elif res[1] - res[0] > 0.5:
+        return 1
+    else:
+        return 2

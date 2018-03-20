@@ -42,8 +42,11 @@ def get_reviews(file_path, tag):
         if not line:
             break
         if line == '\n':
-            res.append(Review([i for i in jieba.cut("".join(content), cut_all=False)], "{}_{}".format(tag, idx)))
-            idx += 1
+            content_str = "".join(content)
+            content_str = content_str.strip("\u200b")
+            if len(content_str):
+                res.append(Review(PreprocessReviews(content_str, stem=True), "{}_{}".format(tag, idx)))
+                idx += 1
             content = []
             continue
         content.append(line)
@@ -138,9 +141,20 @@ def main():
 
     print("error rate:", err / float(len(testfeature)))
 
-    f = open('/Users/caiweicheng/self/venv/HiGDPU/weibo_nlp/my_nlp1.pickle', 'wb')
+    f = open('/Users/caiweicheng/self/venv/HiGDPU/weibo_nlp/my_nlp.pickle', 'wb')
     pickle.dump(classifier, f)
     f.close()
+
+
+def PreprocessReviews(text, stem=False):
+    # print profile
+    if stem:
+        from nltk.stem.porter import PorterStemmer
+        stemmer = PorterStemmer()
+        words_clean = [stemmer.stem(w) for w in jieba.cut(text, cut_all=False)]
+    else:
+        words_clean = jieba.cut(text, cut_all=False)
+    return words_clean
 
 
 def doc2v():
@@ -180,22 +194,22 @@ def doc2v():
     for r in reviews_pos:
         name_pos = r.tags
         if int(name_pos.split('_')[1]) >= int(trainingsize / 2.):
-            test_d2v[cnt_test] = model_d2v.docvecs[name_pos]
+            test_d2v[cnt_test] = model_d2v.docvecs[name_pos.split('_')[0]]
             test_labels[cnt_test] = 1
             cnt_test += 1
         else:
-            train_d2v[cnt_train] = model_d2v.docvecs[name_pos]
+            train_d2v[cnt_train] = model_d2v.docvecs[name_pos.split('_')[0]]
             train_labels[cnt_train] = 1
             cnt_train += 1
 
     for r in reviews_neg:
         name_neg = r.tags
         if int(name_neg.split('_')[1]) >= int(trainingsize / 2.):
-            test_d2v[cnt_test] = model_d2v.docvecs[name_neg]
+            test_d2v[cnt_test] = model_d2v.docvecs[name_neg.split('_')[0]]
             test_labels[cnt_test] = 0
             cnt_test += 1
         else:
-            train_d2v[cnt_train] = model_d2v.docvecs[name_neg]
+            train_d2v[cnt_train] = model_d2v.docvecs[name_neg.split('_')[0]]
             train_labels[cnt_train] = 0
             cnt_train += 1
 
