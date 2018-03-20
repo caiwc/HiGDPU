@@ -209,7 +209,7 @@ def qyweixin_authorization():
 
 def get_tags_msg():
     from web.models import Tag
-    tags = Tag.query.filter(type='function').all()
+    tags = Tag.query.filter_by(type='function').all()
     msg = ""
     for tag in tags:
         msg = msg + "{}-{};".format(tag.name, tag.tag_id)
