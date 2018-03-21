@@ -58,7 +58,7 @@ class WeixinScrapyItem(scrapy.Item):
         weixin = get_es_obj(Weixin, self['id'])
         weixin.title = self['title']
         weixin.url = self['url']
-        weixin.cover = self.get('digest', "")
+        weixin.cover = self.get('cover', "")
         weixin.digest = self.get('digest', "")
         weixin.content = get_es_data(self['html_content'])
         weixin.publish_time = self['publish_time']

@@ -16,16 +16,19 @@ class Classify(Command):
             content = weibo.content
             if len(content.strip()) > 0:
                 try:
-                    # mode_1, pos1, neg1 = get_baidu_sentitiment(content.strip('\u200b'))
-                    # mode_2, pos2, neg2 = get_qlcloud_sentitiment(content)
-                    # if mode_1 == mode_2:
-                    #     mode = mode_1
-                    # else:
-                    #     # pos_max = max(pos1, pos2)
-                    #     # neg_max = max(neg1, neg2)
-                    #     # mode = 0 if pos_max > neg_max else 1
-                    #     mode = 2
-                    mode = boson(content)
+                    mode_1, pos1, neg1 = get_baidu_sentitiment(content.strip('\u200b'))
+                    mode_2, pos2, neg2 = get_qlcloud_sentitiment(content)
+                    if mode_1 == mode_2:
+                        mode = mode_1
+                    else:
+                        mode_b = boson(content)
+                        if mode_1 == mode_b:
+                            mode = mode_1
+                        elif mode_2 == mode_b:
+                            mode = mode_2
+                        else:
+                            mode = 2
+
                     print(content, mode)
                     if mode != 'q' or not mode:
 

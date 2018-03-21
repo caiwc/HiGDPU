@@ -17,7 +17,7 @@ manager = Manager(app)
 manager.add_command("server", Server())
 manager.add_command('db', MigrateCommand)
 manager.add_command("update_weibo", update_old_weibo.Update())
-manager.add_command("classify_weibo", weibo_nlp.Classify())
+manager.add_command("classify_weibo_tag", weibo_nlp.Classify())
 manager.add_command("snow_classify_weibo", snow_nlp_test.Classify())
 manager.add_command("weibo_mode_to_txt", weibo_mode_to_txt.BaseCommand())
 
