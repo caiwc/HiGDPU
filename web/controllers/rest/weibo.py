@@ -1,7 +1,7 @@
 from flask import abort, jsonify, request, session
 from flask_restful import Resource
 from web.tasks import send_weibo, send_weibo_comment
-from web.models import db, Weibo, User, Message, Weibo_to_delete
+from web.models import db, Weibo, User, Message, Weibo_to_delete, Tag
 from web import config
 from .parsers import (
     weibo_get_parser,
@@ -23,7 +23,12 @@ class Weibo_Api(Resource):
         else:
             args = weibo_get_parser.parse_args()
             page = args['page'] or 1
-            posts = Weibo.query.order_by(
+            tag = args['tag'] or None
+            if tag:
+                posts = Weibo.query.filter(Weibo.tags.any(Tag.name == tag))
+            else:
+                posts = Weibo.query()
+            posts = posts.order_by(
                 Weibo.publish_time.desc()
             ).paginate(page, 30)
             msg_count = Message.new_msg_count(user_id=session.get('user_id', ''))

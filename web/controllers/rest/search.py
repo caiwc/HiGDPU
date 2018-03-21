@@ -2,7 +2,7 @@
 from flask import abort, jsonify, request
 from flask_restful import Resource
 from web.models import db, Weibo, User
-from .parsers import search_get_parser
+from .parsers import search_post_parser
 from elasticsearch import Elasticsearch
 from web.config import ES_HOST
 from elasticsearch_tool.init_models import Weibo
@@ -26,8 +26,8 @@ sort_dict = {
 
 
 class Search_Api(Resource):
-    def get(self):
-        args = search_get_parser.parse_args()
+    def post(self):
+        args = search_post_parser.parse_args()
         query = args['query']
         request_path = request.path
         path_list = request_path.split('/')
@@ -126,6 +126,6 @@ class Search_Api(Resource):
                     else:
                         hit_dict["comment"] = hit["_source"]["comment"]
                     hit_list.append(hit_dict)
-                res.append({'page_nums': page_nums, "total": total_nums, "data": hit_list, "type": s_type})
+                res.append({'pages': page_nums, "total": total_nums, "data": hit_list, "type": s_type})
 
             return jsonify(res)

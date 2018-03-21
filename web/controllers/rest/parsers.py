@@ -4,11 +4,11 @@ user_post_parser = reqparse.RequestParser()
 user_post_parser.add_argument('username', type=str, required=True)
 user_post_parser.add_argument('password', type=str, required=True)
 
-search_get_parser = reqparse.RequestParser()
-search_get_parser.add_argument('page', type=int, location=['args'])
-search_get_parser.add_argument('type', type=str, location=['args'])
-search_get_parser.add_argument('order', type=str, location=['args'])
-search_get_parser.add_argument('query', type=str, location=['args'])
+search_post_parser = reqparse.RequestParser()
+search_post_parser.add_argument('page', type=int, required=False)
+search_post_parser.add_argument('type', type=str, required=False)
+search_post_parser.add_argument('order', type=str, required=False)
+search_post_parser.add_argument('query', type=str, required=True)
 
 official_get_parser = reqparse.RequestParser()
 official_get_parser.add_argument('page', type=int, location=['args'])
@@ -34,6 +34,7 @@ manage_post_parser.add_argument(
 
 weibo_get_parser = reqparse.RequestParser()
 weibo_get_parser.add_argument('page', type=int, location=['args'])
+weibo_get_parser.add_argument('tag', type=str, location=['args'])
 
 weixin_get_parser = reqparse.RequestParser()
 weixin_get_parser.add_argument('page', type=int, location=['args'])
