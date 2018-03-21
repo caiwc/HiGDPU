@@ -75,4 +75,4 @@ def get_suggests(index, info_tuple, model):
 
 
 if __name__ == '__main__':
-    Weibo.init()
+    Weixin.init()

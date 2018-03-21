@@ -16,4 +16,4 @@ def run(spider):
 
 
 if __name__ == '__main__':
-    run(spider='official')
+    run(spider='weixin')

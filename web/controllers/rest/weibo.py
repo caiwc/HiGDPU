@@ -25,10 +25,12 @@ class Weibo_Api(Resource):
             page = args['page'] or 1
             posts = Weibo.query.order_by(
                 Weibo.publish_time.desc()
-            ).paginate(page, 30).items
+            ).paginate(page, 30)
             msg_count = Message.new_msg_count(user_id=session.get('user_id', ''))
-            weibo_list = Weibo.to_list(ms=posts, detail=False)
+            weibo_list = Weibo.to_list(ms=posts.items, detail=False)
             res = {
+                "pages": posts.pages,
+                "total": posts.total,
                 "msg_count": msg_count,
                 "weibo": weibo_list
             }
