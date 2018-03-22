@@ -8,9 +8,11 @@ import itertools
 from collections import namedtuple
 import jieba
 from nltk.classify import NaiveBayesClassifier
+from os import path
 
 best_word = "best_word"
 best_bigrams = "best_bigrams"
+d = path.dirname(__file__)
 
 
 def bigrams_words_feature(words, nbigrams=200, measure=BigramAssocMeasures.chi_sq):
@@ -55,9 +57,10 @@ def get_reviews(file_path, tag):
 
 
 def process_reviews():
-    neg_file_path = "/Users/caiweicheng/self/venv/HiGDPU/weibo_nlp/neg_1.txt"
-    pos_file_path = "/Users/caiweicheng/self/venv/HiGDPU/weibo_nlp/pos_1.txt"
-    else_file_path = "/Users/caiweicheng/self/venv/HiGDPU/weibo_nlp/else.txt"
+    sen_path = path.join(d, 'sen_txt')
+    neg_file_path = path.join(sen_path, 'neg_1.txt')
+    pos_file_path = path.join(sen_path, 'pos_1.txt')
+    else_file_path = path.join(sen_path, 'else.txt')
     reviews_neg = get_reviews(neg_file_path, 'neg')
     reviews_pos = get_reviews(pos_file_path, 'pos')
     print(len(reviews_neg), len(reviews_pos))
@@ -141,7 +144,7 @@ def main():
 
     print("error rate:", err / float(len(testfeature)))
 
-    f = open('/Users/caiweicheng/self/venv/HiGDPU/weibo_nlp/my_nlp.pickle', 'wb')
+    f = open(path.join(d, 'my_nlp.pickle'), 'wb')
     pickle.dump(classifier, f)
     f.close()
 
@@ -225,4 +228,4 @@ def doc2v():
 
 
 if __name__ == '__main__':
-    doc2v()
+    main()

@@ -1,7 +1,9 @@
-from local_settings import Secretid, SecretKey
-from QcloudApi.qcloudapi import QcloudApi
 import json
 import pickle
+
+from QcloudApi.qcloudapi import QcloudApi
+
+from local_settings import Secretid, SecretKey
 
 f = open('/Users/caiweicheng/self/venv/HiGDPU/weibo_nlp/my_nlp2.pickle', 'rb')
 classifier = pickle.load(f)
@@ -9,7 +11,7 @@ f.close()
 
 
 def my(content):
-    from nlp import bigrams_words_feature
+    from weibo_nlp.nlp import bigrams_words_feature
     import jieba
     item = bigrams_words_feature(jieba.cut(content, cut_all=False), 10)
     sent1 = classifier.prob_classify(item)

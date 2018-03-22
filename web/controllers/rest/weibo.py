@@ -27,7 +27,7 @@ class Weibo_Api(Resource):
             if tag:
                 posts = Weibo.query.filter(Weibo.tags.any(Tag.name == tag))
             else:
-                posts = Weibo.query()
+                posts = Weibo.query
             posts = posts.order_by(
                 Weibo.publish_time.desc()
             ).paginate(page, 30)
