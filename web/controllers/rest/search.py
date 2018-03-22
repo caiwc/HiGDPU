@@ -58,7 +58,7 @@ class Search_Api(Resource):
             else:
                 do_search = search_dict
             res = []
-            for s_type in do_search:
+            for s_type in sorted(do_search):
                 if order == "score":
                     sort_list = [sort_dict[order]]
                 elif s_type == "weixin" and order == "comment":
