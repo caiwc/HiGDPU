@@ -122,6 +122,7 @@ class Search_Api(Resource):
                             hit_dict["title"] = hit["_source"]["title"]
                         hit_dict['cover'] = hit["_source"]['cover']
                         hit_dict['gzh'] = hit["_source"]['gzh']
+                        hit_dict['url'] = hit["_source"]['url']
 
                     else:
                         hit_dict["comment"] = hit["_source"]["comment"]
