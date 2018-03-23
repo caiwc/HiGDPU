@@ -72,7 +72,7 @@ class Weibo_Api(Resource):
             file = args.get('file', None)
             if file:
                 file = os.path.join(config.UPLOAD_PATH, file)
-            send_weibo.apply_async(kwargs={'user': user, 'content': content, 'file': file})
+            # send_weibo.apply_async(kwargs={'user': user, 'content': content, 'file': file})
             send_weibo(user=user,content=content,file=file)
             return jsonify({'msg': 'success'})
 
