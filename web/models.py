@@ -109,7 +109,7 @@ class User(db.Model):
         import datetime
         now = datetime.datetime.now()
         one_hours_before = now - datetime.timedelta(hours=1)
-        post_weibo_count = Weibo.query.filter(author=self.openid).filter(
+        post_weibo_count = Weibo.query.filter_by(author=self.openid).filter(
             Weibo.publish_time.between(one_hours_before, now)).count()
         if post_weibo_count >= config.WEIBO_ONE_HOURS_LIMIT:
             return True
