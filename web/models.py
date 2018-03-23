@@ -68,7 +68,7 @@ class User(db.Model):
         except BadSignature:
             return False, {'status': 'fail', 'error': 'session无效'}
         print(data)
-        user = cls.get_user(data['openid'])
+        user = cls.get(data['openid'])
         return True, user
 
     @classmethod

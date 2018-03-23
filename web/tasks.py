@@ -219,7 +219,7 @@ def weibo_report():
     from sqlalchemy import extract, and_
     today = datetime.date.today()
     weibo_list = Weibo.query.filter(and_(
-        extract('year', Weibo.publish_time) == 2017,
-        extract('month', Weibo.publish_time) == 5)).all()
+        extract('year', Weibo.publish_time) == today.year,
+        extract('month', Weibo.publish_time) == today.month)).all()
 
     get_word_cloud([o.content for o in weibo_list])

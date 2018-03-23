@@ -20,5 +20,17 @@ def get_stop_word_set():
     return res
 
 
+def get_content_by_file(file_path):
+    f = open(file_path,'r')
+    content = []
+    while True:
+        line = f.readline()
+        if not line:
+            break
+        line = line.strip('\n').strip('\u200b').strip('\n')
+        if line:
+            content.append(line)
+    return " ".join(content)
+
 if __name__ == '__main__':
     print(len(get_stop_word_set()))
