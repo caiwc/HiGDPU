@@ -58,9 +58,10 @@ class Weibo_Api(Resource):
             reply_author = args.get('reply_author_name', None)
             reply_author_id = args.get('reply_author_id', None)
             reply_comment_id = args.get('reply_comment_id', None)
-            send_weibo_comment.apply_async(
-                kwargs={'user': user, 'content': content, 'weibo_id': weibo_id, 'reply_author': reply_author,
-                        'reply_author_id': reply_author_id, 'reply_comment_id': reply_comment_id})
+            # send_weibo_comment.apply_async(
+            #     kwargs={'user': user, 'content': content, 'weibo_id': weibo_id, 'reply_author': reply_author,
+            #             'reply_author_id': reply_author_id, 'reply_comment_id': reply_comment_id})
+            send_weibo_comment(user=user,content=content,weibo_id=weibo_id,reply_author=reply_author,reply_comment_id=reply_comment_id,reply_author_id=reply_author_id)
             return jsonify({'msg': 'success'})
 
         else:
@@ -72,6 +73,7 @@ class Weibo_Api(Resource):
             if file:
                 file = os.path.join(config.UPLOAD_PATH, file)
             send_weibo.apply_async(kwargs={'user': user, 'content': content, 'file': file})
+            send_weibo(user=user,content=content,file=file)
             return jsonify({'msg': 'success'})
 
     def delete(self):
