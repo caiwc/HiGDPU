@@ -28,8 +28,9 @@ def verifycode_handle(url, operation):
 
 
 @celery.task()
-def send_weibo(user, content, file=None):
+def send_weibo(user_id, content, file=None):
     from web.utils import weibo_time_format
+    user = User.get(openid=user_id)
     res = post_weibo(content=content, files_path=file)
     print(res)
     if res:
@@ -64,8 +65,9 @@ def send_weibo(user, content, file=None):
     default_retry_delay=300,
     max_retries=5
 )
-def send_weibo_comment(user, weibo_id, content, reply_author=None, reply_author_id=None, reply_comment_id=None):
+def send_weibo_comment(user_id, weibo_id, content, reply_author=None, reply_author_id=None, reply_comment_id=None):
     from web.utils import weibo_time_format
+    user = User.get(openid=user_id)
     weibo = Weibo.query.filter_by(weibo_id=weibo_id).first()
     if weibo:
         comment = Weibo_comment()
