@@ -194,7 +194,7 @@ class Weibo(db.Model):
         if detail:
             comments = Weibo_comment.query.filter_by(weibo=tmp['id'])
             tmp['comment_list'] = Weibo_comment.to_list(ms=comments)
-            tmp['large_img'] = m.large_img
+            tmp['img'] = m.large_img
         return tmp
 
     @classmethod
@@ -214,6 +214,24 @@ class Weibo(db.Model):
                 self.tags.append(tag)
         db.session.add(self)
         db.session.commit()
+
+    @classmethod
+    def analysis_sentiment(cls, user_id, weibo_mode):
+        now = datetime.datetime.today()
+        third_day_ago = now - datetime.timedelta(days=3)
+        weibo_list = cls.query.filter_by(author=user_id).filter(Weibo.publish_time.between(third_day_ago, now)).all()
+        weibo_sum = weibo_list.count
+        if weibo_sum >= 3:
+            neg = 0
+            if weibo_mode == 1:
+                neg += 1
+            for weibo in weibo_list:
+                if weibo.mode == 1:
+                    neg += 1
+            res = neg / weibo_sum
+            if res > 0.6:
+                return True
+        return False
 
 
 class Tag(db.Model):

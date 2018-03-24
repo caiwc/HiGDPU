@@ -2,11 +2,13 @@ from flask import flash, redirect, request, session
 from web.models import User
 from flask_restful import Api
 from flask_celery import Celery
+from flask_cache import Cache
 from werkzeug.datastructures import Headers
 from flask import Response
 from web.config import TOKEN_KEY
-celery = Celery()
 
+celery = Celery()
+cache = Cache()
 rest_api = Api()
 
 

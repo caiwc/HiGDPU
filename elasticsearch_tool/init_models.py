@@ -21,7 +21,7 @@ class Weibo(DocType):
     suggest = Completion(analyzer=ik_analyzer, search_analyzer=ik_analyzer)
     content = Text(analyzer='ik_max_word', search_analyzer="ik_max_word")
     publish_time = Date()
-    comments = Integer()
+    comment = Integer()
 
     class Meta:
         index = 'weibo'

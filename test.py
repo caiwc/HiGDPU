@@ -11,14 +11,20 @@ f.close()
 
 
 def my(content):
-    from weibo_nlp.nlp import bigrams_words_feature
+    from weibo_nlp.nlp import bigrams_words_feature,best_word_feature
     import jieba
-    item = bigrams_words_feature(jieba.cut(content, cut_all=False), 10)
+    item = best_word_feature(jieba.cut(content, cut_all=False))
     sent1 = classifier.prob_classify(item)
     prob = sent1._prob_dict
     print(sent1.max())
     print('pos:', prob['pos'], 'neg:', prob['neg'])
-
+    if -prob['neg'] > 0.1 or -prob['neg'] > 0.1:
+        return 2
+    elif sent1.max() == 'neg':
+        return 1
+    elif sent1.max() == 'pos':
+        return 0
+    return 2
 
 def qclud(content):
     config = {

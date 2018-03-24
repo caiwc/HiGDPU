@@ -227,5 +227,22 @@ def doc2v():
     print('accuracy:', clf.score(test_d2v, test_labels))
 
 
+def get_sentiment(content):
+    f = open(path.join(d, 'my_nlp.pickle'), 'rb')
+    classifier = pickle.load(f)
+    f.close()
+    item = bigrams_words_feature(jieba.cut(content, cut_all=False), 10)
+    sent1 = classifier.prob_classify(item)
+    prob = sent1._prob_dict
+    print(prob)
+    if -prob['neg'] > 0.1 or -prob['neg'] > 0.1:
+        return 2
+    elif sent1.max() == 'neg':
+        return 1
+    elif sent1.max() == 'pos':
+        return 0
+    return 2
+
+
 if __name__ == '__main__':
     main()

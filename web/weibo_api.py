@@ -232,7 +232,7 @@ def post_weibo(client, content, files_path=None):
     if not isinstance(client, APIClient):
         raise APIError('00001', 'client type error', 'OAuth2 request')
     data = {
-        'status': content + '-- https://weibo.com/HiGDPU',
+        'status': content + '  https://weibo.com/HiGDPU',
         'access_token': client.access_token
     }
     try:
