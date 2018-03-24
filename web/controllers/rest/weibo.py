@@ -14,21 +14,27 @@ from weibo_nlp.nlp import best_word_feature, d
 import os, pickle, jieba
 
 
+@cache.cached(timeout=300, key_prefix='classifier')
+def get_classifier():
+    f = open(os.path.join(d, 'my_nlp.pickle'), 'rb')
+    classifier = pickle.load(f)
+    f.close()
+    return classifier
+
+
+@cache.cached(timeout=300, key_prefix='feature')
+def get_feature():
+    return best_word_feature
+
+
 def get_sentiment(content):
-    classifier = cache.get('classifier', None)
-    feature = cache.get('feature', None)
-    if not classifier:
-        f = open(os.path.join(d, 'my_nlp.pickle'), 'rb')
-        classifier = pickle.load(f)
-        cache.set('classifier', classifier)
-        f.close()
-    if not feature:
-        feature = best_word_feature
+    classifier = get_classifier()
+    feature = get_feature()
     item = feature(jieba.cut(content, cut_all=False))
     sent1 = classifier.prob_classify(item)
     prob = sent1._prob_dict
     print(prob)
-    if -prob['neg'] > 0.1 or -prob['neg'] > 0.1:
+    if abs(prob['neg'] - prob['pos'] < 1):
         return 2
     elif sent1.max() == 'neg':
         return 1

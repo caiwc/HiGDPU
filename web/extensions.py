@@ -5,10 +5,10 @@ from flask_celery import Celery
 from flask_cache import Cache
 from werkzeug.datastructures import Headers
 from flask import Response
-from web.config import TOKEN_KEY
+from web.config import TOKEN_KEY, DevConfig
 
 celery = Celery()
-cache = Cache()
+cache = Cache(config=DevConfig.REDIS)
 rest_api = Api()
 
 

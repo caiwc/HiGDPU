@@ -59,6 +59,14 @@ class DevConfig(Config):
     ALLOWED_EXTENSIONS = {'png', 'jpeg', 'gif'}
     MAX_CONTENT_LENGTH = 5 * 1024 * 1024
 
+    REDIS = {
+        "CACHE_TYPE": "redis",
+        "CACHE_REDIS_HOST": "127.0.0.1",
+        "CACHE_REDIS_PORT": 6379,
+        "CACHE_REDIS_DB": 2,
+        "CACHE_REDIS_PASSWORD": "",
+    }
+
     CELERY_QUEUES = (
         Queue('default', Exchange('default'), routing_key='default'),
         Queue('send_weibo', Exchange('send_weibo'), routing_key='send_weibo')

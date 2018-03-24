@@ -5,7 +5,8 @@ from flask import Flask
 from web.models import db
 from web.extensions import (
     rest_api,
-    celery
+    celery,
+    cache
 )
 from web.controllers.main import main_blueprint
 from web.controllers.rest.weibo import Weibo_Api
@@ -31,7 +32,6 @@ def create_app(object_name):
     app = Flask(__name__)
     app.response_class = MyResponse
     app.config.from_object(object_name)
-
     db.init_app(app)
     # event.listen(Reminder, 'after_insert', on_reminder_save)
 
@@ -40,6 +40,7 @@ def create_app(object_name):
     # login_manager.init_app(app)
     # principals.init_app(app)
     celery.init_app(app)
+    cache.init_app(app)
     app.before_request(get_opt_user)
     rest_api.add_resource(
         Weibo_Api,
