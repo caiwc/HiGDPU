@@ -220,9 +220,9 @@ class WeiboSpider(scrapy.Spider):
                 if self.re_comment.match(meta):
                     comment = int(self.re_comment.match(meta).group(1))
                     item_loader.add_value('comment', comment)
-                    # if comment > 0:
-                    #     yield Request(url=comment_url, headers=self.headers, cookies=self.get_cookies(),
-                    #                   callback=self.comment_parse, meta={'weibo_id': weibo_id})
+                    if comment > 0:
+                        yield Request(url=comment_url, headers=self.headers, cookies=self.get_cookies(),
+                                      callback=self.comment_parse, meta={'weibo_id': weibo_id})
                 elif self.re_like.match(meta):
                     item_loader.add_value('like', int(self.re_like.match(meta).group(1)))
                 elif self.re_report.match(meta):
