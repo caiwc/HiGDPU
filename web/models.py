@@ -26,6 +26,8 @@ def time_format(time):
 
     now = datetime.datetime.now()
     t = now - time
+    if t< datetime.timedelta(minutes=1):
+        return "刚刚"
     if t < datetime.timedelta(hours=1):
         pass
     elif datetime.timedelta(hours=1) < t < datetime.timedelta(hours=24):
