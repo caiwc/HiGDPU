@@ -1,7 +1,7 @@
 # coding:utf-8
 from flask import abort, jsonify, request
 from flask_restful import Resource
-from web.models import db, Weibo, User
+from web.models import time_format
 from .parsers import search_post_parser
 from elasticsearch import Elasticsearch
 from web.config import ES_HOST
@@ -102,7 +102,7 @@ class Search_Api(Resource):
             hit_list = []
             for hit in response["hits"]["hits"]:
                 hit_dict = dict()
-                hit_dict["publish_time"] = hit["_source"]["publish_time"]
+                hit_dict["publish_time"] = time_format(hit["_source"]["publish_time"])
                 hit_dict["id"] = hit["_id"]
                 hit_dict["score"] = hit["_score"]
                 hit_dict['type'] = hit["_index"]

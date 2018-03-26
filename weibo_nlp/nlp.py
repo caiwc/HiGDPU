@@ -144,7 +144,7 @@ def main():
 
     print("error rate:", err / float(len(testfeature)))
 
-    f = open(path.join(d, 'my_nlp.pickle'), 'wb')
+    f = open(path.join(d, 'best_word.pickle'), 'wb')
     pickle.dump(classifier, f)
     f.close()
 

@@ -6,7 +6,7 @@ from weibo_nlp.utils import get_content_by_file
 
 d = path.dirname(__file__)
 jieba.analyse.set_stop_words(path.join(d, 'stop_word.txt'))
-content = get_content_by_file(path.join(d, 'sen_txt', 'else.txt'))
+content = get_content_by_file(path.join(d, 'normal.txt'))
 a = jieba.analyse.extract_tags(content, 5)
 print(a)
 b = ['喜欢', '大山', '女生', '点赞', '谢谢', '私聊', '有没有', '校区', '评论', '男生', '广药', '真的', '大学城', '医经', '女朋友', '师妹', '师姐', '同学',

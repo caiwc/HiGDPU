@@ -1,4 +1,5 @@
 from celery.schedules import timedelta
+import tempfile
 from kombu import Queue, Exchange
 import os
 
@@ -96,3 +97,14 @@ class DevConfig(Config):
             'schedule': timedelta(hours=3)
         }
     }
+
+class TestConfig(DevConfig):
+    db_file = tempfile.NamedTemporaryFile()
+
+    DEBUG = True
+    DEBUG_TB_ENABLED = False
+
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + db_file.name
+
+    CACHE_TYPE = 'null'
+    WTF_CSRF_ENABLED = False

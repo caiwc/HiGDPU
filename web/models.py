@@ -18,12 +18,19 @@ tags = db.Table(
 )
 
 
-#
-# roles = db.Table(
-#     'role_users',
-#     db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-#     db.Column('role_id', db.Integer, db.ForeignKey('role.id'))
-# )
+def time_format(time):
+    now = datetime.datetime.now()
+    t = now - time
+    if t < datetime.timedelta(hours=1):
+        pass
+    elif datetime.timedelta(hours=1) < t < datetime.timedelta(hours=24):
+        hours = int(t / datetime.timedelta(hours=1))
+        return "{}小时前".format(hours)
+    elif datetime.timedelta(hours=24) < t < datetime.timedelta(hours=7):
+        days = int(t / datetime.timedelta(days=1))
+        return "{}天前".format(days)
+    else:
+        return time.strftime("%Y-%m-%d")
 
 
 class User(db.Model):
@@ -188,7 +195,7 @@ class Weibo(db.Model):
         tmp['likes'] = m.likes
         tmp['comments'] = m.comment_set.count()
         tmp['weibo_name'] = m.weibo_name
-        tmp['publish_time'] = m.publish_time
+        tmp['publish_time'] = time_format(m.publish_time)
         tmp['tags'] = Tag.to_list(m.tags)
         # tmp['author'] = m.author
         if detail:
@@ -296,7 +303,7 @@ class Weibo_comment(db.Model):
         tmp['comment_id'] = m.comment_id
         tmp['weibo'] = m.weibo
         tmp['comment'] = m.comment
-        tmp['publish_time'] = m.publish_time
+        tmp['publish_time'] = time_format(m.publish_time)
 
         if m.author_source:
             name = config.UNNAMED
@@ -354,7 +361,7 @@ class Official(db.Model):
         tmp = dict()
         tmp['article_id'] = m.article_id
         tmp['title'] = m.title
-        tmp['end'] = m.publish_time
+        tmp['end'] = time_format(m.publish_time)
         if detail:
             tmp['content'] = m.content.split("<partition>")
             if len(m.img):
@@ -392,7 +399,7 @@ class Message(db.Model):
         tmp = dict()
         tmp['weibo_id'] = m.weibo_id
         tmp['content'] = m.content
-        tmp['create_time'] = m.create_time
+        tmp['create_time'] = time_format(m.create_time)
         tmp['is_read'] = m.is_read
         tmp['message_id'] = m.message_id
         return tmp

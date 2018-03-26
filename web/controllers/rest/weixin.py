@@ -4,6 +4,7 @@ from elasticsearch_tool.init_models import Weixin
 from elasticsearch.exceptions import NotFoundError
 from .parsers import weixin_get_parser
 from web.extensions import cache
+from web.models import time_format
 
 
 class Weixin_Gzh_Api(Resource):
@@ -16,7 +17,7 @@ class Weixin_Gzh_Api(Resource):
                 tmp['id'] = item._id
                 tmp['title'] = item.title
                 tmp['url'] = item.url
-                tmp['publish_time'] = item.publish_time
+                tmp['publish_time'] = time_format(item.publish_time)
                 tmp['digest'] = item.digest
                 tmp['cover'] = item.cover
                 tmp['gzh'] = item.gzh
@@ -40,7 +41,7 @@ class Weixin_Gzh_Api(Resource):
                 tmp['id'] = hit._id
                 tmp['title'] = hit.title
                 tmp['url'] = hit.url
-                tmp['publish_time'] = hit.publish_time
+                tmp['publish_time'] = time_format(hit.publish_time)
                 tmp['digest'] = hit.digest
                 tmp['cover'] = hit.cover
                 tmp['gzh'] = hit.gzh
