@@ -21,6 +21,9 @@ tags = db.Table(
 def time_format(time):
     if isinstance(time, str):
         time = datetime.datetime.strptime(time, "%Y-%m-%dT%H:%M:%S")
+    if isinstance(time, datetime.date):
+        time = datetime.datetime.strptime(str(time), "%Y-%m-%d")
+
     now = datetime.datetime.now()
     t = now - time
     if t < datetime.timedelta(hours=1):
