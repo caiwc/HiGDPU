@@ -30,7 +30,7 @@ def index():
     城哥真的真的很帅"""
 
 
-@main_blueprint.route('/report')
+@main_blueprint.route('api/report')
 def report():
     return render_template('report.html')
 
