@@ -46,7 +46,7 @@ def get_sentiment(content):
 class Weibo_Api(Resource):
     def get(self, weibo_id=None):
         if weibo_id:
-            post = Weibo.query.filter_by(weibo_id=weibo_id, status=False).first()
+            post = Weibo.query.filter(Weibo.status.isnot(True)).filter_by(weibo_id=weibo_id).first()
             if not post:
                 abort(404, {'error': '不存在此id的微博'})
 
