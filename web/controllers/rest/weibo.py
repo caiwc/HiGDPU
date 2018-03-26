@@ -16,7 +16,7 @@ import os, pickle, jieba
 
 @cache.cached(timeout=300, key_prefix='classifier')
 def get_classifier():
-    f = open(os.path.join(d, 'my_nlp.pickle'), 'rb')
+    f = open(os.path.join(d, 'best_word.pickle'), 'rb')
     classifier = pickle.load(f)
     f.close()
     return classifier
@@ -59,7 +59,7 @@ class Weibo_Api(Resource):
                 posts = Weibo.query.filter(Weibo.tags.any(Tag.name == tag))
             else:
                 posts = Weibo.query
-            posts = posts.filter_by(status=False).order_by(
+            posts = posts.filter(Weibo.status.isnot(True)).order_by(
                 Weibo.publish_time.desc()
             ).paginate(page, 30)
             msg_count = Message.new_msg_count(user_id=session.get('user_id', ''))

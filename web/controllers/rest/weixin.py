@@ -3,9 +3,11 @@ from flask_restful import Resource
 from elasticsearch_tool.init_models import Weixin
 from elasticsearch.exceptions import NotFoundError
 from .parsers import weixin_get_parser
+from web.extensions import cache
 
 
 class Weixin_Gzh_Api(Resource):
+    @cache.cached(timeout=60)
     def get(self, article_id=None):
         if article_id:
             try:

@@ -216,13 +216,25 @@ def delete_weibo():
     weibo_list = Weibo_to_delete.query.filter(done=False)
 
 
-@celery.task()
+@celery.task(
+    name="web.tasks.weibo_report"
+)
 def weibo_report():
     from weibo_nlp.word_cloud import get_word_cloud
+    from weibo_nlp.weibo_count import zs_dxc_count, daily_weibo_count, recently_weibo_count
     from sqlalchemy import extract, and_
     today = datetime.date.today()
     weibo_list = Weibo.query.filter(and_(
         extract('year', Weibo.publish_time) == today.year,
-        extract('month', Weibo.publish_time) == today.month)).all()
+        extract('month', Weibo.publish_time) == today.month - 1))
+    get_word_cloud([o.content for o in weibo_list.all()])
+    zs_dxc_count(weibo_query=weibo_list)
+    daily_weibo_count(weibo_query=weibo_list)
+    recently_weibo_count(6)
 
-    get_word_cloud([o.content for o in weibo_list])
+
+class ReportData():
+    def __init__(self):
+        self.title = ""
+        self.date = None
+

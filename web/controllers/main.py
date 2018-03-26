@@ -3,8 +3,7 @@ from flask import (current_app,
                    request,
                    jsonify,
                    make_response,
-                   g,
-                   flash,
+                   render_template,
                    session)
 from web import config
 import os
@@ -17,6 +16,7 @@ from web.tasks import verifycode_handle, crawl
 main_blueprint = Blueprint(
     'main',
     __name__,
+    template_folder='../templates',
 )
 
 can_commit = 'can_commit'
@@ -28,6 +28,27 @@ def index():
     return """
     城哥最帅
     城哥真的真的很帅"""
+
+
+@main_blueprint.route('/report')
+def report():
+    return render_template('report.html')
+
+
+@main_blueprint.route('/api/test')
+def test():
+    from weibo_nlp.weibo_count import recently_weibo_count, zs_dxc_count, daily_weibo_count
+    recently_weibo_count(6)
+    from web.models import Weibo
+    from sqlalchemy import and_, extract
+    import datetime
+    today = datetime.date.today()
+    weibo_list = Weibo.query.filter(and_(
+        extract('year', Weibo.publish_time) == today.year,
+        extract('month', Weibo.publish_time) == today.month))
+    zs_dxc_count(weibo_list)
+    daily_weibo_count(weibo_list)
+    return 'end'
 
 
 @main_blueprint.route('/api/upload', methods=['POST'])
