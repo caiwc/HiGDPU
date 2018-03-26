@@ -2,6 +2,7 @@ from celery.schedules import timedelta
 import tempfile
 from kombu import Queue, Exchange
 import os
+from celery.schedules import crontab
 
 WEB_PATH = os.path.dirname(__file__)
 PROJECT_PATH = os.path.dirname(WEB_PATH)
@@ -84,6 +85,7 @@ class DevConfig(Config):
         "web.tasks.send_weibo": {"queue": "send_weibo", "routing_key": "send_weibo"},
         "web.tasks.send_weibo_comment": {"queue": "send_weibo", "routing_key": "send_weibo"},
         "web.tasks.test": {"queue": "send_weibo", "routing_key": "send_weibo"},
+        "web.tasks.weibo_report": {"queue": "default", "routing_key": "default"}
 
     }
 
@@ -95,8 +97,13 @@ class DevConfig(Config):
         'add_weibo_tags': {
             'task': 'web.tasks.add_weibo_tags',
             'schedule': timedelta(hours=3)
+        },
+        'weibo_report': {
+            'task': 'web.tasks.weibo_report',
+            'schedule': crontab(day_of_month=26, hour=16)
         }
     }
+
 
 class TestConfig(DevConfig):
     db_file = tempfile.NamedTemporaryFile()
