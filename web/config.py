@@ -98,11 +98,14 @@ class DevConfig(Config):
             'task': 'web.tasks.add_weibo_tags',
             'schedule': timedelta(hours=3)
         },
-        # 'weibo_report': {
-        #     'task': 'web.tasks.weibo_report',
-        #     'schedule': crontab(day_of_week='2', hour=11)
-        # }
+        'weibo_report': {
+            'task': 'web.tasks.weibo_report',
+            'schedule': crontab(day_of_week='2', hour=20, minute=35)
+        }
     }
+
+    CELERY_TIMEZONE = 'Asia/Shanghai'
+    CELERY_ENABLE_UTC = True
 
 
 class TestConfig(DevConfig):
