@@ -34,7 +34,7 @@ def time_format(time):
     elif datetime.timedelta(hours=1) < t < datetime.timedelta(hours=24):
         hours = int(t / datetime.timedelta(hours=1))
         return "{}小时前".format(hours)
-    elif datetime.timedelta(hours=24) < t < datetime.timedelta(hours=7):
+    elif datetime.timedelta(hours=24) < t < datetime.timedelta(days=7):
         days = int(t / datetime.timedelta(days=1))
         return "{}天前".format(days)
     else:
