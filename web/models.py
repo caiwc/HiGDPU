@@ -207,7 +207,7 @@ class Weibo(db.Model):
         tmp['tags'] = Tag.to_list(m.tags)
         # tmp['author'] = m.author
         if detail:
-            comments = Weibo_comment.query.filter_by(weibo=tmp['id']).order_by(Weibo.publish_time.desc())
+            comments = Weibo_comment.query.filter_by(weibo=tmp['id']).order_by(Weibo_comment.publish_time.desc())
             tmp['comment_list'] = Weibo_comment.to_list(ms=comments)
             tmp['img'] = m.large_img
         return tmp
