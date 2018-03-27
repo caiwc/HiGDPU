@@ -26,10 +26,11 @@ def time_format(time):
 
     now = datetime.datetime.now()
     t = now - time
-    if t< datetime.timedelta(minutes=1):
+    if t < datetime.timedelta(minutes=1):
         return "刚刚"
     if t < datetime.timedelta(hours=1):
-        pass
+        minute = int(t / datetime.timedelta(minutes=1))
+        return "{}分钟前".format(minute)
     elif datetime.timedelta(hours=1) < t < datetime.timedelta(hours=24):
         hours = int(t / datetime.timedelta(hours=1))
         return "{}小时前".format(hours)
