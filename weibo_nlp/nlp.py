@@ -1,6 +1,5 @@
 import pickle
-from nltk.tokenize import WordPunctTokenizer
-from nltk.stem.porter import PorterStemmer
+from weibo_nlp.utils import get_stop_word_set
 from nltk.collocations import BigramCollocationFinder
 from nltk.metrics import BigramAssocMeasures
 from random import shuffle
@@ -9,6 +8,7 @@ from collections import namedtuple
 import jieba
 from nltk.classify import NaiveBayesClassifier
 from os import path
+from weibo_nlp.utils import cut_word_path
 
 best_word = "best_word"
 best_bigrams = "best_bigrams"
@@ -39,6 +39,7 @@ def get_reviews(file_path, tag):
     f = open(file_path, 'r')
     idx = 0
     content = []
+    jieba.load_userdict(cut_word_path)
     while True:
         line = f.readline()
         if not line:
@@ -160,6 +161,60 @@ def PreprocessReviews(text, stem=False):
     return words_clean
 
 
+def is_alpha(tok):
+    try:
+        return tok.encode('ascii').isalpha()
+    except UnicodeEncodeError:
+        return False
+
+
+def weibo_segment():
+    jieba.load_userdict(cut_word_path)
+    i = 0
+    output = open(path.join(d,'word', 'word_2c_done.txt'), 'w', encoding='utf-8')
+    print('Start...')
+    with open(path.join(d, 'word', 'word2c.txt'), 'r', encoding='utf-8') as raw_input:
+        for line in raw_input.readlines():
+            line = line.strip()
+            i += 1
+            print('line ' + str(i))
+            text = line.split()
+            if True:
+                text = [w for w in text if not is_alpha(w)]
+            word_cut_seed = [jieba.cut(t) for t in text]
+            tmp = ''
+            for sent in word_cut_seed:
+                for tok in sent:
+                    tmp += tok + ' '
+            tmp = tmp.strip()
+            if tmp:
+                output.write(tmp + '\n')
+        output.close()
+
+
+def word2v(saved):
+    from gensim.models import Word2Vec
+    from gensim.models.word2vec import LineSentence
+    model_w2v = Word2Vec(sentences=LineSentence(path.join(d, 'word', 'word_2c_done.txt')), sg=1, size=100, window=5,
+                         min_count=5,
+                         negative=3, sample=0.001, hs=1, workers=4)
+    if saved:
+        model_w2v.save(path.join(d, 'word', 't2s.model'))
+        model_w2v.wv.save_word2vec_format(path.join(d, 'word', 'vector_t2s'), binary=False)
+    print("Finished!")
+    return model_w2v
+
+
+def wordsimilarity(word, model):
+    semi = ''
+    try:
+        semi = model.most_similar(word, topn=10)
+    except KeyError:
+        print('The word not in vocabulary!')
+    for term in semi:
+        print('%s,%s' % (term[0], term[1]))
+
+
 def doc2v():
     from gensim.models import Doc2Vec
     import multiprocessing
@@ -228,6 +283,7 @@ def doc2v():
 
 
 def get_sentiment(content):
+    jieba.load_userdict(cut_word_path)
     f = open(path.join(d, 'my_nlp.pickle'), 'rb')
     classifier = pickle.load(f)
     f.close()
@@ -245,4 +301,4 @@ def get_sentiment(content):
 
 
 if __name__ == '__main__':
-    main()
+    weibo_segment()

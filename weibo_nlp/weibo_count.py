@@ -68,9 +68,10 @@ def _get_year_month(now, n=0):
     return year, thismon
 
 
-def recently_weibo_count(month_ago):
+def recently_weibo_count(month_ago, year=None, month=None, ):
     from sqlalchemy import extract, func
-    year, month = _get_year_month(today, month_ago)  # 获取几个月前的年份与月份
+    if not year and not month:
+        year, month = _get_year_month(today, month_ago)  # 获取几个月前的年份与月份
     six_month_ago = datetime.date(year, month, 1)
     weibo_query = db.session.query(extract('month', Weibo.publish_time).label('month'),
                                    func.count('*').label('count')).filter(
@@ -110,7 +111,7 @@ def get_pic(data, kind, title, index=None, x_name=None, y_name=None, y_max=None)
         plt.xlabel(x_name, fontproperties=prop)
         plt.ylabel(y_name, fontproperties=prop)
         plt.xticks(np.arange(0, 25, 2))
-        plt.yticks(np.arange(0, max(data) + 1, 2))
+        # plt.yticks(np.arange(0, max(data) + 1, 2))
         plt.legend(prop=prop)
     elif kind == 'scatter':
         df = DataFrame(np.array(data), columns=['hour', 'day'])
@@ -121,7 +122,8 @@ def get_pic(data, kind, title, index=None, x_name=None, y_name=None, y_max=None)
 
     file_name = "{}.jpg".format(kind)
     # 保存图片
-    savefig(path.join(path.dirname(d),'web/static', file_name))
+    save_path = path.join(path.dirname(d), 'web/static', file_name)
+    savefig(save_path)
     # 将生成的图片发送至企业微信,汇报给管理员
-    media_id = upload_media(file_type=qyweixin_img_type, file_path=path.join(d, file_name))
+    media_id = upload_media(file_type=qyweixin_img_type, file_path=save_path)
     send_weixin_message(qyweixin_img_type, {'media_id': media_id})

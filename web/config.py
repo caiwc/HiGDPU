@@ -100,7 +100,7 @@ class DevConfig(Config):
         },
         'weibo_report': {
             'task': 'web.tasks.weibo_report',
-            'schedule': crontab(day_of_month=26, hour=16)
+            'schedule': crontab(day_of_week='2', hour=11)
         }
     }
 

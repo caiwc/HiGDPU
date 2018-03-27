@@ -32,22 +32,31 @@ def index():
 
 @main_blueprint.route('/api/report')
 def report():
-    return render_template('report.html')
+    return render_template('report.html', count=108766)
 
 
 @main_blueprint.route('/api/test')
 def test():
     from weibo_nlp.weibo_count import recently_weibo_count, zs_dxc_count, daily_weibo_count
-    recently_weibo_count(6)
+    from weibo_nlp.word_cloud import get_word_cloud
     from web.models import Weibo
     from sqlalchemy import and_, extract
     import datetime
+    arg = request.args
+    year = arg.get('year', None)
+    month = arg.get('month', None)
     today = datetime.date.today()
+    if not month:
+        month = today.month
+    if not year:
+        year = today.year
     weibo_list = Weibo.query.filter(and_(
-        extract('year', Weibo.publish_time) == today.year,
-        extract('month', Weibo.publish_time) == today.month))
+        extract('year', Weibo.publish_time) == year,
+        extract('month', Weibo.publish_time) == month))
     zs_dxc_count(weibo_list)
+    recently_weibo_count(6)
     daily_weibo_count(weibo_list)
+    get_word_cloud([o.content for o in weibo_list.all()])
     return 'end'
 
 
@@ -277,119 +286,3 @@ def get_weibo_tags():
     ms = Tag.query.all()
     return jsonify(Tag.to_list(ms))
 
-# @main_blueprint.route('/login', methods=['GET', 'POST'])
-# @oid.loginhandler
-# def login():
-#     form = LoginForm()
-#     openid_form = OpenIDForm()
-#
-#     if openid_form.validate_on_submit():
-#         return oid.try_login(
-#             openid_form.openid.data,
-#             ask_for=['nickname', 'email'],
-#             ask_for_optional=['fullname']
-#         )
-#
-#     if form.validate_on_submit():
-#         user = User.query.filter_by(username=form.username.data).one()
-#         login_user(user, remember=form.remember.data)
-#
-#         identity_changed.send(
-#             current_app._get_current_object(),
-#             identity=Identity(user.id)
-#         )
-#
-#         flash("You have been logged in.", category="success")
-#         return redirect(url_for('blog.home'))
-#
-#     openid_errors = oid.fetch_error()
-#     if openid_errors:
-#         flash(openid_errors, category="danger")
-#
-#     return render_template('login.html', form=form, openid_form=openid_form)
-#
-#
-# @main_blueprint.route('/facebook')
-# def facebook_login():
-#     return facebook.authorize(
-#         callback=url_for(
-#             '.facebook_authorized',
-#             next=request.referrer or None,
-#             _external=True
-#         )
-#     )
-#
-#
-# @main_blueprint.route('/facebook/authorized')
-# @facebook.authorized_handler
-# def facebook_authorized(resp):
-#     if resp is None:
-#         return 'Access denied: reason=%s error=%s' % (
-#             request.args['error_reason'],
-#             request.args['error_description']
-#         )
-#
-#     session['facebook_oauth_token'] = (resp['access_token'], '')
-#
-#     me = facebook.get('/me')
-#     user = User.query.filter_by(
-#         username=me.data['first_name'] + " " + me.data['last_name']
-#     ).first()
-#
-#     if not user:
-#         user = User(me.data['first_name'] + " " + me.data['last_name'])
-#         db.session.add(user)
-#         db.session.commit()
-#
-#     login_user(user)
-#     flash("You have been logged in.", category="success")
-#
-#     return redirect(request.args.get('next') or url_for('blog.home'))
-#
-#
-# @main_blueprint.route('/twitter-login')
-# def twitter_login():
-#     return twitter.authorize(
-#         callback=url_for(
-#             '.twitter_authorized',
-#             next=request.referrer or None,
-#             _external=True
-#         )
-#     )
-#
-#
-# @main_blueprint.route('/twitter-login/authorized')
-# @twitter.authorized_handler
-# def twitter_authorized(resp):
-#     if resp is None:
-#         return 'Access denied: reason=%s error=%s' % (
-#             request.args['error_reason'],
-#             request.args['error_description']
-#         )
-#
-#     session['twitter_oauth_token'] = resp['oauth_token'] + \
-#         resp['oauth_token_secret']
-#
-#     user = User.query.filter_by(username=resp['screen_name']).first()
-#     if not user:
-#         user = User(resp['screen_name'], '')
-#         db.session.add(user)
-#         db.session.commit()
-#
-#     login_user(user)
-#     flash("You have been logged in.", category="success")
-#
-#     return redirect(request.args.get('next') or url_for('blog.home'))
-#
-#
-# @main_blueprint.route('/logout', methods=['GET', 'POST'])
-# def logout():
-#     logout_user()
-#
-#     identity_changed.send(
-#         current_app._get_current_object(),
-#         identity=AnonymousIdentity()
-#     )
-#
-#     flash("You have been logged out.", category="success")
-#     return redirect(url_for('.login'))

@@ -237,4 +237,5 @@ class ReportData():
     def __init__(self):
         self.title = ""
         self.date = None
+        self.count = 0
 

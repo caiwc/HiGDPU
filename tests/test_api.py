@@ -23,21 +23,14 @@ class TestURLs(unittest.TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_root_redirect(self):
-        """ Tests if the root URL gives a 302 """
-
-        result = self.client.get('/')
-        self.assertEqual(result.status_code, 302)
-        self.assertIn("/blog/", result.headers['Location'])
-
     def test_weixin(self):
         """ Tests if the weixin api returns successfully """
 
-        result = self.client.get('http://127.0.0.1:5000/api/weixin')
+        result = self.client.get('/api/weixin')
         self.assertEqual(result.status_code, 200)
 
     def test_weibo(self):
-        result = self.client.get('http://127.0.0.1:5000/api/weibo')
+        result = self.client.get('/api/weibo')
         self.assertEqual(result.status_code, 200)
 
     def test_search(self):

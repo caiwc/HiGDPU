@@ -1,14 +1,16 @@
-from wordcloud import WordCloud
+from wordcloud import WordCloud, ImageColorGenerator
 from scipy.misc import imread
-
 from os import path
+from weibo_nlp.utils import cut_word_path
 
 d = path.dirname(__file__)
 stop_words_path = path.join(d, 'stop_word.txt')
 
+add_stop = {'大山', '大学城', '中山'}
+
 
 def get_word_cloud(content_list):
-    back_photo = imread(path.join(d, 'img.png'))
+    back_photo = imread(path.join(d, 'img.jpg'))
     font_path = path.join(d, "Chinese.ttf")
 
     wc = WordCloud(font_path=font_path,  # 设置字体,因为wordcloud没有内置的中文字体,所以必须设定
@@ -21,20 +23,23 @@ def get_word_cloud(content_list):
                    )
     freq_dict = get_freq_word(content_list=content_list)
     # 获取树洞集合的词频
+    image_colors = ImageColorGenerator(back_photo)
 
     wc.generate_from_frequencies(freq_dict)
     # 生成词云图片
-
-    wc.to_file(path.join(path.dirname(d),'web/static', 'word_cloud.png'))
+    wc.recolor(color_func=image_colors)
+    wc.to_file(path.join(path.dirname(d), 'web/static', 'word_cloud.jpg'))
     # 保存图片
 
 
 def get_freq_word(content_list):
     # 获取词频方法
     import jieba
+    jieba.load_userdict(cut_word_path)
     from nltk.probability import FreqDist
     from weibo_nlp.utils import get_stop_word_set
     stop_words_set = get_stop_word_set()  # 获取停止词词库
+    stop_words_set.update(add_stop)
     word_fd = FreqDist()
     for content in content_list:
         word_list = jieba.cut(content, cut_all=False)
