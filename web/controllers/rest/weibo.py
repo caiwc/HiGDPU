@@ -100,6 +100,10 @@ class Weibo_Api(Resource):
                 return abort(400, {"error": "你发送微博过于频繁,请稍后再发"})
 
             content = args['content']
+            if len(content) > 140:
+                return abort(400, {"error": "字数超过140个"})
+            if len(content.strip()) <= 0:
+                return abort(400, {"error": "内容不合法"})
             tag_id = args.get('tags', None)
             msg = '发送成功,谢谢使用'
             mode = 2
