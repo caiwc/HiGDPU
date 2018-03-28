@@ -56,6 +56,11 @@ weibo_post_parser.add_argument(
     required=True,
     help="content text is required"
 )
+weibo_post_parser.add_argument(
+    'tags',
+    type=str,
+    required=False
+)
 
 weibo_comment_post_parser = reqparse.RequestParser()
 weibo_comment_post_parser.add_argument(

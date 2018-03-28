@@ -463,69 +463,11 @@ class Weibo_to_delete(db.Model):
     reason = db.Column(db.Enum(*reason_choices_dict.keys(), Self_apply))
     create_time = db.Column(db.DATETIME(), default=datetime.datetime.now())
 
-# class Role(db.Model):
-#     id = db.Column(db.Integer(), primary_key=True)
-#     name = db.Column(db.String(80), unique=True)
-#     description = db.Column(db.String(255))
-#
-#     def __init__(self, name):
-#         self.name = name
-#
-#     def __repr__(self):
-#         return '<Role {}>'.format(self.name)
-#
-#
-# class Post(db.Model):
-#     id = db.Column(db.Integer(), primary_key=True)
-#     title = db.Column(db.String(255))
-#     text = db.Column(db.Text())
-#     publish_date = db.Column(db.DateTime())
-#     user_id = db.Column(db.Integer(), db.ForeignKey('user.id'))
-#     comments = db.relationship(
-#         'Comment',
-#         backref='post',
-#         lazy='dynamic'
-#     )
-#     tags = db.relationship(
-#         'Tag',
-#         secondary=tags,
-#         backref=db.backref('posts', lazy='dynamic')
-#     )
-#
-#     def __init__(self, title):
-#         self.title = title
-#
-#     def __repr__(self):
-#         return "<Post '{}'>".format(self.title)
-#
-#
-# class Comment(db.Model):
-#     id = db.Column(db.Integer(), primary_key=True)
-#     name = db.Column(db.String(255))
-#     text = db.Column(db.Text())
-#     date = db.Column(db.DateTime())
-#     post_id = db.Column(db.Integer(), db.ForeignKey('post.id'))
-#
-#     def __repr__(self):
-#         return "<Comment '{}'>".format(self.text[:15])
-#
-#
-# class Tag(db.Model):
-#     id = db.Column(db.Integer(), primary_key=True)
-#     title = db.Column(db.String(255))
-#
-#     def __init__(self, title):
-#         self.title = title
-#
-#     def __repr__(self):
-#         return "<Tag '{}'>".format(self.title)
-#
-#
-# class Reminder(db.Model):
-#     id = db.Column(db.Integer(), primary_key=True)
-#     date = db.Column(db.DateTime())
-#     email = db.Column(db.String())
-#     text = db.Column(db.Text())
-#
-#     def __repr__(self):
-#         return "<Reminder '{}'>".format(self.text[:20])
+
+class Report_detail(db.Model):
+    id = db.Column(db.String(50), primary_key=True)
+    count = db.Column(db.Integer())
+    month = db.Column(db.Integer())
+    year = db.Column(db.Integer())
+    key_word = db.Column(db.String(length=256))
+    memo = db.Column(db.JSON())

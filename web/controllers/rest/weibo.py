@@ -100,18 +100,20 @@ class Weibo_Api(Resource):
                 return abort(400, {"error": "你发送微博过于频繁,请稍后再发"})
 
             content = args['content']
-
-            mode = get_sentiment(content=content)
-            is_neg = Weibo.analysis_sentiment(user_id=user.openid, weibo_mode=mode)
-            if is_neg:
-                msg = 'ok,发成功了。或许你现在不太开心,希望好运气,好心情会很快打扰你'
-            else:
-                msg = '发送成功,谢谢使用'
+            tags = args.get('tags', None)
+            msg = '发送成功,谢谢使用'
+            mode = 2
+            if not tags:
+                mode = get_sentiment(content=content)
+                is_neg = Weibo.analysis_sentiment(user_id=user.openid, weibo_mode=mode)
+                if is_neg:
+                    msg = 'ok,发成功了。或许你现在不太开心,希望好运气,好心情会很快打扰你'
 
             file = args.get('file', None)
             if file:
                 file = os.path.join(config.UPLOAD_PATH, file)
-            send_weibo.apply_async(kwargs={'user_id': user.openid, 'mode': mode, 'content': content, 'file': file})
+            send_weibo.apply_async(
+                kwargs={'user_id': user.openid, 'mode': mode, 'content': content, 'file': file, 'tags': tags})
             # send_weibo(user=user,content=content,file=file)
             return jsonify({'msg': msg})
 

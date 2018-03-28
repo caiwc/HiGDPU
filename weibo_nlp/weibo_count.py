@@ -70,8 +70,8 @@ def _get_year_month(now, n=0):
 
 def recently_weibo_count(month_ago, year=None, month=None, ):
     from sqlalchemy import extract, func
-    if not year and not month:
-        year, month = _get_year_month(today, month_ago)  # 获取几个月前的年份与月份
+
+    year, month = _get_year_month(today, month_ago)  # 获取几个月前的年份与月份
     six_month_ago = datetime.date(year, month, 1)
     weibo_query = db.session.query(extract('month', Weibo.publish_time).label('month'),
                                    func.count('*').label('count')).filter(
