@@ -248,7 +248,7 @@ class Weibo(db.Model):
             if weibo_mode == 1:
                 neg += 1
             for weibo in weibo_list:
-                if weibo.mode == 1:
+                if int(weibo.mode) == 1:
                     neg += 1
             res = neg / weibo_sum
             if res > 0.6:

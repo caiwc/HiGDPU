@@ -37,26 +37,8 @@ def report():
 
 @main_blueprint.route('/api/test')
 def test():
-    from weibo_nlp.weibo_count import recently_weibo_count, zs_dxc_count, daily_weibo_count
-    from weibo_nlp.word_cloud import get_word_cloud
     from web.models import Weibo
-    from sqlalchemy import and_, extract
-    import datetime
-    arg = request.args
-    year = arg.get('year', None)
-    month = arg.get('month', None)
-    today = datetime.date.today()
-    if not month:
-        month = today.month
-    if not year:
-        year = today.year
-    weibo_list = Weibo.query.filter(and_(
-        extract('year', Weibo.publish_time) == year,
-        extract('month', Weibo.publish_time) == month))
-    zs_dxc_count(weibo_list)
-    recently_weibo_count(6)
-    daily_weibo_count(weibo_list)
-    get_word_cloud([o.content for o in weibo_list.all()])
+    Weibo.analysis_sentiment('oY3oh0Y1z_vypBY31UKFuANfBBF4',1)
     return 'end'
 
 
