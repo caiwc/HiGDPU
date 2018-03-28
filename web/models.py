@@ -195,6 +195,13 @@ class Weibo(db.Model):
         return res
 
     @classmethod
+    def get_function_tag(cls, tag_list):
+        for t in tag_list:
+            if t.type == Tag.function:
+                return t.name
+        return None
+
+    @classmethod
     def to_dict(cls, m, detail=False):
         tmp = dict()
         tmp['id'] = m.weibo_id
@@ -204,7 +211,7 @@ class Weibo(db.Model):
         tmp['comments'] = m.comment_set.count()
         tmp['weibo_name'] = m.weibo_name
         tmp['publish_time'] = time_format(m.publish_time)
-        tmp['tags'] = Tag.to_list(m.tags)
+        tmp['tags'] = cls.get_function_tag(m.tags)
         # tmp['author'] = m.author
         if detail:
             comments = Weibo_comment.query.filter_by(weibo=tmp['id']).order_by(Weibo_comment.publish_time.desc())
