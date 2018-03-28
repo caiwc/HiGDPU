@@ -109,9 +109,10 @@ class Weibo_Api(Resource):
             mode = 2
             if not tag_id:
                 mode = get_sentiment(content=content)
-                is_neg = Weibo.analysis_sentiment(user_id=user.openid, weibo_mode=mode)
-                if is_neg:
-                    msg = 'ok,发成功了。或许你现在不太开心,但还是很感谢你愿意和我诉说。希望你很快开学起来'
+                if mode == 1:
+                    is_neg = Weibo.analysis_sentiment(user_id=user.openid, weibo_mode=mode)
+                    if is_neg:
+                        msg = 'ok,发成功了。或许你现在不太开心,但还是很感谢你愿意和我诉说。希望你很快开学起来'
 
             file = args.get('file', None)
             if file:
