@@ -478,3 +478,24 @@ class Report_detail(db.Model):
     year = db.Column(db.Integer())
     key_word = db.Column(db.String(length=256))
     memo = db.Column(db.JSON())
+
+    @classmethod
+    def get(cls, id, ignore=True):
+        m = cls.query.filter_by(id=id).first()
+        if not m:
+            if not ignore:
+                return None
+            m = cls()
+            m.id = id
+        return m
+
+    @classmethod
+    def to_dict(cls, m):
+        tmp = {}
+        tmp['count'] = m.count
+        tmp['year'] = m.year
+        tmp['month'] = m.month
+        tmp['key_word'] = m.key_word
+        tmp['memo'] = m.memo
+        tmp['date'] = "{}-{}-{}".format(tmp['year'], tmp['month'], 1)
+        return tmp

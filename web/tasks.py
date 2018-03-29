@@ -198,7 +198,11 @@ def get_comment_message():
     name="web.tasks.add_weibo_tags"
 )
 def add_weibo_tags():
-    weibo_list = Weibo.query.filter(~Weibo.tags.any()).order_by(Weibo.publish_time.desc()).paginate(1, 100).items
+    from sqlalchemy import extract, and_
+    weibo_list = Weibo.query.filter(and_(
+        extract('year', Weibo.publish_time) == 2018,
+        extract('month', Weibo.publish_time) == 2)).filter(~Weibo.tags.any()).order_by(
+        Weibo.publish_time.desc()).paginate(1, 1000).items
     for weibo in weibo_list:
         if not weibo.tags:
             if '中山' in weibo.content or '大山' in weibo.content:
@@ -225,18 +229,35 @@ def weibo_report():
     from weibo_nlp.word_cloud import get_word_cloud
     from weibo_nlp.weibo_count import zs_dxc_count, daily_weibo_count, recently_weibo_count
     from sqlalchemy import extract, and_
+    from web.models import Report_detail
+    from elasticsearch_tool.init_models import Weixin
     today = datetime.date.today()
+    if today.month == 1:
+        report_year = today.year - 1
+        report_month = today.month
+    else:
+        report_year = today.year
+        report_month = today.month - 1
     weibo_list = Weibo.query.filter(and_(
-        extract('year', Weibo.publish_time) == today.year,
-        extract('month', Weibo.publish_time) == today.month - 1))
-    get_word_cloud([o.content for o in weibo_list.all()])
+        extract('year', Weibo.publish_time) == report_year,
+        extract('month', Weibo.publish_time) == report_month))
+    file_name = get_word_cloud([o.content for o in weibo_list.all()], report_year, report_month)
     zs_dxc_count(weibo_query=weibo_list)
     daily_weibo_count(weibo_query=weibo_list)
-    recently_weibo_count(6)
-
-
-class ReportData():
-    def __init__(self):
-        self.title = ""
-        self.date = None
-        self.count = 0
+    recently_weibo_count(6, report_year, report_month)
+    weibo_count = weibo_list.count()
+    report_id = "{}_{}".format(report_year, report_month)
+    report_res = Report_detail.get(report_id)
+    report_res.month = report_month
+    report_res.year = report_year
+    report_res.count = weibo_count
+    db.session.add(report_res)
+    weixin = Weixin()
+    weixin.title = "{}年{}月度树洞总结!!!"
+    weixin.content = " "
+    weixin.publish_time = datetime.datetime.strptime(str(today), "%Y-%m-%d")
+    weixin.cover = "https://www.caiwc.cn/static/{}".format(file_name)
+    weixin.url = "https://www.caiwc.cn/api/report?year={}&month={}".format(report_year, report_month)
+    weixin.gzh = "本平台"
+    weixin.save()
+    db.session.commit()

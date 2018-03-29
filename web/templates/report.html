@@ -981,9 +981,9 @@
             <div id="img-content">
 
                 <h2 class="rich_media_title" id="activity-name">
-                    {{title}} </h2>
+                    {{report.year}}年{{report.month}}月树洞总结!!! </h2>
                 <div id="meta_content" class="rich_media_meta_list">
-                    <em id="post-date" class="rich_media_meta rich_media_meta_text">{{date}}</em>
+                    <em id="post-date" class="rich_media_meta rich_media_meta_text">{{report.date}}</em>
 
 
                     <div id="js_profile_qrcode" class="profile_container" style="display:none;">
@@ -1001,39 +1001,36 @@
 
 
 
-                    <p>这个月一共有发了{{count}}条树洞，谢谢大家支持！！！</p>
+                    <p>这个月一共有发了{{report.count}}条树洞，谢谢大家支持！！！</p>
                     <br>
                     <p><img  data-ratio="1.0130434782608695" data-type="jpeg" data-w="690" data-s="300,640"
                             data-copyright="0"
-                            src="../static/word_cloud.jpg"/>
+                            src="../static/word_cloud_{{report.year}}_{{report.month}}.jpg"/>
                     </p>
                     <p>看看这个月的词云图片，有没有你说过的词在里面</p>
 
                     <p><img data-ratio="1.0130434782608695" data-type="jpeg" data-w="690" data-s="300,640"
                             data-copyright="0"
-                            src="../static/bar.jpg"/>
+                            src="../static/bar_{{report.year}}_{{report.month}}.jpg"/>
                     </p>
                     <p>看看最近几个月树洞的发布数量</p>
                     <p><br/></p>
                     <p><br/></p>
                     <p><img data-ratio="1.0130434782608695" data-type="jpeg" data-w="690" data-s="300,640"
                             data-copyright="0"
-                            src="../static/pie.jpg"/>
+                            src="../static/pie_{{report.year}}_{{report.month}}.jpg"/>
                     </p>
                     <p style="align-content: center">这是中山校区和大学城校区的使用情况对比</p>
                     <p>（统计结果可能与实际情况会有偏差）</p>
                     <p><br/></p>
                     <p><img data-ratio="1.0130434782608695" data-type="jpeg" data-w="690" data-s="300,640"
                             data-copyright="0"
-                            src="../static/basic.jpg"/>
+                            src="../static/basic_{{report.year}}_{{report.month}}.jpg"/>
                     </p>
                     <p>看看你是不是和其他人一样，都喜欢在那个时候发树洞</p>
                     <p><br/></p>
-                    <p><img data-ratio="1" data-type="jpeg" data-w="750" data-s="300,640" data-copyright="0"
-                            data-src="{{sa}}"/>
-                    </p>
                     <p><img data-backh="102" data-backw="184" data-copyright="0" data-ratio="0.5543478260869565"
-                            src="../static/scatter.jpg"
+                            src="../static/scatter_{{report.year}}_{{report.month}}.jpg"
                             data-type="gif" data-w="184" style="width: 100%;height: auto;"></p>
                     <p><br/></p>
                     <p>这个散点图告诉我们，越密集的地方就是大伙喜欢发树洞的时间了。</p>
@@ -1092,7 +1089,6 @@
 
         </div>
 
-        <div class="rich_media_area_primary sougou" id="sg_tj" style="display:none"></div>
 
 
         <div class="rich_media_area_extra">

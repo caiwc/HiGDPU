@@ -9,7 +9,7 @@ stop_words_path = path.join(d, 'stop_word.txt')
 add_stop = {'大山', '大学城', '中山'}
 
 
-def get_word_cloud(content_list):
+def get_word_cloud(content_list, year, month):
     back_photo = imread(path.join(d, 'img.jpg'))
     font_path = path.join(d, "Chinese.ttf")
 
@@ -28,8 +28,10 @@ def get_word_cloud(content_list):
     wc.generate_from_frequencies(freq_dict)
     # 生成词云图片
     wc.recolor(color_func=image_colors)
-    wc.to_file(path.join(path.dirname(d), 'web/static', 'word_cloud.jpg'))
+    file_name = 'word_cloud_{}_{}.jpg'.format(year, month)
+    wc.to_file(path.join(path.dirname(d), 'web/static', file_name))
     # 保存图片
+    return file_name
 
 
 def get_freq_word(content_list):

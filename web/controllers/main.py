@@ -32,13 +32,38 @@ def index():
 
 @main_blueprint.route('/api/report')
 def report():
-    return render_template('report.html', count=108766)
+    from web.models import Report_detail
+    arg = request.args
+    year = arg.get('year', None)
+    month = arg.get('month', None)
+    report_id = "{}_{}".format(year, month)
+    report = Report_detail.get(id=report_id, ignore=False)
+    report_dict = Report_detail.to_dict(report)
+    return render_template('report.html', report=report_dict)
 
 
 @main_blueprint.route('/api/test')
 def test():
+    from weibo_nlp.weibo_count import recently_weibo_count, zs_dxc_count, daily_weibo_count
+    from weibo_nlp.word_cloud import get_word_cloud
     from web.models import Weibo
-    Weibo.analysis_sentiment('oY3oh0Y1z_vypBY31UKFuANfBBF4',1)
+    from sqlalchemy import and_, extract
+    import datetime
+    arg = request.args
+    year = arg.get('year', None)
+    month = arg.get('month', None)
+    today = datetime.date.today()
+    if not month:
+        month = today.month
+    if not year:
+        year = today.year
+    weibo_list = Weibo.query.filter(and_(
+        extract('year', Weibo.publish_time) == year,
+        extract('month', Weibo.publish_time) == month))
+    zs_dxc_count(weibo_list)
+    recently_weibo_count(6)
+    daily_weibo_count(weibo_list)
+    get_word_cloud([o.content for o in weibo_list.all()], year, month)
     return 'end'
 
 
@@ -267,4 +292,3 @@ def get_weibo_tags():
     from web.models import Tag
     ms = Tag.query.all()
     return jsonify(Tag.to_list(ms))
-
