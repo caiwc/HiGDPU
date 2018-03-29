@@ -237,7 +237,7 @@ def weibo_report():
         report_month = today.month
     else:
         report_year = today.year
-        report_month = today.month - 1
+        report_month = today.month
     weibo_list = Weibo.query.filter(and_(
         extract('year', Weibo.publish_time) == report_year,
         extract('month', Weibo.publish_time) == report_month))
@@ -253,7 +253,7 @@ def weibo_report():
     report_res.count = weibo_count
     db.session.add(report_res)
     weixin = Weixin()
-    weixin.title = "{}年{}月度树洞总结!!!"
+    weixin.title = "{}年{}月树洞总结!!!".format(report_year,report_month)
     weixin.content = " "
     weixin.publish_time = datetime.datetime.strptime(str(today), "%Y-%m-%d")
     weixin.cover = "https://www.caiwc.cn/static/{}".format(file_name)
