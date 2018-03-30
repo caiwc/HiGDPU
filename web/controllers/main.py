@@ -89,7 +89,8 @@ def test():
     weixin.title = "{}年{}月树洞总结!!!".format(report_year, report_month)
     weixin.content = " "
     weixin.digest = '月度总结,先睹为快~~'
-    weixin.publish_time = datetime.datetime.strptime(str(today), "%Y-%m-%d")
+    weixin.publish_time = datetime.datetime.strptime(str(datetime.date(year=int(report_year), month=int(report_month), day=1)),
+                                                     "%Y-%m-%d")
     weixin.cover = "https://www.caiwc.cn/static/{}".format(file_name)
     weixin.url = "https://www.caiwc.cn/api/report?year={}&month={}".format(report_year, report_month)
     weixin.gzh = "本平台"

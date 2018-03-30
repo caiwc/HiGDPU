@@ -33,7 +33,7 @@ def get_key_word(weibo_query=None):
             res.append(word)
     print(key_word_list[:5])
     print(b)
-    return res
+    return res[:5]
 
 
 def word_freq_to_txt():
