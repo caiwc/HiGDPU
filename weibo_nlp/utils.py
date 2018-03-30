@@ -8,6 +8,7 @@ cut_word_path = path.join(d, 'cut_word.txt')
 jieba.analyse.set_stop_words(stop_words_path)
 
 
+
 def get_stop_word_set():
     res = set()
     f = open(stop_words_path, 'r')
@@ -54,11 +55,13 @@ def get_word_freq():
             text = line.split()
             if True:
                 text = [w for w in text if not is_alpha(w)]
-            word_cut_seed = [jieba.cut(t, cut_all=True) for t in text]
+            word_cut_seed = [jieba.cut(t,cut_all=True) for t in text]
             for sent in word_cut_seed:
                 for tok in sent:
                     word_fd[tok] += 1
     return word_fd
+
+
 
 
 if __name__ == '__main__':

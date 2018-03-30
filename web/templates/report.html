@@ -1000,10 +1000,13 @@
                 <div class="rich_media_content " id="js_content">
 
 
-
                     <p>这个月一共有发了{{report.count}}条树洞，谢谢大家支持！！！</p>
                     <br>
-                    <p><img  data-ratio="1.0130434782608695" data-type="jpeg" data-w="690" data-s="300,640"
+                    <p>{{report.month}}月的关键词是<span style="font-size: 20px;color: goldenrod">{{report.key_word}}</span>
+                    </p>
+                    <br>
+                    <br>
+                    <p><img data-ratio="1.0130434782608695" data-type="jpeg" data-w="690" data-s="300,640"
                             data-copyright="0"
                             src="../static/word_cloud_{{report.year}}_{{report.month}}.jpg"/>
                     </p>
@@ -1088,7 +1091,6 @@
 
 
         </div>
-
 
 
         <div class="rich_media_area_extra">
@@ -1291,12 +1293,15 @@
                             images[i].className += ' img_loading';
                         }
                         images[i].src = src_
-                } else {
-                    images[i].style.cssText += ";visibility: hidden !important;";
+                    }
+                else
+                    {
+                        images[i].style.cssText += ";visibility: hidden !important;";
+                    }
+                    images[i].style.cssText += ";height: " + height + "px !important;";
                 }
-                images[i].style.cssText += ";height: " + height + "px !important;";
             }
-        })();
+        )();
         window.__videoDefaultRatio = 16 / 9;
         window.__getVideoWh = function (dom) {
             var max_width = getMaxWith(),
