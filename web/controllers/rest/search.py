@@ -123,6 +123,8 @@ class Search_Api(Resource):
                 elif s_type == 'weibo':
                     hit_dict["comment"] = hit["_source"].get("comment", 0)
                 hit_list.append(hit_dict)
+            if not len(hit_list):
+                hit_list.append({'content': '没有搜到任何东西'})
             res.append({'pages': page_nums, "total": total_nums, "data": hit_list, "type": s_type})
 
         return jsonify(res)

@@ -24,15 +24,14 @@ def get_key_word(weibo_query=None):
         all_content = all_content + content_str
     # all_content = get_content_by_file(path.join(d, 'sen_txt', 'trade.txt'))
     key_word_list = jieba.analyse.extract_tags(all_content, 30)
-    b = jieba.analyse.textrank(all_content, 20)
     res = []
     for word in key_word_list:
         word_count = weibo_query.filter(Weibo.content.contains(word)).count()
         has_word = word_count/all_count
         if has_word >= 0.025:
             res.append(word)
-    print(key_word_list[:5])
-    print(b)
+    print(key_word_list)
+    print(res[:5])
     return res[:5]
 
 

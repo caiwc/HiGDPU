@@ -32,11 +32,14 @@ def daily_weibo_count(weibo_query):
     # 遍历周期内全部树洞, 记录每条树洞发布时间和日期.
     daily_count = {}  # daily_count 记录了周期内一天24小时每小时树洞的数量
     data_array = []  # data_array 记录每条树洞小时数和日期数,生成一个多维数组
+    max_day = 0
     for weibo in weibo_query.all():
         hour = weibo.publish_time.hour
         minute = weibo.publish_time.minute
         float_hour = float(hour) + minute / 60
         day = weibo.publish_time.day
+        if max_day < day:
+            max_day = day
         data_array.append([float_hour, day])
         if hour not in daily_count:
             daily_count[hour] = 0
@@ -52,7 +55,7 @@ def daily_weibo_count(weibo_query):
 
     # 用data_array生成全月树洞发布散点图
     get_pic(data=data_array, kind='scatter', title='全月树洞发布散点图', year=year, month=month,
-            y_max=today.day + 1)
+            y_max=max_day + 1)
 
 
 def _get_year_month(now, n=0):

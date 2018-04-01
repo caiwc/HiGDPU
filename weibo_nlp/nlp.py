@@ -195,7 +195,7 @@ def weibo_segment():
 def word2v(saved):
     from gensim.models import Word2Vec
     from gensim.models.word2vec import LineSentence
-    model_w2v = Word2Vec(sentences=LineSentence(path.join(d, 'word', 'word_2c_done.txt')), sg=1, size=100, window=5,
+    model_w2v = Word2Vec(sentences=LineSentence(path.join(d, 'word', 'word_2c_done.txt')), sg=1, size=150, window=5,
                          min_count=5,
                          negative=3, sample=0.001, hs=1, workers=4)
     if saved:
@@ -301,4 +301,4 @@ def get_sentiment(content):
 
 
 if __name__ == '__main__':
-    weibo_segment()
+    word2v(True)
