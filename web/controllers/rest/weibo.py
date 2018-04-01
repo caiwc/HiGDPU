@@ -68,7 +68,8 @@ class Weibo_Api(Resource):
                 "pages": posts.pages,
                 "total": posts.total,
                 "msg_count": msg_count,
-                "weibo": weibo_list
+                "weibo": weibo_list,
+                "color": "red"
             }
             return jsonify(res)
 
