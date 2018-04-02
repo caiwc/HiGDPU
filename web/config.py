@@ -41,6 +41,15 @@ TOKEN_KEY = "THIRD_SESSION"
 
 SQL_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
+color_level_dict = {
+    0: {},
+    1: {},
+    2: {},
+    3: {},
+    4: {},
+    5: {}
+}
+
 
 class Config(object):
     SECRET_KEY = '736670cb10a600b695a55839ca3a5aa54a7d7356cdef815d2ad6e19a2031182b'
@@ -102,12 +111,11 @@ class DevConfig(Config):
         },
         'weibo_report': {
             'task': 'web.tasks.weibo_report',
-            'schedule': crontab(day_of_month=1, hour=17, minute=30)
+            'schedule': crontab(day_of_month=1, hour=0, minute=30)
         }
     }
 
     CELERY_TIMEZONE = 'Asia/Shanghai'
-    CELERY_ENABLE_UTC = True
 
 
 class TestConfig(DevConfig):

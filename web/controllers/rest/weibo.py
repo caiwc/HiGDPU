@@ -43,9 +43,6 @@ def get_sentiment(content):
     return 2
 
 
-pink = {'background-color': '#ffdeef'}
-
-
 class Weibo_Api(Resource):
     def get(self, weibo_id=None):
         if weibo_id:
@@ -58,6 +55,13 @@ class Weibo_Api(Resource):
             args = weibo_get_parser.parse_args()
             page = args['page'] or 1
             tag = args['tag'] or None
+            color_level = 0
+            is_authorization = session.get('is_authorization')
+            if is_authorization:
+                user = User.get(openid=session.get('user_id'))
+                if user:
+                    color_level = user.get_color_level()
+
             if tag:
                 posts = Weibo.query.filter(Weibo.tags.any(Tag.name == tag))
             else:
