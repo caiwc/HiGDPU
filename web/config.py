@@ -39,6 +39,8 @@ UNNAMED = "匿名用户"
 
 TOKEN_KEY = "THIRD_SESSION"
 
+SQL_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+
 
 class Config(object):
     SECRET_KEY = '736670cb10a600b695a55839ca3a5aa54a7d7356cdef815d2ad6e19a2031182b'

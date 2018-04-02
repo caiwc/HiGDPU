@@ -135,15 +135,20 @@ class User(db.Model):
     def get_color_level(self):
         color = self.color_level
         if not color:
-            color = {
-                'level': 0,
-                'time': datetime.datetime.now()
-            }
-        now = datetime.datetime.now()
-        if now - color['time'] > datetime.timedelta(days=3):
             self.color_level = {
                 'level': 0,
-                'time': datetime.datetime.now()
+                'time': datetime.datetime.now().strftime(config.SQL_DATETIME_FORMAT)
+            }
+            db.session.add(self)
+            db.session.commit()
+            return 0
+
+        now = datetime.datetime.now()
+        color_time = datetime.datetime.strptime(color['time'], config.SQL_DATETIME_FORMAT)
+        if now - color_time > datetime.timedelta(days=3):
+            self.color_level = {
+                'level': 0,
+                'time': datetime.datetime.now().strftime(config.SQL_DATETIME_FORMAT)
             }
             db.session.add(self)
             db.session.commit()
@@ -178,7 +183,7 @@ class User(db.Model):
         update_time = datetime.datetime.now()
         self.color_level = {
             'level': level,
-            'time': update_time
+            'time': update_time.strftime(config.SQL_DATETIME_FORMAT)
         }
         db.session.add(self)
         db.session.commit()
