@@ -43,6 +43,9 @@ def get_sentiment(content):
     return 2
 
 
+pink = {'background-color': '#ffdeef'}
+
+
 class Weibo_Api(Resource):
     def get(self, weibo_id=None):
         if weibo_id:
@@ -82,7 +85,7 @@ class Weibo_Api(Resource):
             args = weibo_post_parser.parse_args(strict=True)
         is_authorization = session.get('is_authorization')
         if not is_authorization:
-            return abort(401, {"error": session.get('error')})
+            return abort(401, {"msg": session.get('error')})
         user = User.get(openid=session.get('user_id'))
         if path_list[-1] == 'comment':
             content = args['content']
@@ -98,30 +101,34 @@ class Weibo_Api(Resource):
 
         else:
             if user.is_over_post():
-                return abort(400, {"error": "你发送微博过于频繁,请稍后再发"})
+                return abort(400, {"msg": "你发送微博过于频繁,请稍后再发"})
 
             content = args['content']
             if len(content) > 140:
-                return abort(400, {"error": "字数超过140个"})
+                return abort(400, {"msg": "字数超过140个"})
             if len(content.strip()) <= 0:
-                return abort(400, {"error": "内容不合法"})
+                return abort(400, {"msg": "内容不合法"})
             tag_id = args.get('tags', None)
             msg = '发送成功,谢谢使用'
             mode = 2
-            if not tag_id:
-                mode = get_sentiment(content=content)
-                if mode == 1:
-                    is_neg = Weibo.analysis_sentiment(user_id=user.openid, weibo_mode=mode)
-                    if is_neg:
-                        msg = 'ok,发成功了。或许你现在不太开心,但还是很感谢你愿意和我诉说。希望你很快开学起来'
+            try:
+                if not tag_id:
+                    mode = get_sentiment(content=content)
+                    user.set_color_level(mode)
+                    if mode == 1:
+                        is_neg = Weibo.analysis_sentiment(user_id=user.openid, weibo_mode=mode)
+                        if is_neg:
+                            msg = '发成功了。希望好运气降临你身边'
 
-            file = args.get('file', None)
-            if file:
-                file = os.path.join(config.UPLOAD_PATH, file)
-            send_weibo.apply_async(
-                kwargs={'user_id': user.openid, 'mode': mode, 'content': content, 'file': file, 'tag_id': tag_id})
-            # send_weibo(user=user,content=content,file=file)
-            return jsonify({'msg': msg})
+                file = args.get('file', None)
+                if file:
+                    file = os.path.join(config.UPLOAD_PATH, file)
+                send_weibo.apply_async(
+                    kwargs={'user_id': user.openid, 'mode': mode, 'content': content, 'file': file, 'tag_id': tag_id})
+                # send_weibo(user=user,content=content,file=file)
+                return jsonify({'msg': msg})
+            except Exception as e:
+                return abort(500, {'msg', str(e)})
 
     def delete(self):
         is_authorization = session.get('is_authorization')

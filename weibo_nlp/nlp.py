@@ -1,5 +1,5 @@
 import pickle
-from weibo_nlp.utils import get_stop_word_set
+from nltk.stem.porter import PorterStemmer
 from nltk.collocations import BigramCollocationFinder
 from nltk.metrics import BigramAssocMeasures
 from random import shuffle
@@ -8,7 +8,7 @@ from collections import namedtuple
 import jieba
 from nltk.classify import NaiveBayesClassifier
 from os import path
-from weibo_nlp.utils import cut_word_path
+from weibo_nlp.utils import cut_word_path, get_stop_word_set
 
 best_word = "best_word"
 best_bigrams = "best_bigrams"
@@ -153,7 +153,6 @@ def main():
 def PreprocessReviews(text, stem=False):
     # print profile
     if stem:
-        from nltk.stem.porter import PorterStemmer
         stemmer = PorterStemmer()
         words_clean = [stemmer.stem(w) for w in jieba.cut(text, cut_all=False)]
     else:
@@ -171,7 +170,7 @@ def is_alpha(tok):
 def weibo_segment():
     jieba.load_userdict(cut_word_path)
     i = 0
-    output = open(path.join(d,'word', 'word_2c_done.txt'), 'w', encoding='utf-8')
+    output = open(path.join(d, 'word', 'word_2c_done.txt'), 'w', encoding='utf-8')
     print('Start...')
     with open(path.join(d, 'word', 'word2c.txt'), 'r', encoding='utf-8') as raw_input:
         for line in raw_input.readlines():
@@ -213,6 +212,9 @@ def wordsimilarity(word, model):
         print('The word not in vocabulary!')
     for term in semi:
         print('%s,%s' % (term[0], term[1]))
+
+
+
 
 
 def doc2v():

@@ -49,6 +49,7 @@ class User(db.Model):
     session_key = db.Column(db.String(255))
     manager = db.Column(db.BOOLEAN(), default=False)  # 是否管理员
     can_send_weibo = db.Column(db.BOOLEAN(), default=True)  # 能否发布微博
+    color_level = db.Column(db.JSON())
 
     def __repr__(self):
         return '<User {}>'.format(self.openid)
@@ -130,6 +131,57 @@ class User(db.Model):
             return True
         else:
             return False
+
+    def get_color_level(self):
+        color = self.color_level
+        if not color:
+            color = {
+                'level': 0,
+                'time': datetime.datetime.now()
+            }
+        now = datetime.datetime.now()
+        if now - color['time'] > datetime.timedelta(days=3):
+            self.color_level = {
+                'level': 0,
+                'time': datetime.datetime.now()
+            }
+            db.session.add(self)
+            db.session.commit()
+            return 0
+        else:
+            return color['level']
+
+    def set_color_level(self, mode):
+        # 每一条消极的加一级
+        # 其他的减一级
+        # 3天内不发树洞自动消除
+        max_level = 5
+        color = self.color_level
+        if not color:
+            color = {
+                'level': 0,
+            }
+        level = color.get('level', 0)
+        if mode == 1:
+            if level < max_level:
+                level += 1
+        elif mode == 0:
+            level -= 2
+        else:
+            mode += 1
+
+        if level < 0:
+            level = 0
+        elif level > 5:
+            level = 5
+
+        update_time = datetime.datetime.now()
+        self.color_level = {
+            'level': level,
+            'time': update_time
+        }
+        db.session.add(self)
+        db.session.commit()
 
 
 class Weixin_Gzh(db.Model):
