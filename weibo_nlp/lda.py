@@ -1,5 +1,5 @@
 import gensim.models
-from gensim import models
+from gensim import models, corpora
 from nltk.stem.porter import PorterStemmer
 import pickle
 from os import path
@@ -13,13 +13,14 @@ stemmer = PorterStemmer()
 stop_list = get_stop_word_set()
 
 times = 1
+
+
 class GenSimCorpus(object):
     def __init__(self, texts, stoplist=[], bestwords=[]):
         self.texts = texts
         self.stoplist = stoplist
         self.bestwords = bestwords
         self.dictionary = gensim.corpora.Dictionary(self.iter_docs(texts, stoplist))
-
 
     def __len__(self):
         return len(self.texts)
@@ -39,7 +40,7 @@ class GenSimCorpus(object):
                 yield (x for x in jieba.cut(text, cut_all=False) if x not in stoplist)
 
 
-def get_weibo_list():
+def get_weibo_list(cut=False):
     all_weibo_path = path.join(d, 'word', 'word2c.txt')
     all_weibo_list = []
     i = 1
@@ -49,7 +50,15 @@ def get_weibo_list():
             i += 1
             print('line ' + str(i))
             if line:
-                all_weibo_list.append(line)
+                if not cut:
+                    all_weibo_list.append(line)
+                else:
+                    text = []
+                    for x in jieba.cut(line, cut_all=False):
+                        x = x.strip().strip('\u200b').strip()
+                        if x:
+                            text.append(x)
+                    all_weibo_list.append(text)
 
     return all_weibo_list
 
@@ -80,5 +89,28 @@ def lda():
     f.close()
 
 
+def lda2():
+    num_topics = 10
+    texts = get_weibo_list(True)
+    dictionary = corpora.Dictionary(texts)
+
+    corpus = [dictionary.doc2bow(text) for text in texts]
+
+    out_ids = [tokenid for tokenid, docfreq in dictionary.dfs.items() if docfreq > 1000 or docfreq < 3]
+    dict_lfq = copy.deepcopy(dictionary)
+    dict_lfq.filter_tokens(out_ids)
+    dict_lfq.compactify()
+
+    ldamodel = gensim.models.ldamodel.LdaModel(corpus, num_topics=num_topics, id2word=dict_lfq, passes=50, alpha=0.01,
+                                               eta=0.01)
+
+    for t in range(num_topics):
+        print('topic ', t, '  words: ', ldamodel.print_topic(t, topn=num_topics))
+
+    f = open(path.join(d, 'lda.pickle'), 'wb')
+    pickle.dump(ldamodel, f)
+    f.close()
+
+
 if __name__ == '__main__':
-    lda()
+    lda2()

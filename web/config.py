@@ -42,8 +42,8 @@ TOKEN_KEY = "THIRD_SESSION"
 SQL_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 color_level_dict = {
-    0: {},
-    1: {},
+    0: {'background-color': 'white', 'line_color': '#5a5f75', 'color': 'black'},
+    1: {'background-color': 'white', 'line_color': 'rgb(253, 110, 126)', 'color': 'black'},
     2: {},
     3: {},
     4: {},

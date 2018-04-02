@@ -61,6 +61,7 @@ class Weibo_Api(Resource):
                 user = User.get(openid=session.get('user_id'))
                 if user:
                     color_level = user.get_color_level()
+            color_dict = config.color_level_dict[color_level]
 
             if tag:
                 posts = Weibo.query.filter(Weibo.tags.any(Tag.name == tag))
@@ -76,8 +77,8 @@ class Weibo_Api(Resource):
                 "total": posts.total,
                 "msg_count": msg_count,
                 "weibo": weibo_list,
-                "color": "red"
             }
+            res.update(color_dict)
             return jsonify(res)
 
     def post(self):
