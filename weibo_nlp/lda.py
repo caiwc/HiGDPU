@@ -96,13 +96,12 @@ def lda2():
 
     corpus = [dictionary.doc2bow(text) for text in texts]
 
-    out_ids = [tokenid for tokenid, docfreq in dictionary.dfs.items() if docfreq > 1000 or docfreq < 3]
-    dict_lfq = copy.deepcopy(dictionary)
-    dict_lfq.filter_tokens(out_ids)
-    dict_lfq.compactify()
+    # out_ids = [tokenid for tokenid, docfreq in dictionary.dfs.items() if docfreq > 1000 or docfreq < 3]
+    # dict_lfq = copy.deepcopy(dictionary)
+    # dict_lfq.filter_tokens(out_ids)
+    # dict_lfq.compactify()
 
-    ldamodel = gensim.models.ldamodel.LdaModel(corpus, num_topics=num_topics, id2word=dict_lfq, passes=50, alpha=0.01,
-                                               eta=0.01)
+    ldamodel = gensim.models.ldamodel.LdaModel(corpus, num_topics=num_topics, id2word=dictionary.dfs, passes=50)
 
     for t in range(num_topics):
         print('topic ', t, '  words: ', ldamodel.print_topic(t, topn=num_topics))
