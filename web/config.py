@@ -103,7 +103,7 @@ class DevConfig(Config):
     CELERYBEAT_SCHEDULE = {
         'get_comment_message': {
             'task': 'web.tasks.get_comment_message',
-            'schedule': timedelta(hours=1)
+            'schedule': timedelta(hours=4)
         },
         'add_weibo_tags': {
             'task': 'web.tasks.add_weibo_tags',

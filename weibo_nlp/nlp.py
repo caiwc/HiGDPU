@@ -1,5 +1,4 @@
 import pickle
-from nltk.stem.porter import PorterStemmer
 from nltk.collocations import BigramCollocationFinder
 from nltk.metrics import BigramAssocMeasures
 from random import shuffle
@@ -14,6 +13,7 @@ best_word = "best_word"
 best_bigrams = "best_bigrams"
 d = path.dirname(__file__)
 stop_word = get_stop_word_set(symbol=True)
+
 
 def bigrams_words_feature(words, nbigrams=200, measure=BigramAssocMeasures.chi_sq):
     bigrams_finder = BigramCollocationFinder.from_documents(words)
@@ -66,7 +66,6 @@ def process_reviews():
     reviews_pos = get_reviews(pos_file_path, 'pos')
     print(len(reviews_neg), len(reviews_pos))
     return reviews_pos, reviews_neg
-
 
 
 def best_word_method():
@@ -211,9 +210,6 @@ def wordsimilarity(word, model):
         print('%s,%s' % (term[0], term[1]))
 
 
-
-
-
 def doc2v():
     from gensim.models import Doc2Vec
     import multiprocessing
@@ -300,4 +296,4 @@ def get_sentiment(content):
 
 
 if __name__ == '__main__':
-    main()
+    word2v(True)
