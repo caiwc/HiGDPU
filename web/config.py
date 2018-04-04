@@ -30,7 +30,7 @@ UPLOAD_PATH = os.path.join(PROJECT_PATH, 'files')
 
 WEIBO_COMMENT_MSG = "有人评论了你的微博"
 WEIBO_REPLY_MSG = "有人回复了你的评论"
-WEIBO_APPLY_DELETE_MSG = "用户申请删除微博: {content}"
+WEIBO_APPLY_DELETE_MSG = "用户申请删除微博: {content} \n微博id:{id}"
 WEIBO_DELETE_MSG = "你的微博`{content}`因为涉及`{reason}`,被管理员删除"
 
 WEIBO_ONE_HOURS_LIMIT = 5

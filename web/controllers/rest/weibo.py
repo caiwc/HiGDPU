@@ -175,9 +175,13 @@ class Weibo_Api(Resource):
         db.session.commit()
 
         Message.add(weibo=None, user_id=User.get_manager_user_id(),
-                    content=config.WEIBO_APPLY_DELETE_MSG.format(content=weibo.content))
+                    content=config.WEIBO_APPLY_DELETE_MSG.format(content=weibo.content, id=weibo_id))
 
         from qyweixin.qyweixin_api import send_weixin_message, qyweixin_text_type
         send_weixin_message(send_type=qyweixin_text_type,
-                            msg_content=config.WEIBO_APPLY_DELETE_MSG.format(content=weibo.content))
+                            msg_content=config.WEIBO_APPLY_DELETE_MSG.format(content=weibo.content, id=weibo_id))
+
+        from elasticsearch_tool.init_models import Weibo as ES_Weibo
+        weibo = ES_Weibo.get(id=weibo_id)
+        weibo.delete()
         return jsonify({'msg': '删除申请成功,微博将在今天内删除'})
