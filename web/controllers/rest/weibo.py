@@ -45,24 +45,39 @@ def get_sentiment(content):
 
 class Weibo_Api(Resource):
     def get(self, weibo_id=None):
+        color_level = 0
+        is_authorization = session.get('is_authorization')
+        if is_authorization:
+            openid = session.get('user_id')
+            user = User.get(openid=openid)
+            if user:
+                color_level = user.get_color_level()
+        color_dict = config.color_level_dict[color_level]
+        args = weibo_get_parser.parse_args()
+        page = args['page'] or 1
+        tag = args['tag'] or None
         if weibo_id:
-            post = Weibo.query.filter(Weibo.status.isnot(True)).filter_by(weibo_id=weibo_id).first()
-            if not post:
-                abort(404, {'error': '不存在此id的微博'})
-
-            return jsonify(Weibo.to_dict(post, detail=True))
+            if weibo_id == 'self':
+                if not is_authorization:
+                    return abort(401, {"msg": session.get('error')})
+                post = Weibo.query.filter(Weibo.status.isnot(True)).filter(Weibo.author == openid).order_by(
+                    Weibo.publish_time.desc()
+                ).paginate(page, 30)
+                weibo_list = Weibo.to_list(ms=post.items, detail=False)
+                res = {
+                    "pages": post.pages,
+                    "total": post.total,
+                    "now_page": page,
+                    "weibo": weibo_list,
+                }
+                res.update(color_dict)
+                return jsonify(res)
+            else:
+                post = Weibo.query.filter(Weibo.status.isnot(True)).filter_by(weibo_id=weibo_id).first()
+                if not post:
+                    abort(404, {'error': '不存在此id的微博'})
+                return jsonify(Weibo.to_dict(post, detail=True))
         else:
-            args = weibo_get_parser.parse_args()
-            page = args['page'] or 1
-            tag = args['tag'] or None
-            color_level = 0
-            is_authorization = session.get('is_authorization')
-            if is_authorization:
-                user = User.get(openid=session.get('user_id'))
-                if user:
-                    color_level = user.get_color_level()
-            color_dict = config.color_level_dict[color_level]
-
             if tag:
                 posts = Weibo.query.filter(Weibo.tags.any(Tag.name == tag))
             else:
@@ -75,6 +90,7 @@ class Weibo_Api(Resource):
             res = {
                 "pages": posts.pages,
                 "total": posts.total,
+                "now_page":page,
                 "msg_count": msg_count,
                 "weibo": weibo_list,
             }
@@ -159,4 +175,8 @@ class Weibo_Api(Resource):
 
         Message.add(weibo=None, user_id=User.get_manager_user_id(),
                     content=config.WEIBO_APPLY_DELETE_MSG.format(content=weibo.content))
+
+        from qyweixin.qyweixin_api import send_weixin_message, qyweixin_text_type
+        send_weixin_message(send_type=qyweixin_text_type,
+                            msg_content=config.WEIBO_APPLY_DELETE_MSG.format(content=weibo.content))
         return jsonify({'msg': '删除申请成功,微博将在今天内删除'})
