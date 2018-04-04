@@ -259,7 +259,7 @@ class Weibo(db.Model):
         return None
 
     @classmethod
-    def to_dict(cls, m, detail=False):
+    def to_dict(cls, m, detail=False, openid=None):
         tmp = dict()
         tmp['id'] = m.weibo_id
         tmp['content'] = m.content
@@ -274,6 +274,10 @@ class Weibo(db.Model):
             comments = Weibo_comment.query.filter_by(weibo=tmp['id']).order_by(Weibo_comment.publish_time.desc())
             tmp['comment_list'] = Weibo_comment.to_list(ms=comments)
             tmp['img'] = m.large_img
+            if openid and openid == m.author:
+                tmp['owner'] = True
+            else:
+                tmp['owner'] = False
         return tmp
 
     @classmethod

@@ -47,8 +47,9 @@ class Weibo_Api(Resource):
     def get(self, weibo_id=None):
         color_level = 0
         is_authorization = session.get('is_authorization')
+        openid = None
         if is_authorization:
-            openid = session.get('user_id')
+            openid = session.get('user_id', None)
             user = User.get(openid=openid)
             if user:
                 color_level = user.get_color_level()
@@ -76,7 +77,7 @@ class Weibo_Api(Resource):
                 post = Weibo.query.filter(Weibo.status.isnot(True)).filter_by(weibo_id=weibo_id).first()
                 if not post:
                     abort(404, {'error': '不存在此id的微博'})
-                return jsonify(Weibo.to_dict(post, detail=True))
+                return jsonify(Weibo.to_dict(post, detail=True, openid=openid))
         else:
             if tag:
                 posts = Weibo.query.filter(Weibo.tags.any(Tag.name == tag))
@@ -90,7 +91,7 @@ class Weibo_Api(Resource):
             res = {
                 "pages": posts.pages,
                 "total": posts.total,
-                "now_page":page,
+                "now_page": page,
                 "msg_count": msg_count,
                 "weibo": weibo_list,
             }
