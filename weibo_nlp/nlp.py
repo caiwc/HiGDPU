@@ -13,7 +13,7 @@ from weibo_nlp.utils import cut_word_path, get_stop_word_set
 best_word = "best_word"
 best_bigrams = "best_bigrams"
 d = path.dirname(__file__)
-
+stop_word = get_stop_word_set(symbol=True)
 
 def bigrams_words_feature(words, nbigrams=200, measure=BigramAssocMeasures.chi_sq):
     bigrams_finder = BigramCollocationFinder.from_documents(words)
@@ -68,6 +68,7 @@ def process_reviews():
     return reviews_pos, reviews_neg
 
 
+
 def best_word_method():
     from nltk.probability import FreqDist, ConditionalFreqDist
     reviews_pos, reviews_neg = process_reviews()
@@ -99,7 +100,7 @@ def best_word_method():
         word_scores[word] = pos_scores + neg_scores
     print('total', len(word_scores))
 
-    best = sorted(word_scores.items(), key=lambda x: x[1], reverse=True)[:5000]
+    best = sorted(word_scores.items(), key=lambda x: x[1], reverse=True)[:10000]
     bestwords = set([w for w, s in best])
     return bestwords
 
@@ -107,8 +108,8 @@ def best_word_method():
 def get_feature(method):
     reviews_pos, reviews_neg = process_reviews()
     if method == best_bigrams:
-        negfeature = [(bigrams_words_feature(r.words, 8), 'neg') for r in reviews_neg]
-        posfeature = [(bigrams_words_feature(r.words, 8), 'pos') for r in reviews_pos]
+        negfeature = [(bigrams_words_feature(r.words, 500), 'neg') for r in reviews_neg]
+        posfeature = [(bigrams_words_feature(r.words, 500), 'pos') for r in reviews_pos]
     else:
         posfeature = [(best_word_feature(r.words), 'neg') for r in reviews_neg]
         negfeature = [(best_word_feature(r.words), 'pos') for r in reviews_pos]
@@ -145,19 +146,15 @@ def main():
 
     print("error rate:", err / float(len(testfeature)))
 
-    f = open(path.join(d, 'best_word.pickle'), 'wb')
+    f = open(path.join(d, 'my_nlp.pickle'), 'wb')
     pickle.dump(classifier, f)
     f.close()
 
 
 def PreprocessReviews(text, stem=False):
     # print profile
-    if stem:
-        stemmer = PorterStemmer()
-        words_clean = [stemmer.stem(w) for w in jieba.cut(text, cut_all=False)]
-    else:
-        words_clean = jieba.cut(text, cut_all=False)
-    return words_clean
+    words_clean = jieba.cut(text, cut_all=False)
+    return [w for w in words_clean if w not in stop_word and w.strip()]
 
 
 def is_alpha(tok):
@@ -303,4 +300,4 @@ def get_sentiment(content):
 
 
 if __name__ == '__main__':
-    word2v(True)
+    main()

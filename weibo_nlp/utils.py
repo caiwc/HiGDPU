@@ -4,13 +4,17 @@ from os import path
 
 d = path.dirname(__file__)
 stop_words_path = path.join(d, 'stop_word.txt')
+stop_symbol_path = path.join(d, 'stop_symbol.txt')
 cut_word_path = path.join(d, 'cut_word.txt')
 jieba.analyse.set_stop_words(stop_words_path)
 
 
-def get_stop_word_set():
+def get_stop_word_set(symbol=False):
     res = set()
-    f = open(stop_words_path, 'r')
+    if not symbol:
+        f = open(stop_words_path, 'r')
+    else:
+        f = open(stop_symbol_path, 'r')
     while True:
         word = f.readline()
         word = word.strip()

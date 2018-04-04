@@ -1,6 +1,8 @@
 import gensim.models
 from gensim import models, corpora
 from nltk.stem.porter import PorterStemmer
+from nltk.collocations import BigramCollocationFinder
+from nltk.metrics import BigramAssocMeasures
 import pickle
 from os import path
 import jieba
@@ -10,7 +12,7 @@ from weibo_nlp.utils import cut_word_path, get_stop_word_set
 d = path.dirname(__file__)
 jieba.load_userdict(cut_word_path)
 stemmer = PorterStemmer()
-stop_list = get_stop_word_set()
+stop_list = get_stop_word_set(symbol=True)
 
 times = 1
 
@@ -40,7 +42,27 @@ class GenSimCorpus(object):
                 yield (x for x in jieba.cut(text, cut_all=False) if x not in stoplist)
 
 
+def get_best_word():
+    from nltk.probability import FreqDist
+    reviews = get_weibo_list1(cut=True)
+
+    tot_words = [val for l in reviews for val in l]
+
+    word_fd = FreqDist()
+
+    for word in tot_words:
+        word_fd[word] += 1
+
+    best = sorted(word_fd.items(), key=lambda x: x[1], reverse=True)
+    best_10k = best[:20000]
+    bestwords = set([w for w, s in best_10k])
+    return bestwords
+best_word = None
+
 def get_weibo_list(cut=False):
+    global best_word
+    if not best_word:
+        best_word = get_best_word()
     all_weibo_path = path.join(d, 'word', 'word2c.txt')
     all_weibo_list = []
     i = 1
@@ -56,7 +78,29 @@ def get_weibo_list(cut=False):
                     text = []
                     for x in jieba.cut(line, cut_all=False):
                         x = x.strip().strip('\u200b').strip()
-                        if x:
+                        if x and x in best_word and len(x) > 1:
+                            text.append(x)
+                    all_weibo_list.append(text)
+
+    return all_weibo_list
+
+def get_weibo_list1(cut=False):
+    all_weibo_path = path.join(d, 'word', 'word2c.txt')
+    all_weibo_list = []
+    i = 1
+    with open(all_weibo_path, 'r', encoding='utf-8') as raw_input:
+        for line in raw_input.readlines():
+            line = line.strip()
+            i += 1
+            print('line ' + str(i))
+            if line:
+                if not cut:
+                    all_weibo_list.append(line)
+                else:
+                    text = []
+                    for x in jieba.cut(line, cut_all=False):
+                        x = x.strip().strip('\u200b').strip()
+                        if x and x not in stop_list and len(x) > 1:
                             text.append(x)
                     all_weibo_list.append(text)
 
@@ -90,7 +134,7 @@ def lda():
 
 
 def lda2():
-    num_topics = 10
+    num_topics = 5
     texts = get_weibo_list(True)
     dictionary = corpora.Dictionary(texts)
 
@@ -101,7 +145,7 @@ def lda2():
     # dict_lfq.filter_tokens(out_ids)
     # dict_lfq.compactify()
 
-    ldamodel = gensim.models.ldamodel.LdaModel(corpus, num_topics=num_topics, id2word=dictionary.dfs, passes=50)
+    ldamodel = gensim.models.ldamodel.LdaModel(corpus, num_topics=num_topics, id2word=dictionary, passes=50)
 
     for t in range(num_topics):
         print('topic ', t, '  words: ', ldamodel.print_topic(t, topn=num_topics))

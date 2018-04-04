@@ -125,6 +125,6 @@ class Search_Api(Resource):
                 hit_list.append(hit_dict)
             if not len(hit_list):
                 hit_list.append({'content': '没有搜到任何东西'})
-            res.append({'pages': page_nums, "total": total_nums, "data": hit_list, "type": s_type})
+            res.append({'pages': page_nums, "total": total_nums, "data": hit_list, "type": s_type, 'now_page': page})
 
         return jsonify(res)

@@ -67,36 +67,36 @@ def test():
         extract('year', Weibo.publish_time) == report_year,
         extract('month', Weibo.publish_time) == report_month))
     content_list = [o.content for o in weibo_list.all()]
-    file_name = get_word_cloud(content_list, report_year, report_month)
-    zs_dxc_count(weibo_query=weibo_list)
-    daily_weibo_count(weibo_query=weibo_list)
-    recently_weibo_count(6, int(report_year), int(report_month))
+    # file_name = get_word_cloud(content_list, report_year, report_month)
+    # zs_dxc_count(weibo_query=weibo_list)
+    # daily_weibo_count(weibo_query=weibo_list)
+    # recently_weibo_count(6, int(report_year), int(report_month))
     key_word_list = get_key_word(weibo_list)
-    weibo_count = weibo_list.count()
-    report_id = "{}_{}".format(report_year, report_month)
-    report_res = Report_detail.get(report_id)
-    report_res.month = report_month
-    report_res.year = report_year
-    report_res.count = weibo_count
-    report_res.key_word = ", ".join(key_word_list)
-    db.session.add(report_res)
-    weixin_id = str_md5("{}_{}".format(report_year, report_month))
-    try:
-        weixin = Weixin.get(weixin_id)
-    except NotFoundError:
-        weixin = Weixin()
-        weixin._id = weixin_id
-    weixin.title = "{}年{}月树洞总结!!!".format(report_year, report_month)
-    weixin.content = " "
-    weixin.digest = '月度总结,先睹为快~~'
-    weixin.publish_time = datetime.datetime.strptime(str(datetime.date(year=int(report_year), month=int(report_month), day=1)),
-                                                     "%Y-%m-%d")
-    weixin.cover = "https://www.caiwc.cn/static/{}".format(file_name)
-    weixin.url = "https://www.caiwc.cn/api/report?year={}&month={}".format(report_year, report_month)
-    weixin.gzh = "本平台"
-    weixin.save()
-    db.session.commit()
-    print('完成{}月总结'.format(report_month))
+    # weibo_count = weibo_list.count()
+    # report_id = "{}_{}".format(report_year, report_month)
+    # report_res = Report_detail.get(report_id)
+    # report_res.month = report_month
+    # report_res.year = report_year
+    # report_res.count = weibo_count
+    # report_res.key_word = ", ".join(key_word_list)
+    # db.session.add(report_res)
+    # weixin_id = str_md5("{}_{}".format(report_year, report_month))
+    # try:
+    #     weixin = Weixin.get(weixin_id)
+    # except NotFoundError:
+    #     weixin = Weixin()
+    #     weixin._id = weixin_id
+    # weixin.title = "{}年{}月树洞总结!!!".format(report_year, report_month)
+    # weixin.content = " "
+    # weixin.digest = '月度总结,先睹为快~~'
+    # weixin.publish_time = datetime.datetime.strptime(str(datetime.date(year=int(report_year), month=int(report_month), day=1)),
+    #                                                  "%Y-%m-%d")
+    # weixin.cover = "https://www.caiwc.cn/static/{}".format(file_name)
+    # weixin.url = "https://www.caiwc.cn/api/report?year={}&month={}".format(report_year, report_month)
+    # weixin.gzh = "本平台"
+    # weixin.save()
+    # db.session.commit()
+    # print('完成{}月总结'.format(report_month))
     return 'end'
 
 

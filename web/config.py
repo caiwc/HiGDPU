@@ -43,9 +43,9 @@ SQL_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 color_level_dict = {
     0: {'background-color': 'white', 'line_color': '#5a5f75', 'color': 'black'},
-    1: {'background-color': 'white', 'line_color': 'rgb(253, 110, 126)', 'color': 'black'},
-    2: {},
-    3: {},
+    1: {'background-color': 'white', 'line_color': '#fc6e7e', 'color': 'black'},
+    2: {'background-color': '#fcffcf', 'line_color': '#3b0f1d', 'color': 'black'},
+    3: {'background-color': '#f4e5e6', 'line_color': '#f0df00', 'color': 'black'},
     4: {},
     5: {}
 }
