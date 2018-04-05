@@ -270,6 +270,7 @@ class Weibo(db.Model):
         tmp['weibo_name'] = m.weibo_name
         tmp['publish_time'] = time_format(m.publish_time)
         tmp['tags'] = cls.get_function_tag(m.tags)
+        tmp['mini_img'] = m.img
         # tmp['author'] = m.author
         if detail:
             comments = Weibo_comment.query.filter_by(weibo=tmp['id']).order_by(Weibo_comment.publish_time.desc())
