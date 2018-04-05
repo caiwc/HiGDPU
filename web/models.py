@@ -187,6 +187,7 @@ class User(db.Model):
         }
         db.session.add(self)
         db.session.commit()
+        print('update color', self.color_level)
 
 
 class Weixin_Gzh(db.Model):
