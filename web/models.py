@@ -161,6 +161,7 @@ class User(db.Model):
         # 其他的减一级
         # 3天内不发树洞自动消除
         max_level = 5
+        mode = int(mode)
         color = self.color_level
         if not color:
             color = {
@@ -172,8 +173,8 @@ class User(db.Model):
                 level += 1
         elif mode == 0:
             level -= 2
-        else:
-            mode += 1
+        elif mode == 2:
+            level -= 1
 
         if level < 0:
             level = 0
