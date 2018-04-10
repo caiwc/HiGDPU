@@ -466,13 +466,13 @@ class Message(db.Model):
             ms = ms.filter_by(is_read=False)
         ms = ms.order_by(
             Message.create_time.desc()
-        ).paginate(page, 30).items
+        ).paginate(page, 30)
         if not_read:
-            for m in ms:
+            for m in ms.items:
                 m.is_read = True
                 db.session.add(m)
             db.session.commit()
-        return ms
+        return ms, ms.pages, ms.total
 
     @classmethod
     def to_dict(cls, m, detail=False):
