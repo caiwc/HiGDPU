@@ -47,7 +47,8 @@ class WeixinSpider(scrapy.Spider):
 
     custom_settings = {
         'ITEM_PIPELINES': {
-            'weixin_scrapy.pipelines.ElasticSearchPipeline': 2
+            'weixin_scrapy.pipelines.HtmlPipeline': 2,
+            'weixin_scrapy.pipelines.ElasticSearchPipeline': 10
         }
 
     }
