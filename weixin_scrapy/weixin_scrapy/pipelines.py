@@ -73,7 +73,7 @@ class HtmlPipeline(object):
         article_id = item.get('id')
         file_path = path.join(self.template_path, "{}.html".format(article_id))
         src = "&tp=webp&wxfrom=5&wx_lazy=1"
-        find_img = re.compile('(data-src)="(?P<url>https://.*?)"')
+        find_img = re.compile('(data-src)="(?P<url>http://.*?)"')
         if html:
             new_html = find_img.sub('src="\g<url>{}"'.format(src), html)
             f = open(file_path, 'w+')
