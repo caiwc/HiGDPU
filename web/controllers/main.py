@@ -48,7 +48,7 @@ def test():
     from weibo_nlp.weibo_count import zs_dxc_count, daily_weibo_count, recently_weibo_count
     from weibo_nlp.key_word import get_key_word
     from sqlalchemy import extract, and_
-    from web.models import Report_detail,Weibo
+    from web.models import Report_detail, Weibo
     from elasticsearch_tool.init_models import Weixin
     from web.utils import str_md5
     from elasticsearch.exceptions import NotFoundError
@@ -61,7 +61,6 @@ def test():
         report_month = today.month
     if not report_year:
         report_year = today.year
-
 
     weibo_list = Weibo.query.filter(and_(
         extract('year', Weibo.publish_time) == report_year,
@@ -275,6 +274,15 @@ def qyweixin_authorization():
         response = make_response(res)
         response.content_type = 'application/xml'
         return response
+
+
+@main_blueprint.route('/api/article', methods=['GET'])
+def get_weixin_article():
+    arg = request.args
+    article_id = arg.get('articleId', '')
+    if not article_id:
+        return jsonify(404)
+    return render_template('{}.html'.format(article_id))
 
 
 def get_tags_msg():

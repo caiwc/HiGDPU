@@ -153,13 +153,14 @@ class WeixinSpider(scrapy.Spider):
         if not title:
             return
         self.logger.info("parse the {0} article {1}".format(gzh, title))
+        article_id = utils.str_md5(gzh + title)
         item_loader.add_value('gzh', gzh)
         item_loader.add_value('title', title)
-        item_loader.add_value('id', utils.str_md5(gzh + str(idx)))
+        item_loader.add_value('id', article_id)
         item_loader.add_value('cover', art.get('cover', ""))
         item_loader.add_value('digest', art.get('digest', ""))
         item_loader.add_value('publish_time', utils.timestampe_to_time(art['publish_time']))
-        item_loader.add_value('url', response.url)
+        item_loader.add_value('url', "{}api/article?articleId={}".format(settings.DOMAIN, article_id))
         item_loader.add_css('html_content', '#img-content')
 
         yield item_loader.load_item()

@@ -6,6 +6,8 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 from twisted.enterprise import adbapi
 import MySQLdb.cursors
+from os import path
+import re
 
 
 class WeixinScrapyPipeline(object):
@@ -53,5 +55,28 @@ class MysqlTwistedPipeline(object):
 class ElasticSearchPipeline(object):
     def process_item(self, item, spider):
         item.save_to_es()
+        return item
 
+
+class HtmlPipeline(object):
+    def __init__(self, template_path):
+        self.template_path = template_path
+
+    @classmethod
+    def from_settings(cls, settings):
+        project_path = settings['PROJECT_PATH']
+        template_path = path.join(project_path, 'web', 'template')
+        return cls(template_path)
+
+    def process_item(self, item, spider):
+        html = item.get('html_content', '')
+        article_id = item.get('id')
+        file_path = path.join(self.template_path, "{}.html".format(article_id))
+        src = "&tp=webp&wxfrom=5&wx_lazy=1"
+        find_img = re.compile('(data-src)="(?P<url>https://.*?)"')
+        if html:
+            new_html = find_img.sub('src="\g<url>{}"'.format(src), html)
+            f = open(file_path, 'w+')
+            f.write(new_html)
+            f.close()
         return item

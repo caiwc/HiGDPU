@@ -18,6 +18,8 @@ PROJECT_PATH = os.path.dirname(SCRAPY_PATH)
 SPIDER_MODULES = ['weixin_scrapy.spiders']
 NEWSPIDER_MODULE = 'weixin_scrapy.spiders'
 
+DOMAIN = "https://www.akcia.cn/"
+
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 # USER_AGENT = 'weixin_scrapy (+http://www.yourdomain.com)'
 
