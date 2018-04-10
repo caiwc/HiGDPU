@@ -20,7 +20,7 @@ class Message_Api(Resource):
         color_level = user.get_color_level()
         color_dict = config.color_level_dict[color_level]
         ms, all_pages, total = Message.list(user_id=session['user_id'], page=page, not_read=not_read)
-        msg_list = Message.to_list(ms=ms, detail=False)
+        msg_list = Message.to_list(ms=ms.items, detail=False)
         res = {
             "pages": all_pages,
             "total": total,
