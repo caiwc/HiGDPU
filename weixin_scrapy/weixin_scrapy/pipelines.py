@@ -65,7 +65,7 @@ class HtmlPipeline(object):
     @classmethod
     def from_settings(cls, settings):
         project_path = settings['PROJECT_PATH']
-        template_path = path.join(project_path, 'web', 'template')
+        template_path = path.join(project_path, 'web', 'templates')
         return cls(template_path)
 
     def process_item(self, item, spider):
