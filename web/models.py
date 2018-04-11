@@ -467,12 +467,14 @@ class Message(db.Model):
         ms = ms.order_by(
             Message.create_time.desc()
         ).paginate(page, 30)
-        res_ms = ms
+        res = []
         for m in ms.items:
-            m.is_read = True
-            db.session.add(m)
+            res.append(cls.to_dict(m))
+            if not m.is_read:
+                m.is_read = True
+                db.session.add(m)
         db.session.commit()
-        return res_ms.items, res_ms.pages, res_ms.total
+        return res, ms.pages, ms.total
 
     @classmethod
     def to_dict(cls, m, detail=False):
