@@ -12,6 +12,10 @@ class Message_Api(Resource):
         args = message_get_parser.parse_args()
         page = args['page'] or 1
         not_read = args['not_read'] or True
+        if int(not_read) == 0:
+            not_read = False
+        else:
+            not_read = True
         is_authorization = session.get('is_authorization')
         if not is_authorization:
             return abort(401, {"error": session.get('error')})
