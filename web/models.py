@@ -307,17 +307,17 @@ class Weibo(db.Model):
         third_day_ago = now - datetime.timedelta(days=3)
         weibo_list = cls.query.filter_by(author=user_id).filter(Weibo.publish_time.between(third_day_ago, now)).all()
         weibo_sum = len(weibo_list)
-        weibo_list = weibo_list[:5]
-        if weibo_sum >= 3:
-            neg = 0
-            if weibo_mode == 1:
+        weibo_list = weibo_list[:3]
+        neg = 0
+        if weibo_mode == 1:
+            neg += 1
+        for weibo in weibo_list:
+            if int(weibo.mode) == 1:
                 neg += 1
-            for weibo in weibo_list:
-                if int(weibo.mode) == 1:
-                    neg += 1
-            res = neg / weibo_sum
-            if res > 0.6:
-                return True
+        res = neg / weibo_sum
+        if res > 0.5:
+            return True
+
         return False
 
 
