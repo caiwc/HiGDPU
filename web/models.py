@@ -461,20 +461,19 @@ class Message(db.Model):
 
     @classmethod
     def list(cls, user_id, page, not_read=True):
-        import copy
         ms = cls().query.filter_by(user_id=user_id)
         if not_read:
             ms = ms.filter_by(is_read=False)
         ms = ms.order_by(
             Message.create_time.desc()
         ).paginate(page, 30)
-        res_ms = copy.deepcopy(ms)
+        res_ms = ms
         if not_read:
             for m in ms.items:
                 m.is_read = True
                 db.session.add(m)
             db.session.commit()
-        return res_ms, res_ms.pages, res_ms.total
+        return res_ms.items, res_ms.pages, res_ms.total
 
     @classmethod
     def to_dict(cls, m, detail=False):
