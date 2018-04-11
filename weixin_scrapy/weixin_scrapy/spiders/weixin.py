@@ -162,6 +162,6 @@ class WeixinSpider(scrapy.Spider):
         item_loader.add_value('digest', art.get('digest', ""))
         item_loader.add_value('publish_time', utils.timestampe_to_time(art['publish_time']))
         item_loader.add_value('url', "{}api/article?articleId={}".format(settings.DOMAIN, article_id))
-        item_loader.add_css('html_content', '#img-content')
+        item_loader.add_value('html_content', response.body.decode('utf-8'))
 
         yield item_loader.load_item()
