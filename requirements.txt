@@ -1,3 +1,4 @@
+elasticsearch
 alembic==0.9.7
 amqp==2.2.2
 aniso8601==2.0.0

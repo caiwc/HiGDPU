@@ -467,11 +467,11 @@ class Message(db.Model):
         ms = ms.order_by(
             Message.create_time.desc()
         ).paginate(page, 30)
-        # if not_read:
-        #     for m in ms.items:
-        #         m.is_read = True
-        #         db.session.add(m)
-        #     db.session.commit()
+        if not_read:
+            for m in ms.items:
+                m.is_read = True
+                db.session.add(m)
+            db.session.commit()
         return ms, ms.pages, ms.total
 
     @classmethod
