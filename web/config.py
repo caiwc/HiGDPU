@@ -28,10 +28,11 @@ WEIBO_NAME = 'HiGDPU'
 
 UPLOAD_PATH = os.path.join(PROJECT_PATH, 'files')
 
-WEIBO_COMMENT_MSG = "有人评论了你的微博"
-WEIBO_REPLY_MSG = "有人回复了你的评论"
-WEIBO_APPLY_DELETE_MSG = "用户申请删除微博: {content} \n微博id:{id}"
-WEIBO_DELETE_MSG = "你的微博`{content}`因为涉及`{reason}`,被管理员删除"
+WEIBO_SENT_ERROR = '你的树洞`{content}` 发送失败,请再次编辑后发送.'
+WEIBO_COMMENT_MSG = "有人评论了你的树洞: {content}"
+WEIBO_REPLY_MSG = "有人回复了你的评论: {content}"
+WEIBO_APPLY_DELETE_MSG = "用户申请删除树洞: {content} \n微博id:{id}"
+WEIBO_DELETE_MSG = "你的树洞`{content}`因为涉及`{reason}`,被管理员删除"
 
 WEIBO_ONE_HOURS_LIMIT = 5
 

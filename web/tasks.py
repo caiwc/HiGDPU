@@ -31,37 +31,41 @@ def verifycode_handle(url, operation):
 def send_weibo(user_id, content, mode, file=None, tag_id=None):
     from web.utils import weibo_time_format
     user = User.get(openid=user_id)
-    res = post_weibo(content=content, files_path=file)
-    print(res)
-    if res:
-        weibo = Weibo()
-        weibo.content = content
-        created_time = weibo_time_format(res['created_at'])
-        weibo.publish_time = created_time
-        weibo.img = res.get('thumbnail_pic', '')
-        weibo.large_img = res.get('original_pic', '')
-        weibo.weibo_id = res['id']
-        weibo.weibo_name = res['user']['domain']
-        weibo.likes = 0
-        weibo.reports = 0
-        weibo.author = user.openid
-        weibo.mode = mode
-        db.session.add(weibo)
-        db.session.commit()
-        if tag_id:
-            weibo.add_tags(int(tag_id))
+    try:
+        res = post_weibo(content=content, files_path=file)
+        if res:
+            weibo = Weibo()
+            weibo.content = content
+            created_time = weibo_time_format(res['created_at'])
+            weibo.publish_time = created_time
+            weibo.img = res.get('thumbnail_pic', '')
+            weibo.large_img = res.get('original_pic', '')
+            weibo.weibo_id = res['id']
+            weibo.weibo_name = res['user']['domain']
+            weibo.likes = 0
+            weibo.reports = 0
+            weibo.author = user.openid
+            weibo.mode = mode
+            db.session.add(weibo)
+            db.session.commit()
+            if tag_id:
+                weibo.add_tags(int(tag_id))
 
-        es_weibo = ES_Weibo()
-        es_weibo._id = res['id']
-        es_weibo.content = content
-        es_weibo.publish_time = created_time
-        es_weibo.comment = 0
-        es_weibo.suggest = get_suggests(ES_Weibo._doc_type.index, [(weibo.content, 10)], ES_Weibo)
-        es_weibo.save()
+            es_weibo = ES_Weibo()
+            es_weibo._id = res['id']
+            es_weibo.content = content
+            es_weibo.publish_time = created_time
+            es_weibo.comment = 0
+            es_weibo.suggest = get_suggests(ES_Weibo._doc_type.index, [(weibo.content, 10)], ES_Weibo)
+            es_weibo.save()
 
-        if file:
-            import os
-            os.remove(file)
+            if file:
+                import os
+                os.remove(file)
+        else:
+            raise ValueError
+    except:
+        Message.add(user_id=user_id, content=config.WEIBO_SENT_ERROR.format(content=content), weibo=None)
 
 
 @celery.task(
@@ -103,9 +107,9 @@ def send_weibo_comment(user_id, weibo_id, content, reply_author=None, reply_auth
         db.session.add(comment)
         db.session.commit()
         if weibo.author:
-            Message.add(weibo=weibo, user_id=weibo.author, content=config.WEIBO_COMMENT_MSG)
+            Message.add(weibo=weibo, user_id=weibo.author, content=config.WEIBO_COMMENT_MSG.format(content=content))
         if reply_comment_id and reply_author_id:
-            Message.add(weibo=weibo, user_id=reply_author, content=config.WEIBO_REPLY_MSG)
+            Message.add(weibo=weibo, user_id=reply_author, content=config.WEIBO_REPLY_MSG.format(content=content))
 
         ES_Weibo.add_comment(weibo_id=weibo_id)
         return True
@@ -267,8 +271,9 @@ def weibo_report():
     weixin.title = "{}年{}月树洞总结!!!".format(report_year, report_month)
     weixin.content = " "
     weixin.digest = '月度总结,先睹为快~~'
-    weixin.publish_time = datetime.datetime.strptime(str(datetime.date(year=int(report_year), month=int(report_month), day=1)),
-                                                     "%Y-%m-%d")
+    weixin.publish_time = datetime.datetime.strptime(
+        str(datetime.date(year=int(report_year), month=int(report_month), day=1)),
+        "%Y-%m-%d")
     weixin.cover = "https://www.akcia.cn/static/{}".format(file_name)
     weixin.url = "https://www.akcia.cn/api/report?year={}&month={}".format(report_year, report_month)
     weixin.gzh = "本平台"
