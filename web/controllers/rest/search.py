@@ -81,8 +81,8 @@ class Search_Api(Resource):
                     "from": (page - 1) * size,
                     "size": size,
                     "highlight": {
-                        "pre_tags": [''],
-                        "post_tags": [""],
+                        "pre_tags": ['<span style="color:red;">'],
+                        "post_tags": ["</span>"],
                         "fields": {
                             "title": {},
                             "content": {},
