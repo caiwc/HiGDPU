@@ -468,11 +468,10 @@ class Message(db.Model):
             Message.create_time.desc()
         ).paginate(page, 30)
         res_ms = ms
-        if not_read:
-            for m in ms.items:
-                m.is_read = True
-                db.session.add(m)
-            db.session.commit()
+        for m in ms.items:
+            m.is_read = True
+            db.session.add(m)
+        db.session.commit()
         return res_ms.items, res_ms.pages, res_ms.total
 
     @classmethod
