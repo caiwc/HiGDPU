@@ -5,6 +5,7 @@ from web.models import time_format
 from .parsers import search_post_parser
 from elasticsearch import Elasticsearch
 from web.config import ES_HOST
+from web.extensions import cache
 from elasticsearch_tool.init_models import Weibo
 
 client = Elasticsearch(hosts=[ES_HOST])
@@ -23,6 +24,18 @@ sort_dict = {
     "score": "_score",
     "comment": {"comment": "desc"}
 }
+
+
+@cache.cached(timeout=300, key_prefix='word2vec')
+def get_word2vec():
+    from weibo_nlp.word import word2vec
+    return word2vec
+
+
+def analyze_word(query):
+    word2vec = get_word2vec()
+    word_list = word2vec.similar_by_word(query, topn=5)
+    return [o[0] for o in word_list]
 
 
 class Search_Api(Resource):
@@ -81,8 +94,8 @@ class Search_Api(Resource):
                     "from": (page - 1) * size,
                     "size": size,
                     "highlight": {
-                        "pre_tags": ['<span style="color:red;">'],
-                        "post_tags": ["</span>"],
+                        "pre_tags": [''],
+                        "post_tags": [""],
                         "fields": {
                             "title": {},
                             "content": {},
@@ -125,6 +138,9 @@ class Search_Api(Resource):
                 hit_list.append(hit_dict)
             if not len(hit_list):
                 hit_list.append({'content': '没有搜到任何东西'})
-            res.append({'pages': page_nums, "total": total_nums, "data": hit_list, "type": s_type, 'now_page': page})
+
+            word_list = analyze_word(query=query)
+            res.append({'pages': page_nums, "total": total_nums, "data": hit_list, "type": s_type, 'now_page': page,
+                        'guess_word': word_list})
 
         return jsonify(res)
