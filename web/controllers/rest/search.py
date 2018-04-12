@@ -34,8 +34,11 @@ def get_word2vec():
 
 def analyze_word(query):
     word2vec = get_word2vec()
-    word_list = word2vec.similar_by_word(query, topn=5)
-    return [o[0] for o in word_list]
+    try:
+        word_list = word2vec.similar_by_word(query, topn=5)
+        return [o[0] for o in word_list]
+    except KeyError as e:
+        return []
 
 
 class Search_Api(Resource):
