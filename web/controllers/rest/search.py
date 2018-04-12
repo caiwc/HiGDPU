@@ -139,8 +139,8 @@ class Search_Api(Resource):
             if not len(hit_list):
                 hit_list.append({'content': '没有搜到任何东西'})
 
-            word_list = analyze_word(query=query)
-            res.append({'pages': page_nums, "total": total_nums, "data": hit_list, "type": s_type, 'now_page': page,
-                        'guess_word': word_list})
+            res.append({'pages': page_nums, "total": total_nums, "data": hit_list, "type": s_type, 'now_page': page})
 
-        return jsonify(res)
+        word_list = analyze_word(query=query)
+        all_res = {'res': res, 'guess_word': word_list}
+        return jsonify(all_res)
