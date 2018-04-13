@@ -11,7 +11,7 @@ from elasticsearch_tool.init_models import Weibo
 client = Elasticsearch(hosts=[ES_HOST])
 
 search_dict = {
-    "weixin": {"field": ["title", "content"], "size": 5},
+    "weixin": {"field": ["title", "content","digest"], "size": 5},
     "weibo": {"field": ["content"], "size": 5}
 }
 
@@ -102,6 +102,7 @@ class Search_Api(Resource):
                         "fields": {
                             "title": {},
                             "content": {},
+                            "digest": {}
                         }
                     },
                     "sort": sort_list
