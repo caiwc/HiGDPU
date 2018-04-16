@@ -19,7 +19,7 @@ class Official_Api(Resource):
             page = args['page'] or 1
             posts = Official.query.order_by(
                 Official.publish_time.desc()
-            ).paginate(page, 30)
+            ).paginate(page, 10)
             data = Official.to_list(ms=posts.items, detail=False)
             res = {
                 'total': posts.total,
