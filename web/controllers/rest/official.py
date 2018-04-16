@@ -19,5 +19,11 @@ class Official_Api(Resource):
             page = args['page'] or 1
             posts = Official.query.order_by(
                 Official.publish_time.desc()
-            ).paginate(page, 30).items
-            return jsonify(Official.to_list(ms=posts, detail=False))
+            ).paginate(page, 30)
+            data = Official.to_list(ms=posts.items, detail=False)
+            res = {
+                'total': posts.total,
+                'pages': posts.pages,
+                'data': data
+            }
+            return res
