@@ -94,17 +94,17 @@ class WeixinSpider(scrapy.Spider):
             self.logger.info("parse the {}".format(gzh))
             gzh_host_url = response.css('#sogou_vr_11002301_box_0 .gzh-box2 .txt-box .tit a::attr(href)').extract_first(
                 "")
-            # first_article_title = response.xpath('//*[@id="sogou_vr_11002301_box_0"]/dl/dd/a[@uigs="account_article_0"]/text()').extract_first(
-            #     "")
-            # try:
-            #     article = Weixin.get(utils.str_md5(gzh + first_article_title))
-            #     title = article.title
-            # except NotFoundError:
-            #     title = ''
-            # print(first_article_title, '-' * 5, title)
-            # if first_article_title == title:
-            #     self.logger.info("{} not update".format(gzh))
-            #     return
+            first_article_title = response.xpath('//*[@id="sogou_vr_11002301_box_0"]/dl/dd/a[@uigs="account_article_0"]/text()').extract_first(
+                "")
+            try:
+                article = Weixin.get(utils.str_md5(gzh + first_article_title))
+                title = article.title
+            except NotFoundError:
+                title = ''
+            print(first_article_title, '-' * 5, title)
+            if first_article_title == title:
+                self.logger.info("{} not update".format(gzh))
+                return
             if gzh_host_url:
                 yield Request(url=gzh_host_url, dont_filter=True, callback=self.gzh_article_parse,
                               headers=self.gzh_headers,
