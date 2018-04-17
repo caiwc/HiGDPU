@@ -61,6 +61,9 @@ migrations/
 # Scrapy stuff:
 .scrapy
 
+web/templates/
+
+web/static/
 # Sphinx documentation
 docs/_build/
 

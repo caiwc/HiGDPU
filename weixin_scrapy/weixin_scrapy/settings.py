@@ -71,9 +71,13 @@ DOWNLOAD_DELAY = 3
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     # 'weixin_scrapy.pipelines.WeixinScrapyPipeline': 300,
-    'weixin_scrapy.pipelines.MysqlTwistedPipeline': 200,
-    'weixin_scrapy.pipelines.ElasticSearchPipeline': 2
+    # 'weixin_scrapy.pipelines.MysqlTwistedPipeline': 200,
+    'weixin_scrapy.pipelines.ElasticSearchPipeline': 2,
 }
+
+# 图片保存
+IMAGES_URLS_FIELD = "article_img"
+IMAGES_STORE = os.path.join(PROJECT_PATH, 'web', 'static')
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html

@@ -6,8 +6,11 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 from twisted.enterprise import adbapi
 import MySQLdb.cursors
+from scrapy.pipelines.images import ImagesPipeline
 from os import path
 import re
+import hashlib
+from scrapy.utils.python import to_bytes
 
 
 class WeixinScrapyPipeline(object):
@@ -68,17 +71,28 @@ class HtmlPipeline(object):
         template_path = path.join(project_path, 'web', 'templates')
         return cls(template_path)
 
+    def format_url(self, url):
+        prefix = "../static/full/"
+        return "{}{}.jpg".format(prefix, hashlib.sha1(to_bytes(url)).hexdigest())
+
     def process_item(self, item, spider):
         html = item.get('html_content', '')
         article_id = item.get('id')
         file_path = path.join(self.template_path, "{}.html".format(article_id))
         src = "&tp=webp&wxfrom=5&wx_lazy=1"
-        find_img = re.compile('(data-src)="https(?P<url>://.*?)"')
-        selection_img = re.compile('"https(?P<url>://mmbiz.qpic.*?)"')
+        find_img = re.compile('(data-src)')
+        img_list = re.findall('"(https://mmbiz.qpic.*?)"', html)
+        item['article_img'] = img_list
+        print(img_list)
         if html:
-            new_html = find_img.sub('src="http\g<url>{}"'.format(src), html)
-            new_html = selection_img.sub('"http\g<url>"', new_html)
+            new_html = find_img.sub('src', html)
+            for img in img_list:
+                new_html = new_html.replace(img,self.format_url(img))
             f = open(file_path, 'w+')
             f.write(new_html)
             f.close()
         return item
+
+
+class ArticleImagePipeline(ImagesPipeline):
+    pass

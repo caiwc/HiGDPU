@@ -48,7 +48,8 @@ class WeixinSpider(scrapy.Spider):
     custom_settings = {
         'ITEM_PIPELINES': {
             'weixin_scrapy.pipelines.HtmlPipeline': 2,
-            'weixin_scrapy.pipelines.ElasticSearchPipeline': 10
+            'weixin_scrapy.pipelines.ElasticSearchPipeline': 10,
+            'weixin_scrapy.pipelines.ArticleImagePipeline': 50
         }
 
     }
@@ -93,10 +94,10 @@ class WeixinSpider(scrapy.Spider):
             self.logger.info("parse the {}".format(gzh))
             gzh_host_url = response.css('#sogou_vr_11002301_box_0 .gzh-box2 .txt-box .tit a::attr(href)').extract_first(
                 "")
-            # first_article_title = response.xpath('//*[@id="sogou_vr_11002301_box_0"]/dl[3]/dd/a/text()').extract_first(
+            # first_article_title = response.xpath('//*[@id="sogou_vr_11002301_box_0"]/dl/dd/a[@uigs="account_article_0"]/text()').extract_first(
             #     "")
             # try:
-            #     article = Weixin.get(utils.str_md5(gzh + '1'))
+            #     article = Weixin.get(utils.str_md5(gzh + first_article_title))
             #     title = article.title
             # except NotFoundError:
             #     title = ''

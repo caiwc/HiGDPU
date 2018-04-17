@@ -38,6 +38,7 @@ class WeixinScrapyItem(scrapy.Item):
     digest = scrapy.Field()
     url = scrapy.Field()
     gzh = scrapy.Field()
+    article_img = scrapy.Field()
 
     def get_insert_sql(self):
         insert_sql = """
