@@ -71,7 +71,7 @@ DOWNLOAD_DELAY = 3
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     # 'weixin_scrapy.pipelines.WeixinScrapyPipeline': 300,
-    # 'weixin_scrapy.pipelines.MysqlTwistedPipeline': 200,
+    'weixin_scrapy.pipelines.MysqlTwistedPipeline': 200,
     'weixin_scrapy.pipelines.ElasticSearchPipeline': 2,
 }
 
