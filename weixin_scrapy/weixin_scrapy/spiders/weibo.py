@@ -15,7 +15,7 @@ class WeiboSpider(scrapy.Spider):
     allowed_domains = ['weibo.cn']
     start_urls = ['https://weibo.cn/']
     weibo_host = start_urls[0]
-    search_query = ['gdpuwbl', 'gdpuhome']
+    search_query = ['gdpuhome']
 
     cookies_list = ["""
     [
