@@ -140,7 +140,7 @@ class Weibo_Api(Resource):
                     if mode == 1:
                         is_neg = Weibo.analysis_sentiment(user_id=user.openid, weibo_mode=mode)
                         if is_neg:
-                            msg = '发成功了。希望好运气降临你身边'
+                            msg = '希望好运气降临你身边。'
 
                 file = args.get('file', None)
                 if file:
